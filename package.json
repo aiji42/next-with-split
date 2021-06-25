@@ -1,0 +1,10 @@
+{
+  "name": "next-with-split",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.3.4"
+  }
+}
