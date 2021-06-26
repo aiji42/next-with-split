@@ -1,4 +1,4 @@
-import { nextWithSplit } from './next-with-split'
+import { withSplit } from './with-split'
 
 jest.mock('./check-existing-index', () => ({
   checkExistingIndex: async () => { return false }
@@ -10,7 +10,7 @@ jest.mock('./check-existing-split-challenge', () => ({
   }
 }))
 
-describe('nextWithSplit', () => {
+describe('withSplit', () => {
   const OLD_ENV = process.env
   beforeEach(() => {
     jest.resetModules()
@@ -21,7 +21,7 @@ describe('nextWithSplit', () => {
   })
 
   it('default', () => {
-    const conf = nextWithSplit({})
+    const conf = withSplit({})
     expect(conf.assetPrefix).toEqual('')
     expect(conf.env).toEqual({ SPLIT_TEST_BRANCHES: '["main"]' })
     expect(conf.trailingSlash).toEqual(true)
@@ -31,7 +31,7 @@ describe('nextWithSplit', () => {
   })
 
   it('set branchMappings however active flag is not true and not Vercel production', () => {
-    const conf = nextWithSplit({
+    const conf = withSplit({
       splits: {
         branchMappings: { challenger: 'https://example.com' }
       }
@@ -45,7 +45,7 @@ describe('nextWithSplit', () => {
   })
 
   it('set branchMappings and active flag is true', () => {
-    const conf = nextWithSplit({
+    const conf = withSplit({
       splits: {
         branchMappings: { challenger: 'https://example.com' },
         active: true
@@ -99,7 +99,7 @@ describe('nextWithSplit', () => {
       ...process.env,
       VERCEL_ENV: 'production'
     }
-    const conf = nextWithSplit({
+    const conf = withSplit({
       splits: {
         branchMappings: { challenger: 'https://example.com' }
       }
@@ -152,7 +152,7 @@ describe('nextWithSplit', () => {
       ...process.env,
       VERCEL_GIT_COMMIT_REF: 'challenger'
     }
-    const conf = nextWithSplit({
+    const conf = withSplit({
       splits: {
         branchMappings: { challenger: 'https://example.com' }
       }
