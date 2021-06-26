@@ -61,7 +61,12 @@ type NextWithSplitArgs = {
   [x: string]: unknown
 }
 
-export const nextWithSplit = (args: NextWithSplitArgs) => {
+type NextWithSplitResult = Omit<Required<NextWithSplitArgs>, 'splits'> & {
+  assetPrefix: string
+  rewrites: ReturnType<typeof makeRewrites>
+}
+
+export const nextWithSplit = (args: NextWithSplitArgs): NextWithSplitResult => {
   const { splits, ...nextConfig } = args
   const options = {
     ...defaultOptions,
