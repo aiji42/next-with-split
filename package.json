@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "lint": "eslint ./src/*.ts",
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc"
   },
   "dependencies": {
     "nookies": "^2.5.2"
