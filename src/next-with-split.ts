@@ -51,11 +51,11 @@ const defaultOptions: Options = {
   branchMappings: {},
   rootPage: 'top',
   mainBranch: 'main',
-  active: process.env.VERCEL_ENV === 'production'
+  active: false
 }
 
 type NextWithSplitArgs = {
-  splits: Partial<Options>
+  splits?: Partial<Options>
   env?: Record<string, string>
   trailingSlash?: boolean
   [x: string]: unknown
@@ -63,7 +63,11 @@ type NextWithSplitArgs = {
 
 export const nextWithSplit = (args: NextWithSplitArgs) => {
   const { splits, ...nextConfig } = args
-  const options = { ...defaultOptions, ...(splits ?? {}) }
+  const options = {
+    ...defaultOptions,
+    active: process.env.VERCEL_ENV === 'production',
+    ...(splits ?? {})
+  }
   const mappings = { [options.mainBranch]: '', ...options.branchMappings }
 
   checkExistingSplitChallenge().then((res) => !res && process.exit(1))
@@ -83,8 +87,13 @@ export const nextWithSplit = (args: NextWithSplitArgs) => {
         tergetOrigin: origin || 'original'
       }))
     )
-    if (process.env.VERCEL_GIT_COMMIT_REF && process.env.VERCEL_GIT_COMMIT_REF !== splits.mainBranch)
-      warn('Detected that splits.active is set to true in the challenger branch. This can cause serious problems such as redirection loops.')
+    if (
+      process.env.VERCEL_GIT_COMMIT_REF &&
+      process.env.VERCEL_GIT_COMMIT_REF !== options.mainBranch
+    )
+      warn(
+        'Detected that splits.active is set to true in the challenger branch. This can cause serious problems such as redirection loops.'
+      )
   }
 
   return {
