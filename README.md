@@ -78,7 +78,7 @@ type Options = {
 
 type WithSplitArgs = {
   splits?: Partial<Options>
-  [x: string]: unknown next.js configuration values.
+  [x: string]: unknown // next.js configuration values.
 }
 ```
 
