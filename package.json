@@ -3,10 +3,33 @@
   "version": "1.0.0",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
+  "files": [
+    "build"
+  ],
   "publishConfig": {
     "access": "public"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aiji42/next-with-split.git"
+  },
+  "keywords": [
+    "next.js",
+    "next",
+    "react",
+    "plugins",
+    "vercel",
+    "ab-test",
+    "split-test",
+    "ab test",
+    "split test"
+  ],
+  "author": "aiji42 <aiji42@gmail.com> (https://twitter.com/aiji42_dev)",
+  "bugs": {
+    "url": "https://github.com/aiji42/next-with-split/issues"
+  },
+  "homepage": "https://github.com/aiji42/next-with-split#readme",
   "scripts": {
     "lint": "eslint ./src/*.ts",
     "test": "jest",
