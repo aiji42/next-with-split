@@ -1,6 +1,6 @@
-const { nextWithSplit } = require('next-with-split')
+const { withSplit } = require('next-with-split')
 
-module.exports = nextWithSplit({
+module.exports = withSplit({
   splits: {
     rootPage: 'top',
     branchMappings: {

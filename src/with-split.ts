@@ -54,19 +54,19 @@ const defaultOptions: Options = {
   active: false
 }
 
-type NextWithSplitArgs = {
+type WithSplitArgs = {
   splits?: Partial<Options>
   env?: Record<string, string>
   trailingSlash?: boolean
   [x: string]: unknown
 }
 
-type NextWithSplitResult = Omit<Required<NextWithSplitArgs>, 'splits'> & {
+type WithSplitResult = Omit<Required<WithSplitArgs>, 'splits'> & {
   assetPrefix: string
   rewrites: ReturnType<typeof makeRewrites>
 }
 
-export const nextWithSplit = (args: NextWithSplitArgs): NextWithSplitResult => {
+export const withSplit = (args: WithSplitArgs): WithSplitResult => {
   const { splits, ...nextConfig } = args
   const options = {
     ...defaultOptions,

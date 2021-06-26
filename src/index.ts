@@ -1,2 +1,2 @@
-export { nextWithSplit } from './next-with-split.js'
+export { withSplit } from './with-split.js'
 export { getServerSideProps } from './split-challenge.js'
