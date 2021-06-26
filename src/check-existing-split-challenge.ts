@@ -14,7 +14,7 @@ export const checkExistingSplitChallenge = async (): Promise<boolean> => {
 
   if (res) return true
   error(
-    `Not existing ${pagesDir}/_split-challenge.js(ts)}.`
+    `Not existing ${pagesDir}/_split-challenge.js(ts).`
   )
   info(
     `Plese create ${pagesDir}/_split-challenge.js or .ts and and copy and paste the following three lines.`
