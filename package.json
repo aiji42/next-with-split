@@ -1,6 +1,6 @@
 {
   "name": "next-with-split",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "description": "This is a plugin for split testing (AB testing) in Next.js.",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -13,7 +13,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aiji42/next-with-split.git"
+    "url": "https://github.com/aiji42/next-with-split.git"
   },
   "keywords": [
     "next.js",
@@ -35,7 +35,8 @@
     "lint": "eslint ./src/*.ts",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "build": "tsc"
+    "build": "tsc",
+    "semantic-release": "semantic-release"
   },
   "dependencies": {
     "nookies": "^2.5.2"
@@ -57,6 +58,8 @@
     "jest": "^27.0.5",
     "next": "^11.0.1",
     "prettier": "^2.3.1",
+    "semantic-release": "^17.4.4",
+    "semantic-release-cli": "^5.4.3",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.4"
   }
