@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/aiji42/next-with-split/branch/main/graph/badge.svg?token=P126VM3CI1)](https://codecov.io/gh/aiji42/next-with-split)
+
 # :ab: next-with-split
 
 This is magic!  It enables split testing (AB testing) in branches on Vercel, just like the Netify feature.  
