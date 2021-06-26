@@ -1,6 +1,7 @@
 {
   "name": "next-with-split",
   "version": "1.0.0",
+  "description": "This is a plugin for split testing (AB testing) in Next.js.",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "files": [
