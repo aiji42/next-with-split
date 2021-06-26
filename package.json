@@ -1,8 +1,11 @@
 {
   "name": "next-with-split",
   "version": "1.0.0",
-  "main": "index.js",
-  "type": "module",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "scripts": {
     "lint": "eslint ./src/*.ts",
