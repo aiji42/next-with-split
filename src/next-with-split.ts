@@ -1,3 +1,7 @@
+import { checkExistingIndex } from './check-existing-index'
+import { checkExistingSplitChallenge } from './check-existing-split-challenge'
+import { info, warn } from './log'
+
 const rule = (source: string, destination: string, additional = {}) => ({
   source,
   destination,
@@ -21,10 +25,15 @@ const makeRewrites =
     return {
       beforeFiles: [
         ...Object.entries(mappings)
-          .map(([branch, origin]) => [
-            rule('/', `${origin}/${rootPage}/`, { has: has(branch) }),
-            rule('/:path*/', `${origin}/:path*`, { has: has(branch) })
-          ])
+          .map(([branch, origin]) =>
+            [
+              rule('/', `${origin}/${rootPage}/`, { has: has(branch) }),
+              rule('/:path*/', `${origin}/:path*`, { has: has(branch) }),
+              origin
+                ? rule('/:path*', `${origin}/:path*`, { has: has(branch) })
+                : null
+            ].filter(Boolean)
+          )
           .flat(),
         rule('/:path*/', '/_split-challenge')
       ]
@@ -48,22 +57,34 @@ const defaultOptions: Options = {
 type NextWithSplitArgs = {
   splits: Partial<Options>
   env?: Record<string, string>
+  trailingSlash?: boolean
   [x: string]: unknown
 }
 
-const nextWithSplit = (args: NextWithSplitArgs) => {
+export const nextWithSplit = (args: NextWithSplitArgs) => {
   const { splits, ...nextConfig } = args
   const options = { ...defaultOptions, ...(splits ?? {}) }
   const mappings = { [options.mainBranch]: '', ...options.branchMappings }
 
+  checkExistingSplitChallenge().then((res) => !res && process.exit(1))
+  checkExistingIndex().then((res) => res && process.exit(1))
+
+  if ('trailingSlash' in nextConfig && !nextConfig.trailingSlash) {
+    warn(
+      'You cannot use `trailingSlash: false` when using `next-with-split`. Force override to true.'
+    )
+  }
+
   if (options.active && Object.keys(mappings).length > 1) {
-    console.log('Split tests are active.')
+    info('Split tests are active.')
     console.table(
       Object.entries(mappings).map(([branch, origin]) => ({
         branch,
         tergetOrigin: origin || 'original'
       }))
     )
+    if (process.env.VERCEL_GIT_COMMIT_REF && process.env.VERCEL_GIT_COMMIT_REF !== splits.mainBranch)
+      warn('Detected that splits.active is set to true in the challenger branch. This can cause serious problems such as redirection loops.')
   }
 
   return {
@@ -77,5 +98,3 @@ const nextWithSplit = (args: NextWithSplitArgs) => {
     rewrites: makeRewrites(mappings, options.rootPage, options.active)
   }
 }
-
-module.exports = nextWithSplit
