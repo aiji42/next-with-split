@@ -3,14 +3,13 @@
 
 # :ab: next-with-split
 
-This is magic!  It enables split testing (AB testing) in branches on Vercel, just like the Netify feature.  
-[netlify - Split Testing](https://docs.netlify.com/site-deploys/split-testing/)
+**This is magic!:crystal_ball:**  
+It enables branch-based split testing (AB testing) on Vercel, just like the Netify's [Split Testing](https://docs.netlify.com/site-deploys/split-testing/).
 
-This is not the traditional split testing on a per-component or per-page file basis.  
-You deploy the main branch (original) and the branch derived from it (challenger) on Vercel, and use Next.js Rewrite Rules and Cookies to separate two or more environments.  
-Since there is no need to duplicate code, it is easier to manage and prevents the bundle size from increasing.
+This plugin lets you divide traffic to your site between different deploys, straight from CDN network. It is not the traditional split testing on a per-component or per-page file basis.   
+You deploy the main branch (original) and the branch derived from it (challenger) on Vercel, and use Next.js Rewrite Rules and Cookies to separate two or more environments. Since there is no need to duplicate code, it is easier to manage and prevents the bundle size from increasing.
 
-## Prerequisite
+## Require
 
 - useing Next.js >=10.1
 - hosting by Vercel.
@@ -36,13 +35,14 @@ module.export = withSplit({
 ```
 
 2. Create `pages/_split-challenge.ts` (`.js`). (in main branch)  
+
+This file is a function to provide cookies for content separation.
 ```ts
 // pages/_split-challenge.ts (.js)
 export { getServerSideProps } from 'next-with-split'
 const SplitChallenge = () => null
 export default SplitChallenge
 ```
-This file is a function to provide cookies for content separation.
 
 3. Derive a branch for Challenger and modify the content.
 
@@ -67,7 +67,11 @@ module.export = withSplit({
 
 6. Deploy both the main branch and the challenger branch.
 
-## withSplit
+7. The network will be automatically split and the content will be served!  
+It is also sticky, controlled by cookies.
+
+## Function
+### withSplit
 
 ```ts
 const withSplit = (args: WithSplitArgs) => WithSplitResult
@@ -85,7 +89,7 @@ type WithSplitArgs = {
 }
 ```
 
-### Options
+#### Options
 
 |key|type|note|
 | ---- | ---- | ---- |
@@ -94,15 +98,15 @@ type WithSplitArgs = {
 |mainBranch|string \| undefined|**default: 'main'**<br />Specify the name of the branch that is registered as the production branch on Vercel.|
 |active|boolean \| undefined|If you want to force the function to be active in a development, set it to `true`.<br />If you start a split test with the challenger branch set to `active: true`, you will get serious problems such as redirection loops. Be sure to keep the change of this setting value to the development environment.|
 
-## Supplement
+### Supplement
 
-### page/index.tsx cannot be used
+#### page/index.tsx cannot be used
 
 The root page name cannot be `index`. (This seems to be a restriction of the rewrite rules.)
 
 You can continue to treat it as the root page by renaming it to something other than `index` and specifying the `withSplit` option as `rootPage: 'top'`.
 
-### trailingSlash will be forced to be true
+#### trailingSlash will be forced to be true
 
 It cannot be set to `trailingSlash: false`. (This seems to be a restriction of the rewrite rules.)
 
