@@ -9,6 +9,12 @@ It enables branch-based split testing (AB testing) on Vercel, just like the Neti
 This plugin lets you divide traffic to your site between different deploys, straight from CDN network. It is not the traditional split testing on a per-component or per-page file basis.   
 You deploy the main branch (original) and the branch derived from it (challenger) on Vercel, and use Next.js Rewrite Rules and Cookies to separate two or more environments. Since there is no need to duplicate code, it is easier to manage and prevents the bundle size from increasing.
 
+## How it works
+
+![How it works 01](https://github.com/aiji42/next-with-split/blob/main/readme/01.png?raw=true)
+
+![How it works 02](https://github.com/aiji42/next-with-split/blob/main/readme/02.png?raw=true)
+
 ## Require
 
 - useing Next.js >=10.1
@@ -109,10 +115,6 @@ You can continue to treat it as the root page by renaming it to something other 
 #### trailingSlash will be forced to be true
 
 It cannot be set to `trailingSlash: false`. (This seems to be a restriction of the rewrite rules.)
-
-## Structure
-
-making ...
 
 ## LICENSE
 
