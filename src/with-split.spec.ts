@@ -1,7 +1,9 @@
 import { withSplit } from './with-split'
 
 jest.mock('./check-existing-index', () => ({
-  checkExistingIndex: async () => { return false }
+  checkExistingIndex: async () => {
+    return false
+  }
 }))
 
 jest.mock('./check-existing-split-challenge', () => ({
@@ -26,7 +28,9 @@ describe('withSplit', () => {
     expect(conf.env).toEqual({ SPLIT_TEST_BRANCHES: '["main"]' })
     expect(conf.trailingSlash).toEqual(true)
     return conf.rewrites().then((res) => {
-      expect(res).toEqual([{ destination: '/top', source: '/' }])
+      expect(res).toEqual({
+        beforeFiles: [{ destination: '/top', source: '/' }]
+      })
     })
   })
 
@@ -40,7 +44,9 @@ describe('withSplit', () => {
     expect(conf.env).toEqual({ SPLIT_TEST_BRANCHES: '["main","challenger"]' })
     expect(conf.trailingSlash).toEqual(true)
     return conf.rewrites().then((res) => {
-      expect(res).toEqual([{ destination: '/top', source: '/' }])
+      expect(res).toEqual({
+        beforeFiles: [{ destination: '/top', source: '/' }]
+      })
     })
   })
 
@@ -161,7 +167,9 @@ describe('withSplit', () => {
     expect(conf.env).toEqual({ SPLIT_TEST_BRANCHES: '["main","challenger"]' })
     expect(conf.trailingSlash).toEqual(true)
     return conf.rewrites().then((res) => {
-      expect(res).toEqual([{ destination: '/top', source: '/' }])
+      expect(res).toEqual({
+        beforeFiles: [{ destination: '/top', source: '/' }]
+      })
     })
   })
 })

@@ -29,80 +29,25 @@ type Rewrites = {
 }
 
 const makeRewrites =
-  (
-    mappings: Mappings,
-    rootPage: string,
-    active: boolean,
-    originalRewrites?: () => Promise<Rewrites | Rewrite[]>
-  ) =>
+  (mappings: Mappings, rootPage: string,  active: boolean) =>
   async (): Promise<Rewrites> => {
-    const rewrites = await originalRewrites?.()
+    if (!active || Object.keys(mappings).length < 2)
+      return {
+        beforeFiles: [rule('/', `/${rootPage}`)]
+      }
 
-    if (!active || Object.keys(mappings).length < 2) {
-      if (!rewrites)
-        return {
-          beforeFiles: [rule('/', `/${rootPage}`)]
-        }
-      if (Array.isArray(rewrites))
-        return {
-          beforeFiles: [rule('/', `/${rootPage}`), ...rewrites]
-        }
-      return {
-        ...rewrites,
-        beforeFiles: [
-          rule('/', `/${rootPage}`),
-          ...(rewrites.beforeFiles ?? [])
-        ]
-      }
-    }
-
-    if (!rewrites)
-      return {
-        beforeFiles: [
-          ...Object.entries(mappings)
-            .map(([branch, origin]) =>
-              [
-                rule('/', `${origin}/${rootPage}/`, { has: has(branch) }),
-                rule('/:path*/', `${origin}/:path*`, { has: has(branch) }),
-                origin
-                  ? rule('/:path*', `${origin}/:path*`, { has: has(branch) })
-                  : null
-              ].filter((arg): arg is Rewrite => Boolean(arg))
-            )
-            .flat(),
-          rule('/:path*/', '/_split-challenge')
-        ]
-      }
-    if (Array.isArray(rewrites))
-      return {
-        beforeFiles: [
-          ...Object.entries(mappings)
-            .map(([branch, origin]) =>
-              [
-                ...(!origin ? rewrites : []),
-                rule('/', `${origin}/${rootPage}/`, { has: has(branch) }),
-                rule('/:path*/', `${origin}/:path*`, { has: has(branch) }),
-                ...(origin
-                  ? [rule('/:path*', `${origin}/:path*`, { has: has(branch) })]
-                  : [])
-              ]
-            )
-            .flat(),
-          rule('/:path*/', '/_split-challenge')
-        ]
-      }
     return {
-      ...rewrites,
       beforeFiles: [
         ...Object.entries(mappings)
-          .map(([branch, origin]) => [
-            ...(!origin && rewrites.beforeFiles ? rewrites.beforeFiles : []),
-            rule('/', `${origin}/${rootPage}/`, { has: has(branch) }),
-            rule('/:path*/', `${origin}/:path*`, { has: has(branch) }),
-            ...(origin
-              ? [rule('/:path*', `${origin}/:path*`, { has: has(branch) })]
-              : [])
-          ])
+          .map(([branch, origin]) =>
+            [
+              rule('/', `${origin}/${rootPage}/`, { has: has(branch) }),
+              rule('/:path*/', `${origin}/:path*`, { has: has(branch) }),
+              ...(origin
+                ? [rule('/:path*', `${origin}/:path*`, { has: has(branch) })]
+                : [])
+            ]
+          )
           .flat(),
         rule('/:path*/', '/_split-challenge')
       ]
@@ -127,7 +72,7 @@ type WithSplitArgs = {
   splits?: Partial<Options>
   env?: Record<string, string>
   trailingSlash?: boolean
-  rewrites?: Promise<Rewrites | Rewrite[]>
+  rewrites?: Promise<Rewrites>
   [x: string]: unknown
 }
 
