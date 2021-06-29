@@ -98,19 +98,19 @@ describe('mergeRewrites', () => {
             source: '/'
           },
           {
-            destination: 'https://example.com/:path*',
-            has: [
-              { key: 'next-with-split', type: 'cookie', value: 'challenger' }
-            ],
-            source: '/:path*'
-          },
-          {
             destination: '/foo/',
             source: '/bar',
             has: [
               { key: 'next-with-split', type: 'cookie', value: 'main' },
               { key: 'baz', type: 'cookie', value: 'qux' }
             ]
+          },
+          {
+            destination: 'https://example.com/:path*',
+            has: [
+              { key: 'next-with-split', type: 'cookie', value: 'challenger' }
+            ],
+            source: '/:path*'
           },
           { destination: '/_split-challenge', source: '/:path*/' }
         ]
@@ -134,16 +134,16 @@ describe('mergeRewrites', () => {
             source: '/'
           },
           {
+            destination: '/foo/',
+            source: '/bar',
+            has: [{ key: 'next-with-split', type: 'cookie', value: 'main' }]
+          },
+          {
             destination: 'https://example.com/:path*',
             has: [
               { key: 'next-with-split', type: 'cookie', value: 'challenger' }
             ],
             source: '/:path*'
-          },
-          {
-            destination: '/foo/',
-            source: '/bar',
-            has: [{ key: 'next-with-split', type: 'cookie', value: 'main' }]
           },
           { destination: '/_split-challenge', source: '/:path*/' }
         ]
@@ -224,19 +224,19 @@ describe('mergeRewrites', () => {
             source: '/'
           },
           {
-            destination: 'https://example.com/:path*',
-            has: [
-              { key: 'next-with-split', type: 'cookie', value: 'challenger' }
-            ],
-            source: '/:path*'
-          },
-          {
             destination: '/foo/',
             source: '/bar',
             has: [
               { key: 'next-with-split', type: 'cookie', value: 'main' },
               { key: 'baz', type: 'cookie', value: 'qux' }
             ]
+          },
+          {
+            destination: 'https://example.com/:path*',
+            has: [
+              { key: 'next-with-split', type: 'cookie', value: 'challenger' }
+            ],
+            source: '/:path*'
           },
           { destination: '/_split-challenge', source: '/:path*/' }
         ]
@@ -262,16 +262,16 @@ describe('mergeRewrites', () => {
             source: '/'
           },
           {
+            destination: '/foo/',
+            source: '/bar',
+            has: [{ key: 'next-with-split', type: 'cookie', value: 'main' }]
+          },
+          {
             destination: 'https://example.com/:path*',
             has: [
               { key: 'next-with-split', type: 'cookie', value: 'challenger' }
             ],
             source: '/:path*'
-          },
-          {
-            destination: '/foo/',
-            source: '/bar',
-            has: [{ key: 'next-with-split', type: 'cookie', value: 'main' }]
           },
           { destination: '/_split-challenge', source: '/:path*/' }
         ]

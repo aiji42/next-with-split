@@ -29,7 +29,7 @@ export const mergeRewrites = (
   if (Array.isArray(originalRewrites)) {
     const beforeFiles = [...newRewirites.beforeFiles]
     beforeFiles.splice(
-      -1,
+      1,
       0,
       ...originalRewrites.map((rewrite) => ({
         ...rewrite,
@@ -43,7 +43,7 @@ export const mergeRewrites = (
 
   const beforeFiles = [...newRewirites.beforeFiles]
   beforeFiles.splice(
-    -1,
+    1,
     0,
     ...(originalRewrites.beforeFiles ?? []).map((rewrite) => ({
       ...rewrite,
