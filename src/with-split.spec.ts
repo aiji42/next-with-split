@@ -12,6 +12,8 @@ jest.mock('./check-existing-split-challenge', () => ({
   }
 }))
 
+jest.spyOn(console, 'warn').mockImplementation((mes) => console.log(mes))
+
 describe('withSplit', () => {
   const OLD_ENV = process.env
   beforeEach(() => {
@@ -169,6 +171,62 @@ describe('withSplit', () => {
     return conf.rewrites().then((res) => {
       expect(res).toEqual({
         beforeFiles: [{ destination: '/top', source: '/' }]
+      })
+    })
+  })
+
+  it('must overwrite trailingSlash: true when passed trailingSlash: false', () => {
+    const conf = withSplit({ trailingSlash: false })
+    expect(conf.trailingSlash).toEqual(true)
+  })
+
+  it('must warn when runs on challenger branch and active flag is true', () => {
+    process.env = {
+      ...process.env,
+      VERCEL_GIT_COMMIT_REF: 'challenger'
+    }
+    const conf = withSplit({
+      splits: {
+        active: true,
+        branchMappings: { challenger: 'https://example.com' }
+      }
+    })
+    return conf.rewrites().then((res) => {
+      expect(res).toEqual({
+        beforeFiles: [
+          {
+            destination: '/top/',
+            has: [{ key: 'next-with-split', type: 'cookie', value: 'main' }],
+            source: '/'
+          },
+          {
+            destination: '/:path*',
+            has: [{ key: 'next-with-split', type: 'cookie', value: 'main' }],
+            source: '/:path*/'
+          },
+          {
+            destination: 'https://example.com/top/',
+            has: [
+              { key: 'next-with-split', type: 'cookie', value: 'challenger' }
+            ],
+            source: '/'
+          },
+          {
+            destination: 'https://example.com/:path*',
+            has: [
+              { key: 'next-with-split', type: 'cookie', value: 'challenger' }
+            ],
+            source: '/:path*/'
+          },
+          {
+            destination: 'https://example.com/:path*',
+            has: [
+              { key: 'next-with-split', type: 'cookie', value: 'challenger' }
+            ],
+            source: '/:path*'
+          },
+          { destination: '/_split-challenge', source: '/:path*/' }
+        ]
       })
     })
   })

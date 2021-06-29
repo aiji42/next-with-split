@@ -1,58 +1,8 @@
+import { Rewrite } from 'next/dist/lib/load-custom-routes'
 import { checkExistingIndex } from './check-existing-index'
 import { checkExistingSplitChallenge } from './check-existing-split-challenge'
 import { info, warn } from './log'
-import { Rewrite, RouteHas } from 'next/dist/lib/load-custom-routes'
-
-const rule = (
-  source: string,
-  destination: string,
-  additional = {}
-): Rewrite => ({
-  source,
-  destination,
-  ...additional
-})
-const has = (value = 'original'): RouteHas[] => [
-  {
-    type: 'cookie',
-    key: 'next-with-split',
-    value
-  }
-]
-
-type Mappings = { [branch: string]: string }
-
-type Rewrites = {
-  beforeFiles?: Rewrite[]
-  afterFiles?: Rewrite[]
-  fallback?: Rewrite[]
-}
-
-const makeRewrites =
-  (mappings: Mappings, rootPage: string,  active: boolean) =>
-  async (): Promise<Rewrites> => {
-    if (!active || Object.keys(mappings).length < 2)
-      return {
-        beforeFiles: [rule('/', `/${rootPage}`)]
-      }
-
-    return {
-      beforeFiles: [
-        ...Object.entries(mappings)
-          .map(([branch, origin]) =>
-            [
-              rule('/', `${origin}/${rootPage}/`, { has: has(branch) }),
-              rule('/:path*/', `${origin}/:path*`, { has: has(branch) }),
-              ...(origin
-                ? [rule('/:path*', `${origin}/:path*`, { has: has(branch) })]
-                : [])
-            ]
-          )
-          .flat(),
-        rule('/:path*/', '/_split-challenge')
-      ]
-    }
-  }
+import { Mappings, Rewrites, makeRewrites } from './make-rewrites'
 
 type Options = {
   branchMappings: Mappings
@@ -72,7 +22,7 @@ type WithSplitArgs = {
   splits?: Partial<Options>
   env?: Record<string, string>
   trailingSlash?: boolean
-  rewrites?: Promise<Rewrites>
+  rewrites?: () => Promise<Rewrites | Rewrite[]>
   [x: string]: unknown
 }
 
@@ -124,6 +74,11 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
     },
     trailingSlash: true,
     assetPrefix: mappings[process.env.VERCEL_GIT_COMMIT_REF ?? ''] ?? '',
-    rewrites: makeRewrites(mappings, options.rootPage, options.active)
+    rewrites: makeRewrites(
+      mappings,
+      options.rootPage,
+      options.active,
+      nextConfig.rewrites
+    )
   }
 }
