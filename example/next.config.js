@@ -9,5 +9,11 @@ module.exports = withSplit({
     },
     active: true
   },
-  reactStrictMode: true
+  reactStrictMode: true,
+  rewrites: async () => [
+    {
+      source: '/foo/:path*/',
+      destination: '/foo/bar'
+    }
+  ]
 })
