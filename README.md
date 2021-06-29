@@ -106,7 +106,7 @@ type WithSplitArgs = {
 
 ### Supplement
 
-#### page/index.tsx cannot be used
+#### pages/index.tsx cannot be used
 
 The root page name cannot be `index`. (This seems to be a restriction of the rewrite rules.)
 
