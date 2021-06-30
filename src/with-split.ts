@@ -72,7 +72,9 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
       ...(nextConfig.env ?? {}),
       SPLIT_TEST_BRANCHES: JSON.stringify(Object.keys(mappings))
     },
-    trailingSlash: true,
+    ...(process.env.VERCEL_GIT_COMMIT_REF === options.mainBranch
+      ? { trailingSlash: true }
+      : {}),
     assetPrefix: mappings[process.env.VERCEL_GIT_COMMIT_REF ?? ''] ?? '',
     rewrites: makeRewrites(
       mappings,

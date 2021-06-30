@@ -51,15 +51,15 @@ export const makeRewrites =
         beforeFiles: [
           ...Object.entries(mappings)
             .map(([branch, origin]) => [
-              rule('/', `${origin}/${rootPage}/`, { has: has(branch) }),
-              rule('/:path*/', `${origin}/:path*`, { has: has(branch) }),
+              rule('/', origin ? `${origin}` : `/${rootPage}`, {
+                has: has(branch)
+              }),
+              rule('/:path*/', `${origin}/:path*/`, { has: has(branch) }),
               ...(origin
                 ? [rule('/:path*', `${origin}/:path*`, { has: has(branch) })]
                 : [])
             ])
             .flat(),
-          rule('/foo/bar/', `http://localhost:3001/foo/bar`, { has: has('challenger') }),
-
           rule('/:path*/', '/_split-challenge')
         ]
       })
