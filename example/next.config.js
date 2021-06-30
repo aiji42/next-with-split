@@ -1,13 +1,13 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { withSplit } = require('next-with-split')
 
 module.exports = withSplit({
   splits: {
     rootPage: 'top',
     branchMappings: {
-      abtest_challenger:
-        'https://nextjs-split-test-git-abtestchallenger-aiji42.vercel.app'
-    },
-    active: true
+      challenger:
+        'http://localhost:3001'
+    }
   },
   reactStrictMode: true,
   rewrites: async () => [
@@ -17,3 +17,4 @@ module.exports = withSplit({
     }
   ]
 })
+ 

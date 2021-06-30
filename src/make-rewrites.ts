@@ -34,10 +34,36 @@ export const makeRewrites =
   ) =>
   async (): Promise<Rewrites> => {
     const rewrite = await originalRewrite?.()
-    if (!active || Object.keys(mappings).length < 2)
+    if (!active || Object.keys(mappings).length < 2) {
+      console.log(
+        mergeRewrites(rewrite, {
+          beforeFiles: [rule('/', `/${rootPage}`)]
+        })
+      )
+
       return mergeRewrites(rewrite, {
         beforeFiles: [rule('/', `/${rootPage}`)]
       })
+    }
+
+    console.log(
+      mergeRewrites(rewrite, {
+        beforeFiles: [
+          ...Object.entries(mappings)
+            .map(([branch, origin]) => [
+              rule('/', `${origin}/${rootPage}/`, { has: has(branch) }),
+              rule('/:path*/', `${origin}/:path*`, { has: has(branch) }),
+              ...(origin
+                ? [rule('/:path*', `${origin}/:path*`, { has: has(branch) })]
+                : [])
+            ])
+            .flat(),
+          rule('/foo/bar/', `http://localhost:3001/foo/bar`, { has: has('challenger') }),
+
+          rule('/:path*/', '/_split-challenge')
+        ]
+      })
+    )
 
     return mergeRewrites(rewrite, {
       beforeFiles: [
