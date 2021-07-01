@@ -34,48 +34,22 @@ export const makeRewrites =
   ) =>
   async (): Promise<Rewrites> => {
     const rewrite = await originalRewrite?.()
-    if (!active || Object.keys(mappings).length < 2) {
-      console.log(
-        mergeRewrites(rewrite, {
-          beforeFiles: [rule('/', `/${rootPage}`)]
-        })
-      )
-
+    if (!active || Object.keys(mappings).length < 2)
       return mergeRewrites(rewrite, {
         beforeFiles: [rule('/', `/${rootPage}`)]
       })
-    }
-
-    console.log(
-      mergeRewrites(rewrite, {
-        beforeFiles: [
-          ...Object.entries(mappings)
-            .map(([branch, origin]) => [
-              rule('/', origin ? `${origin}` : `/${rootPage}`, {
-                has: has(branch)
-              }),
-              rule('/:path*/', `${origin}/:path*/`, { has: has(branch) }),
-              ...(origin
-                ? [rule('/:path*', `${origin}/:path*`, { has: has(branch) })]
-                : [])
-            ])
-            .flat(),
-          rule('/:path*/', '/_split-challenge')
-        ]
-      })
-    )
 
     return mergeRewrites(rewrite, {
       beforeFiles: [
-        ...Object.entries(mappings)
-          .map(([branch, origin]) => [
-            rule('/', `${origin}/${rootPage}/`, { has: has(branch) }),
-            rule('/:path*/', `${origin}/:path*`, { has: has(branch) }),
-            ...(origin
-              ? [rule('/:path*', `${origin}/:path*`, { has: has(branch) })]
-              : [])
-          ])
-          .flat(),
+        // ...Object.entries(mappings)
+        //   .map(([branch, origin]) => [
+        //     rule('/', `${origin}/${rootPage}/`, { has: has(branch) }),
+        //     rule('/:path*/', `${origin}/:path*`, { has: has(branch) }),
+        //     ...(origin
+        //       ? [rule('/:path*', `${origin}/:path*`, { has: has(branch) })]
+        //       : [])
+        //   ])
+        //   .flat(),
         rule('/:path*/', '/_split-challenge')
       ]
     })
