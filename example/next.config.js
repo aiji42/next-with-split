@@ -2,13 +2,14 @@ module.exports = {
   rewrites: async () => ({
     beforeFiles: [
       {
-        source: '/foo/:path*',
+        source: '/ohaka/pref-tokyo/list/',
         destination: '/_split-challenge',
       },
       {
-        source: '/foo/:path*/',
+        source: '/ohaka/pref-tokyo/list',
         destination: '/_split-challenge',
       }
     ]
-  })
+  }),
+  trailingSlash: true
 }
