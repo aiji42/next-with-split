@@ -1,6 +1,5 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import Link from 'next/link'
 import { FC } from 'react'
 import styles from '../../styles/Home.module.css'
 
@@ -14,10 +13,8 @@ const Home: FC = () => {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>FOO/BAR CHALLENGER</h1>
+        <h1 className={styles.title}>FOO/BAR</h1>
       </main>
-
-      <Link href="/top">TOP</Link>
 
       <footer className={styles.footer}>
         <a

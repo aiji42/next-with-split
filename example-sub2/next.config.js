@@ -1,7 +1,7 @@
 module.exports = {
-  assetPrefix: 'http://localhost:3001',
+  assetPrefix: 'http://localhost:3002',
   images: {
-    path: 'http://localhost:3001/_next/image'
+    path: 'http://localhost:3002/_next/image'
   },
   // rewrites: async () => ({
   //   beforeFiles: [
