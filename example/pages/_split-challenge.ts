@@ -8,6 +8,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, query, 
   console.log(query)
   console.log(ress)
 
+  const cookieName = `x-split-key`
   const branches: Record<string, { host: string; port: number, path: string }> = {
     original: { host: 'localhost', port: 3001, path: '/foo/:path*' },
     challenger: { host: 'localhost', port: 3002, path: '/foo/:path*' }
@@ -16,11 +17,12 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, query, 
 
   const cookie = parseCookies({ req })
 
-  await new Promise((resolve) => {
-    const [key, branch] = cookie['next-with-split'] ? [cookie['next-with-split'], branches[cookie['next-with-split']]] : arrayBranches[Math.floor(Math.random() * arrayBranches.length)]
+  await new Promise(() => {
+    const cookieValue = cookie[cookieName]
+    const [key, branch] = cookieValue && branches[cookieValue] ? [cookieValue, branches[cookieValue]] : arrayBranches[Math.floor(Math.random() * arrayBranches.length)]
     setCookie(
       { res },
-      'next-with-split',
+      cookieName,
       key,
       { path: '/' }
     )
@@ -36,12 +38,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, query, 
         console.log('response')
         res.writeHead(serverRes.statusCode ?? 0, serverRes.headers)
         serverRes.pipe(res)
-      })
-      .on('close', () => {
-        console.log('close')
-        // res.end()
-        // serverReq.end()
-        // resolve(false)
       })
     req.pipe(serverReq)
   })
