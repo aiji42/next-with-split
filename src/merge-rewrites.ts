@@ -1,15 +1,10 @@
 import { Rewrite } from 'next/dist/lib/load-custom-routes'
-
-type Rewrites = {
-  beforeFiles?: Rewrite[]
-  afterFiles?: Rewrite[]
-  fallback?: Rewrite[]
-}
+import { Rewrites } from './types'
 
 export const mergeRewrites = (
-  originalRules: Rewrites | Rewrite[] | undefined,
+  originalRules: Rewrites | undefined,
   newRules: Rewrite[]
-): Rewrites | Rewrite[] => {
+): Rewrites => {
   if (!originalRules) return {
     beforeFiles: newRules
   }
