@@ -7,7 +7,7 @@ import { ParsedUrlQuery } from 'querystring'
 // @ts-ignore
 import * as pathToRegexp from 'next/dist/compiled/path-to-regexp'
 import getConfig from 'next/config'
-import { CookieSerializeOptions } from 'cookie'
+import { Distribution } from './types'
 
 const reverseProxy = async (req: IncomingMessage, res: ServerResponse, options: RequestOptions) => {
   return new Promise(() => {
@@ -27,8 +27,6 @@ const reverseProxy = async (req: IncomingMessage, res: ServerResponse, options: 
     req.pipe(serverReq)
   })
 }
-
-type Distribution = { host: string; path: string, cookie: CookieSerializeOptions }
 
 type SplitConfig = { branch: string } & Distribution
 

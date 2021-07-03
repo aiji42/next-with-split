@@ -1,23 +1,11 @@
-import { Rewrite } from 'next/dist/lib/load-custom-routes'
-import { checkExistingIndex } from './check-existing-index'
 import { checkExistingSplitChallenge } from './check-existing-split-challenge'
-import { info, warn } from './log'
-import { Mappings, Rewrites, makeRewrites } from './make-rewrites'
-import { CookieSerializeOptions } from 'cookie'
-
-type Options = {
-  [keyName: string]: {
-    path: string
-    hosts: {
-      [branchName: string]: string
-    }
-    cookie?: CookieSerializeOptions
-  }
-}
+import { info } from './log'
+import { makeRewrites } from './make-rewrites'
+import { Rewrites, RuntimeConfig, SplitOptions } from './types'
 
 type WithSplitArgs = {
-  splits?: Options
-  rewrites?: () => Promise<Rewrites | Rewrite[]>
+  splits?: SplitOptions
+  rewrites?: () => Promise<Rewrites>
   assetPrefix?: string
   serverRuntimeConfig?: {
     [x: string]: unknown
@@ -30,14 +18,7 @@ type WithSplitArgs = {
 }
 
 type WithSplitResult = Omit<Required<WithSplitArgs>, 'splits'> & {
-  assetPrefix: string
   rewrites: () => Promise<Rewrites>
-}
-
-type RuntimeConfig = {
-  [keyName: string]: {
-    [branch: string]: { host: string; path: string; cookie: CookieSerializeOptions }
-  }
 }
 
 export const withSplit = (args: WithSplitArgs): WithSplitResult => {
@@ -55,21 +36,15 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
 
   checkExistingSplitChallenge().then((res) => !res && process.exit(1))
 
-  if (Object.keys(splits).length > 0) {
+  if (Object.keys(splits).length > 0 && process.env.VERCEL_ENV === 'production') {
     info('Split tests are active.')
     console.table(
-      Object.entries(splits).map(([key, origin]) => ({
-        branch,
-        targetOrigin: origin || 'original'
+      Object.entries(splits).map(([testKey, options]) => ({
+        testKey,
+        path: options.path,
+        abcs: Object.keys(options.hosts)
       }))
     )
-    if (
-      process.env.VERCEL_GIT_COMMIT_REF &&
-      process.env.VERCEL_GIT_COMMIT_REF !== options.mainBranch
-    )
-      warn(
-        'Detected that splits.active is set to true in the challenger branch. This can cause serious problems such as redirection loops.'
-      )
   }
 
   return {
@@ -84,21 +59,8 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
       splits: runtimeConfig
     },
     rewrites: makeRewrites(
-      mappings,
-      options.rootPage,
-      options.active,
+      splits,
       nextConfig.rewrites
     )
-  }
-}
-
-const config = {
-  test1: {
-    path: '/hoge/hgoe/hoge/:path*/',
-    hosts: {
-      branch1: 'https://hogehoge.com',
-      branch2: 'https://foobar.com'
-    },
-    cookie: {}
   }
 }
