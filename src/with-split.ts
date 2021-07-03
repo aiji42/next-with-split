@@ -1,7 +1,8 @@
 import { checkExistingSplitChallenge } from './check-existing-split-challenge'
 import { info } from './log'
 import { makeRewrites } from './make-rewrites'
-import { Rewrites, RuntimeConfig, SplitOptions } from './types'
+import { Rewrites, SplitOptions } from './types'
+import { makeRuntimeConfig } from './makeRuntimeConfig'
 
 type WithSplitArgs = {
   splits?: SplitOptions
@@ -24,16 +25,6 @@ type WithSplitResult = Omit<Required<WithSplitArgs>, 'splits'> & {
 export const withSplit = (args: WithSplitArgs): WithSplitResult => {
   const { splits = {}, ...nextConfig } = args
 
-  const runtimeConfig = Object.entries(splits).reduce<RuntimeConfig>((res, [key, option]) => ({
-    ...res,
-    [key]: Object.entries(option.hosts).reduce((res, [branch, host]) => ({ ...res, [branch]: {
-        host,
-        path: option.path,
-        cookie: { path: '/', maxAge: 60 * 60 * 24, ...option.cookie }
-      } }), {})
-  }), {})
-
-
   checkExistingSplitChallenge().then((res) => !res && process.exit(1))
 
   if (Object.keys(splits).length > 0 && process.env.VERCEL_ENV === 'production') {
@@ -49,14 +40,14 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
 
   return {
     ...nextConfig,
-    assetPrefix: nextConfig.assetPrefix || process.env.VERCEL_URL || '',
+    assetPrefix: nextConfig.assetPrefix || `https://${process.env.VERCEL_URL}` || '',
     images: {
       ...nextConfig.images,
       path: nextConfig.images?.path || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/_next/image` : ''
     },
     serverRuntimeConfig: {
       ...nextConfig.serverRuntimeConfig,
-      splits: runtimeConfig
+      splits: makeRuntimeConfig(splits)
     },
     rewrites: makeRewrites(
       splits,
