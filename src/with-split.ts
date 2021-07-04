@@ -1,5 +1,4 @@
 import { prepareSplitChallenge } from './prepare-split-challenge'
-import { info } from './log'
 import { makeRewrites } from './make-rewrites'
 import { Rewrites, SplitOptions } from './types'
 import { makeRuntimeConfig } from './makeRuntimeConfig'
@@ -26,7 +25,7 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
   const { splits = {}, ...nextConfig } = args
 
   if (Object.keys(splits).length > 0 && process.env.VERCEL_ENV === 'production') {
-    info('Split tests are active.')
+    console.log('Split tests are active.')
     console.table(
       Object.entries(splits).map(([testKey, options]) => ({
         testKey,

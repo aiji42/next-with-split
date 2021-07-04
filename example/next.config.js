@@ -1,25 +1,14 @@
-module.exports = {
-  serverRuntimeConfig: {
-    splits: {
-      test1: {
-        original: { host: 'lifedot-list-o3j04lux4-ending.vercel.app', path: '/ohaka/pref-:pref(tokyo|aichi)/:path*/list/', cookie: {
-            path: '/',
-            maxAge: 10
-          } },
-        challenger: { host: 'lifedot-list-o3j04lux4-ending.vercel.app', path: '/ohaka/pref-:pref(tokyo|aichi)/:path*/list/', cookie: {
-            path: '/',
-            maxAge: 10
-          } }
+const { withSplit } = require('next-with-split')
+
+module.exports = withSplit({
+  splits: {
+    test1: {
+      path: '/ohaka/pref-:pref(tokyo|aichi)/:path*/list/',
+      hosts: {
+        branch1: 'lifedot-list-o3j04lux4-ending.vercel.app',
+        branch2: 'lifedot-list-o3j04lux4-ending.vercel.app'
       }
     }
   },
-  rewrites: async () => ({
-    beforeFiles: [
-      {
-        source: '/ohaka/pref-:pref(tokyo|aichi)/:path*/list/',
-        destination: '/_split-challenge/test1',
-      }
-    ]
-  }),
   trailingSlash: true
-}
+})

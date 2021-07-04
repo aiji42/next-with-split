@@ -1,10 +1,12 @@
 import { prepareSplitChallenge } from './prepare-split-challenge'
-import { writeFileSync } from 'fs'
+import { writeFileSync, existsSync, mkdirSync } from 'fs'
 import { findPagesDir } from 'next/dist/lib/find-pages-dir'
 
 
 jest.mock('fs', () => ({
-  writeFileSync: jest.fn()
+  writeFileSync: jest.fn(),
+  existsSync: jest.fn(),
+  mkdirSync: jest.fn()
 }))
 
 jest.mock('next/dist/lib/find-pages-dir', () => ({
@@ -24,7 +26,9 @@ describe('prepareSplitChallenge', () => {
   it('must make split-challenge script when runs on production', () => {
     process.env = { ...process.env, VERCEL_ENV: 'production' }
     ;(findPagesDir as jest.Mock).mockReturnValue('pages')
+    ;(existsSync as jest.Mock).mockReturnValue(false)
     prepareSplitChallenge()
+    expect(mkdirSync).toBeCalled()
     expect(writeFileSync).toBeCalledWith('pages/_split-challenge/[__key].js', `
 export { getServerSideProps } from 'next-with-split'
 const SplitChallenge = () => null
