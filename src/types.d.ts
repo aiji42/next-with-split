@@ -17,6 +17,8 @@ export type SplitOptions = {
   }
 }
 
+export type SplitConfig = { branch: string } & Distribution
+
 export type Distribution = {
   host: string
   path: string

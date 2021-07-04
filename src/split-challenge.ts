@@ -1,40 +1,18 @@
-import { GetServerSideProps } from 'next'
+import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { setCookie, parseCookies } from 'nookies'
-import { IncomingMessage, ServerResponse } from 'http'
-import { request, RequestOptions } from 'https'
 import { ParsedUrlQuery } from 'querystring'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import * as pathToRegexp from 'next/dist/compiled/path-to-regexp'
 import getConfig from 'next/config'
-import { Distribution } from './types'
-
-const reverseProxy = async (req: IncomingMessage, res: ServerResponse, options: RequestOptions) => {
-  return new Promise(() => {
-    const serverReq = request({
-      ...options,
-      headers: {
-        ...options.headers,
-        ...(options.host ? { host: options.host } : {})
-      }
-    })
-      .on('error', () => res.writeHead(502).end())
-      .on('timeout', () => res.writeHead(504).end())
-      .on('response', (serverRes) => {
-        res.writeHead(serverRes.statusCode ?? 0, serverRes.headers)
-        serverRes.pipe(res)
-      })
-    req.pipe(serverReq)
-  })
-}
-
-type SplitConfig = { branch: string } & Distribution
+import { Distribution, SplitConfig } from './types'
+import { reverseProxy } from './reverse-proxy'
 
 const cookieKey = (key: string) => `x-split-key-${key}`
 
-export const getSplitConfig = (req: IncomingMessage, splitKey: string): SplitConfig => {
+export const getSplitConfig = (ctx: GetServerSidePropsContext, splitKey: string): SplitConfig => {
   const distributions: Record<string, Distribution> = getConfig().serverRuntimeConfig.splits[splitKey]
-  const cookie = parseCookies({ req })
+  const cookie = parseCookies(ctx)
   const cookieValue = cookie[cookieKey(splitKey)]
   if (cookieValue && distributions[cookieValue]) return {
     branch: cookieValue,
@@ -49,8 +27,8 @@ export const getSplitConfig = (req: IncomingMessage, splitKey: string): SplitCon
   }
 }
 
-export const sticky = (res: ServerResponse, config: SplitConfig, splitKey: string) => setCookie(
-  { res },
+export const sticky = (ctx: GetServerSidePropsContext, config: SplitConfig, splitKey: string): ReturnType<typeof setCookie> => setCookie(
+  ctx,
   cookieKey(splitKey),
   config.branch,
   config.cookie
@@ -80,16 +58,29 @@ export const getPath = (config: SplitConfig, query: ParsedUrlQuery) => {
   return newPath.replace(/\/\//g, '/')
 }
 
+export const runReverseProxy = async ({ req, res, query }: GetServerSidePropsContext, config: SplitConfig): Promise<void> => {
+  try {
+    const url = new URL(config.host)
+    await reverseProxy({ req, res }, {
+      host: url.hostname,
+      method: req.method,
+      port: url.port,
+      path: getPath(config, query)
+    }, url.protocol === 'https:')
+  } catch (e) {
+    await reverseProxy({ req, res }, {
+      host: config.host,
+      method: req.method,
+      path: getPath(config, query)
+    }, true)
+  }
+}
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res, query }) => {
-  const config = getSplitConfig(req, query.__key as string)
-  sticky(res, config, query.__key as string)
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const config = getSplitConfig(ctx, ctx.query.__key as string)
+  sticky(ctx, config, ctx.query.__key as string)
 
-  await reverseProxy(req, res, {
-    host: config.host,
-    method: req.method,
-    path: getPath(config, query)
-  })
+  await runReverseProxy(ctx, config)
 
   return {
     props: {}

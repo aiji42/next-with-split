@@ -13,4 +13,3 @@ export const prepareSplitChallenge = (): void => {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
   writeFileSync(`${dir}/[__key].js`, scriptText)
 }
-
