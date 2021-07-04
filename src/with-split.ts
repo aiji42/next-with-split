@@ -1,4 +1,4 @@
-import { checkExistingSplitChallenge } from './check-existing-split-challenge'
+import { prepareSplitChallenge } from './prepare-split-challenge'
 import { info } from './log'
 import { makeRewrites } from './make-rewrites'
 import { Rewrites, SplitOptions } from './types'
@@ -25,8 +25,6 @@ type WithSplitResult = Omit<Required<WithSplitArgs>, 'splits'> & {
 export const withSplit = (args: WithSplitArgs): WithSplitResult => {
   const { splits = {}, ...nextConfig } = args
 
-  checkExistingSplitChallenge().then((res) => !res && process.exit(1))
-
   if (Object.keys(splits).length > 0 && process.env.VERCEL_ENV === 'production') {
     info('Split tests are active.')
     console.table(
@@ -37,6 +35,8 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
       }))
     )
   }
+
+  prepareSplitChallenge()
 
   return {
     ...nextConfig,

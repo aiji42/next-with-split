@@ -1,9 +1,7 @@
 import { withSplit } from './with-split'
 
-jest.mock('./check-existing-split-challenge', () => ({
-  checkExistingSplitChallenge: async () => {
-    return true
-  }
+jest.mock('./prepare-split-challenge', () => ({
+  prepareSplitChallenge: jest.fn()
 }))
 
 jest.spyOn(console, 'warn').mockImplementation((mes) => console.log(mes))
