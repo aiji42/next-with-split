@@ -30,14 +30,23 @@ npm install --save next-with-split
 ```
 
 ## Usage
-1. Derive two branches from the main branch.
+1\. Customize next.config.js. (in main branch)
+```js
+// next.config.js
+const { withSplit } = require('next-with-split');
+
+module.export = withSplit({
+  // write your next.js configuration values.
+})
+```
+
+2\. Derive two branches from the main branch.
     - Original branch: Same as the main branch. (Naming it differently from the main branch will cause a deployment to occur.)
     - Challenger branch: A branch to distribute access to the origin. Develop the ideas you want to test on this branch. 
 
-2. Deploy the original branch and challenger branch in Vercel for preview and get the URLs.
+3\. Deploy the original branch and challenger branch in Vercel for preview and get the URLs.
 
-3. Modify next.config.js in the main branch.
-
+4\. Modify next.config.js in the main branch.
 ```js
 // next.config.js
 const { withSplit } = require('next-with-split');
@@ -69,10 +78,9 @@ module.export = withSplit({
   // write your next.js configuration values.
 })
 ```
+5\. Deploy the main branch.
 
-4. Deploy the main branch.
-
-5. The network will be automatically split and the content will be served!  
+6\. The network will be automatically split and the content will be served!  
 It is also sticky, controlled by cookies.
 
 ## LICENSE
