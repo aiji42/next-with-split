@@ -1,114 +1,56 @@
-import { checkExistingIndex } from './check-existing-index'
-import { checkExistingSplitChallenge } from './check-existing-split-challenge'
-import { info, warn } from './log'
-
-const rule = (source: string, destination: string, additional = {}) => ({
-  source,
-  destination,
-  ...additional
-})
-const has = (value = 'original') => [
-  {
-    type: 'cookie',
-    key: 'next-with-split',
-    value
-  }
-]
-
-type Mappings = { [branch: string]: string }
-
-const makeRewrites =
-  (mappings: Mappings, rootPage: string, active: boolean) => async () => {
-    if (!active || Object.keys(mappings).length < 2)
-      return [rule('/', `/${rootPage}`)]
-
-    return {
-      beforeFiles: [
-        ...Object.entries(mappings)
-          .map(([branch, origin]) =>
-            [
-              rule('/', `${origin}/${rootPage}/`, { has: has(branch) }),
-              rule('/:path*/', `${origin}/:path*`, { has: has(branch) }),
-              origin
-                ? rule('/:path*', `${origin}/:path*`, { has: has(branch) })
-                : null
-            ].filter(Boolean)
-          )
-          .flat(),
-        rule('/:path*/', '/_split-challenge')
-      ]
-    }
-  }
-
-type Options = {
-  branchMappings: Mappings
-  rootPage: string
-  mainBranch: string
-  active: boolean
-}
-
-const defaultOptions: Options = {
-  branchMappings: {},
-  rootPage: 'top',
-  mainBranch: 'main',
-  active: false
-}
+import { prepareSplitChallenge } from './prepare-split-challenge'
+import { makeRewrites } from './make-rewrites'
+import { Rewrites, SplitOptions } from './types'
+import { makeRuntimeConfig } from './makeRuntimeConfig'
 
 type WithSplitArgs = {
-  splits?: Partial<Options>
-  env?: Record<string, string>
-  trailingSlash?: boolean
+  splits?: SplitOptions
+  rewrites?: () => Promise<Rewrites>
+  assetPrefix?: string
+  serverRuntimeConfig?: {
+    [x: string]: unknown
+  }
+  images?: {
+    path?: string
+    [x: string]: unknown
+  }
   [x: string]: unknown
 }
 
 type WithSplitResult = Omit<Required<WithSplitArgs>, 'splits'> & {
-  assetPrefix: string
-  rewrites: ReturnType<typeof makeRewrites>
+  rewrites: () => Promise<Rewrites>
 }
 
 export const withSplit = (args: WithSplitArgs): WithSplitResult => {
-  const { splits, ...nextConfig } = args
-  const options = {
-    ...defaultOptions,
-    active: process.env.VERCEL_ENV === 'production',
-    ...(splits ?? {})
-  }
-  const mappings = { [options.mainBranch]: '', ...options.branchMappings }
+  const { splits = {}, ...nextConfig } = args
 
-  checkExistingSplitChallenge().then((res) => !res && process.exit(1))
-  checkExistingIndex().then((res) => res && process.exit(1))
-
-  if ('trailingSlash' in nextConfig && !nextConfig.trailingSlash) {
-    warn(
-      'You cannot use `trailingSlash: false` when using `next-with-split`. Force override to true.'
-    )
-  }
-
-  if (options.active && Object.keys(mappings).length > 1) {
-    info('Split tests are active.')
+  if (Object.keys(splits).length > 0 && process.env.VERCEL_ENV === 'production') {
+    console.log('Split tests are active.')
     console.table(
-      Object.entries(mappings).map(([branch, origin]) => ({
-        branch,
-        tergetOrigin: origin || 'original'
+      Object.entries(splits).map(([testKey, options]) => ({
+        testKey,
+        path: options.path,
+        abcs: Object.keys(options.hosts)
       }))
     )
-    if (
-      process.env.VERCEL_GIT_COMMIT_REF &&
-      process.env.VERCEL_GIT_COMMIT_REF !== options.mainBranch
-    )
-      warn(
-        'Detected that splits.active is set to true in the challenger branch. This can cause serious problems such as redirection loops.'
-      )
   }
+
+  prepareSplitChallenge()
 
   return {
     ...nextConfig,
-    env: {
-      ...(nextConfig.env ?? {}),
-      SPLIT_TEST_BRANCHES: JSON.stringify(Object.keys(mappings))
+    assetPrefix: nextConfig.assetPrefix || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : ''),
+    images: {
+      ...nextConfig.images,
+      path: nextConfig.images?.path || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/_next/image` : '')
     },
-    trailingSlash: true,
-    assetPrefix: mappings[process.env.VERCEL_GIT_COMMIT_REF ?? ''] ?? '',
-    rewrites: makeRewrites(mappings, options.rootPage, options.active)
+    serverRuntimeConfig: {
+      ...nextConfig.serverRuntimeConfig,
+      splits: makeRuntimeConfig(splits)
+    },
+    rewrites: makeRewrites(
+      splits,
+      nextConfig.rewrites
+    )
   }
 }

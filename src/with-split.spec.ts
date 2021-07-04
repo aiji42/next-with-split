@@ -1,14 +1,10 @@
 import { withSplit } from './with-split'
 
-jest.mock('./check-existing-index', () => ({
-  checkExistingIndex: async () => { return false }
+jest.mock('./prepare-split-challenge', () => ({
+  prepareSplitChallenge: jest.fn()
 }))
 
-jest.mock('./check-existing-split-challenge', () => ({
-  checkExistingSplitChallenge: async () => {
-    return true
-  }
-}))
+jest.spyOn(console, 'warn').mockImplementation((mes) => console.log(mes))
 
 describe('withSplit', () => {
   const OLD_ENV = process.env
@@ -21,147 +17,116 @@ describe('withSplit', () => {
   })
 
   it('default', () => {
+    process.env = { ...process.env, VERCEL_URL: 'vercel.example.com', VERCEL_ENV: 'production' }
     const conf = withSplit({})
-    expect(conf.assetPrefix).toEqual('')
-    expect(conf.env).toEqual({ SPLIT_TEST_BRANCHES: '["main"]' })
-    expect(conf.trailingSlash).toEqual(true)
+    expect(conf.assetPrefix).toEqual('https://vercel.example.com')
+    expect(conf.images).toEqual({ path: 'https://vercel.example.com/_next/image' })
+    expect(conf.serverRuntimeConfig).toEqual({ splits: {} })
     return conf.rewrites().then((res) => {
-      expect(res).toEqual([{ destination: '/top', source: '/' }])
+      expect(res).toEqual({
+        beforeFiles: []
+      })
     })
   })
-
-  it('set branchMappings however active flag is not true and not Vercel production', () => {
+  it('mut return config merged passed values', () => {
+    process.env = { ...process.env, VERCEL_URL: 'vercel.example.com', VERCEL_ENV: 'production' }
     const conf = withSplit({
-      splits: {
-        branchMappings: { challenger: 'https://example.com' }
+        assetPrefix: 'https://hoge.com',
+        images: {
+          path: 'https://hoge.com/_next/image'
+        },
+        serverRuntimeConfig: {
+          foo: {
+            bar: 'bar'
+          }
+        }
       }
-    })
-    expect(conf.assetPrefix).toEqual('')
-    expect(conf.env).toEqual({ SPLIT_TEST_BRANCHES: '["main","challenger"]' })
-    expect(conf.trailingSlash).toEqual(true)
-    return conf.rewrites().then((res) => {
-      expect(res).toEqual([{ destination: '/top', source: '/' }])
+    )
+    expect(conf.assetPrefix).toEqual('https://hoge.com')
+    expect(conf.images).toEqual({ path: 'https://hoge.com/_next/image' })
+    expect(conf.serverRuntimeConfig).toEqual({
+      foo: {
+        bar: 'bar'
+      }, splits: {}
     })
   })
-
-  it('set branchMappings and active flag is true', () => {
+  it('return split test config', () => {
+    process.env = { ...process.env, VERCEL_URL: 'vercel.example.com', VERCEL_ENV: 'production' }
     const conf = withSplit({
       splits: {
-        branchMappings: { challenger: 'https://example.com' },
-        active: true
+        test1: {
+          hosts: {
+            branch1: 'https://branch1.example.com',
+            branch2: 'https://branch2.example.com'
+          },
+          path: '/foo/:path*'
+        }
       }
     })
-    expect(conf.assetPrefix).toEqual('')
-    expect(conf.env).toEqual({ SPLIT_TEST_BRANCHES: '["main","challenger"]' })
-    expect(conf.trailingSlash).toEqual(true)
+    expect(conf.serverRuntimeConfig).toEqual({
+      splits: {
+        test1: {
+          branch1: {
+            host: 'https://branch1.example.com',
+            path: '/foo/:path*',
+            cookie: { path: '/', maxAge: 60 * 60 * 24 }
+          },
+          branch2: {
+            host: 'https://branch2.example.com',
+            path: '/foo/:path*',
+            cookie: { path: '/', maxAge: 60 * 60 * 24 }
+          }
+        }
+      }
+    })
     return conf.rewrites().then((res) => {
       expect(res).toEqual({
         beforeFiles: [
           {
-            destination: '/top/',
-            has: [{ key: 'next-with-split', type: 'cookie', value: 'main' }],
-            source: '/'
-          },
-          {
-            destination: '/:path*',
-            has: [{ key: 'next-with-split', type: 'cookie', value: 'main' }],
-            source: '/:path*/'
-          },
-          {
-            destination: 'https://example.com/top/',
-            has: [
-              { key: 'next-with-split', type: 'cookie', value: 'challenger' }
-            ],
-            source: '/'
-          },
-          {
-            destination: 'https://example.com/:path*',
-            has: [
-              { key: 'next-with-split', type: 'cookie', value: 'challenger' }
-            ],
-            source: '/:path*/'
-          },
-          {
-            destination: 'https://example.com/:path*',
-            has: [
-              { key: 'next-with-split', type: 'cookie', value: 'challenger' }
-            ],
-            source: '/:path*'
-          },
-          { destination: '/_split-challenge', source: '/:path*/' }
+            source: '/foo/:path*',
+            destination: '/_split-challenge/test1'
+          }
         ]
       })
     })
   })
-
-  it('set branchMappings and runs on Vercel production', () => {
-    process.env = {
-      ...process.env,
-      VERCEL_ENV: 'production'
-    }
+  it('return empty rewrite rules when runs on not production', () => {
+    process.env = { ...process.env, VERCEL_ENV: 'preview' }
     const conf = withSplit({
       splits: {
-        branchMappings: { challenger: 'https://example.com' }
+        test1: {
+          hosts: {
+            branch1: 'https://branch1.example.com',
+            branch2: 'https://branch2.example.com'
+          },
+          path: '/foo/:path*'
+        }
       }
     })
     expect(conf.assetPrefix).toEqual('')
-    expect(conf.env).toEqual({ SPLIT_TEST_BRANCHES: '["main","challenger"]' })
-    expect(conf.trailingSlash).toEqual(true)
+    expect(conf.images).toEqual({ path: '' })
+    expect(conf.serverRuntimeConfig).toEqual({
+      splits: {
+        test1: {
+          branch1: {
+            host: 'https://branch1.example.com',
+            path: '/foo/:path*',
+            cookie: { path: '/', maxAge: 60 * 60 * 24 }
+          },
+          branch2: {
+            host: 'https://branch2.example.com',
+            path: '/foo/:path*',
+            cookie: { path: '/', maxAge: 60 * 60 * 24 }
+          }
+        }
+      }
+    })
     return conf.rewrites().then((res) => {
       expect(res).toEqual({
         beforeFiles: [
-          {
-            destination: '/top/',
-            has: [{ key: 'next-with-split', type: 'cookie', value: 'main' }],
-            source: '/'
-          },
-          {
-            destination: '/:path*',
-            has: [{ key: 'next-with-split', type: 'cookie', value: 'main' }],
-            source: '/:path*/'
-          },
-          {
-            destination: 'https://example.com/top/',
-            has: [
-              { key: 'next-with-split', type: 'cookie', value: 'challenger' }
-            ],
-            source: '/'
-          },
-          {
-            destination: 'https://example.com/:path*',
-            has: [
-              { key: 'next-with-split', type: 'cookie', value: 'challenger' }
-            ],
-            source: '/:path*/'
-          },
-          {
-            destination: 'https://example.com/:path*',
-            has: [
-              { key: 'next-with-split', type: 'cookie', value: 'challenger' }
-            ],
-            source: '/:path*'
-          },
-          { destination: '/_split-challenge', source: '/:path*/' }
+
         ]
       })
-    })
-  })
-
-  it('set branchMappings and runs on challenger branch', () => {
-    process.env = {
-      ...process.env,
-      VERCEL_GIT_COMMIT_REF: 'challenger'
-    }
-    const conf = withSplit({
-      splits: {
-        branchMappings: { challenger: 'https://example.com' }
-      }
-    })
-    expect(conf.assetPrefix).toEqual('https://example.com')
-    expect(conf.env).toEqual({ SPLIT_TEST_BRANCHES: '["main","challenger"]' })
-    expect(conf.trailingSlash).toEqual(true)
-    return conf.rewrites().then((res) => {
-      expect(res).toEqual([{ destination: '/top', source: '/' }])
     })
   })
 })

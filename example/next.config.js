@@ -2,12 +2,13 @@ const { withSplit } = require('next-with-split')
 
 module.exports = withSplit({
   splits: {
-    rootPage: 'top',
-    branchMappings: {
-      abtest_challenger:
-        'https://nextjs-split-test-git-abtestchallenger-aiji42.vercel.app'
-    },
-    active: true
+    test1: {
+      path: '/ohaka/pref-:pref(tokyo|aichi)/:path*/list/',
+      hosts: {
+        branch1: 'lifedot-list-o3j04lux4-ending.vercel.app',
+        branch2: 'lifedot-list-o3j04lux4-ending.vercel.app'
+      }
+    }
   },
-  reactStrictMode: true
+  trailingSlash: true
 })
