@@ -28,7 +28,9 @@ describe('prepareSplitChallenge', () => {
     ;(existsSync as jest.Mock).mockReturnValue(false)
     prepareSplitChallenge()
     expect(mkdirSync).toBeCalled()
-    expect(writeFileSync).toBeCalledWith('pages/_split-challenge/[__key].js', `
+    expect(writeFileSync).toBeCalledWith(
+      'pages/_split-challenge/[__key].js',
+      `
 export { getServerSideProps } from 'next-with-split'
 const SplitChallenge = () => null
 export default SplitChallenge

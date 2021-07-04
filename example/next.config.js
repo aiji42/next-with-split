@@ -3,12 +3,18 @@ const { withSplit } = require('next-with-split')
 module.exports = withSplit({
   splits: {
     test1: {
-      path: '/foo/:path*/',
+      path: '/foo/abtest/:path*',
       hosts: {
-        branch1: 'example1.vercel.app',
-        branch2: 'example2.vercel.app'
+        original: 'https://nextjs-split-test-git-abtest-original-2021-07-04-aiji42.vercel.app',
+        challenger: 'https://nextjs-split-test-git-abtest-example-2021-07-04-aiji42.vercel.app'
+      }
+    },
+    test2: {
+      path: '/',
+      hosts: {
+        original: 'https://nextjs-split-test-git-abtest-original-2021-07-04-aiji42.vercel.app',
+        challenger: 'https://nextjs-split-test-git-abtest-example-2021-07-04-aiji42.vercel.app'
       }
     }
-  },
-  trailingSlash: true
+  }
 })

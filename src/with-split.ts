@@ -24,7 +24,10 @@ type WithSplitResult = Omit<Required<WithSplitArgs>, 'splits'> & {
 export const withSplit = (args: WithSplitArgs): WithSplitResult => {
   const { splits = {}, ...nextConfig } = args
 
-  if (Object.keys(splits).length > 0 && process.env.VERCEL_ENV === 'production') {
+  if (
+    Object.keys(splits).length > 0 &&
+    process.env.VERCEL_ENV === 'production'
+  ) {
     console.log('Split tests are active.')
     console.table(
       Object.entries(splits).map(([testKey, options]) => ({
@@ -39,18 +42,21 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
 
   return {
     ...nextConfig,
-    assetPrefix: nextConfig.assetPrefix || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : ''),
+    assetPrefix:
+      nextConfig.assetPrefix ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : ''),
     images: {
       ...nextConfig.images,
-      path: nextConfig.images?.path || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/_next/image` : '/_next/image')
+      path:
+        nextConfig.images?.path ||
+        (process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}/_next/image`
+          : '/_next/image')
     },
     serverRuntimeConfig: {
       ...nextConfig.serverRuntimeConfig,
       splits: makeRuntimeConfig(splits)
     },
-    rewrites: makeRewrites(
-      splits,
-      nextConfig.rewrites
-    )
+    rewrites: makeRewrites(splits, nextConfig.rewrites)
   }
 }

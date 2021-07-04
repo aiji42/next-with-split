@@ -10,14 +10,19 @@ import { reverseProxy } from './reverse-proxy'
 
 const cookieKey = (key: string) => `x-split-key-${key}`
 
-export const getSplitConfig = (ctx: GetServerSidePropsContext, splitKey: string): SplitConfig => {
-  const distributions: Record<string, Distribution> = getConfig().serverRuntimeConfig.splits[splitKey]
+export const getSplitConfig = (
+  ctx: GetServerSidePropsContext,
+  splitKey: string
+): SplitConfig => {
+  const distributions: Record<string, Distribution> =
+    getConfig().serverRuntimeConfig.splits[splitKey]
   const cookie = parseCookies(ctx)
   const cookieValue = cookie[cookieKey(splitKey)]
-  if (cookieValue && distributions[cookieValue]) return {
-    branch: cookieValue,
-    ...distributions[cookieValue]
-  }
+  if (cookieValue && distributions[cookieValue])
+    return {
+      branch: cookieValue,
+      ...distributions[cookieValue]
+    }
 
   const keys = Object.keys(distributions)
   const key = keys[Math.floor(Math.random() * keys.length)]
@@ -27,19 +32,19 @@ export const getSplitConfig = (ctx: GetServerSidePropsContext, splitKey: string)
   }
 }
 
-export const sticky = (ctx: GetServerSidePropsContext, config: SplitConfig, splitKey: string): ReturnType<typeof setCookie> => setCookie(
-  ctx,
-  cookieKey(splitKey),
-  config.branch,
-  config.cookie
-)
+export const sticky = (
+  ctx: GetServerSidePropsContext,
+  config: SplitConfig,
+  splitKey: string
+): ReturnType<typeof setCookie> =>
+  setCookie(ctx, cookieKey(splitKey), config.branch, config.cookie)
 
 export const getPath = (config: SplitConfig, query: ParsedUrlQuery) => {
   const keys: {
-    name: string,
-    prefix: string,
-    suffix: string,
-    pattern: string,
+    name: string
+    prefix: string
+    suffix: string
+    pattern: string
     modifier: '*' | '?'
   }[] = []
   pathToRegexp.pathToRegexp(config.path, keys)
@@ -47,32 +52,48 @@ export const getPath = (config: SplitConfig, query: ParsedUrlQuery) => {
   for (const key of keys) {
     const value = query[key.name]
     if (value && Array.isArray(value))
-      newPath = newPath.replace(`:${key.name}${key.modifier}`, value.map((v) => `${key.prefix}${v}${key.suffix}`).join(''))
+      newPath = newPath.replace(
+        `:${key.name}${key.modifier}`,
+        value.map((v) => `${key.prefix}${v}${key.suffix}`).join('')
+      )
     else if (value)
-      newPath = newPath.replace(`:${key.name}${key.modifier}`, `${key.prefix}${value}${key.suffix}`)
-    else
-      newPath = newPath.replace(`:${key.name}${key.modifier}`, '')
+      newPath = newPath.replace(
+        `:${key.name}${key.modifier}`,
+        `${key.prefix}${value}${key.suffix}`
+      )
+    else newPath = newPath.replace(`:${key.name}${key.modifier}`, '')
     newPath = newPath.replace(`(${key.pattern})`, '')
   }
 
   return newPath.replace(/\/\//g, '/')
 }
 
-export const runReverseProxy = async ({ req, res, query }: GetServerSidePropsContext, config: SplitConfig): Promise<void> => {
+export const runReverseProxy = async (
+  { req, res, query }: GetServerSidePropsContext,
+  config: SplitConfig
+): Promise<void> => {
   try {
     const url = new URL(config.host)
-    await reverseProxy({ req, res }, {
-      host: url.hostname,
-      method: req.method,
-      port: url.port,
-      path: getPath(config, query)
-    }, url.protocol === 'https:')
+    await reverseProxy(
+      { req, res },
+      {
+        host: url.hostname,
+        method: req.method,
+        port: url.port,
+        path: getPath(config, query)
+      },
+      url.protocol === 'https:'
+    )
   } catch (e) {
-    await reverseProxy({ req, res }, {
-      host: config.host,
-      method: req.method,
-      path: getPath(config, query)
-    }, true)
+    await reverseProxy(
+      { req, res },
+      {
+        host: config.host,
+        method: req.method,
+        path: getPath(config, query)
+      },
+      true
+    )
   }
 }
 

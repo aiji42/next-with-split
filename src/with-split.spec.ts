@@ -17,10 +17,16 @@ describe('withSplit', () => {
   })
 
   it('default', () => {
-    process.env = { ...process.env, VERCEL_URL: 'vercel.example.com', VERCEL_ENV: 'production' }
+    process.env = {
+      ...process.env,
+      VERCEL_URL: 'vercel.example.com',
+      VERCEL_ENV: 'production'
+    }
     const conf = withSplit({})
     expect(conf.assetPrefix).toEqual('https://vercel.example.com')
-    expect(conf.images).toEqual({ path: 'https://vercel.example.com/_next/image' })
+    expect(conf.images).toEqual({
+      path: 'https://vercel.example.com/_next/image'
+    })
     expect(conf.serverRuntimeConfig).toEqual({ splits: {} })
     return conf.rewrites().then((res) => {
       expect(res).toEqual({
@@ -29,29 +35,37 @@ describe('withSplit', () => {
     })
   })
   it('mut return config merged passed values', () => {
-    process.env = { ...process.env, VERCEL_URL: 'vercel.example.com', VERCEL_ENV: 'production' }
+    process.env = {
+      ...process.env,
+      VERCEL_URL: 'vercel.example.com',
+      VERCEL_ENV: 'production'
+    }
     const conf = withSplit({
-        assetPrefix: 'https://hoge.com',
-        images: {
-          path: 'https://hoge.com/_next/image'
-        },
-        serverRuntimeConfig: {
-          foo: {
-            bar: 'bar'
-          }
+      assetPrefix: 'https://hoge.com',
+      images: {
+        path: 'https://hoge.com/_next/image'
+      },
+      serverRuntimeConfig: {
+        foo: {
+          bar: 'bar'
         }
       }
-    )
+    })
     expect(conf.assetPrefix).toEqual('https://hoge.com')
     expect(conf.images).toEqual({ path: 'https://hoge.com/_next/image' })
     expect(conf.serverRuntimeConfig).toEqual({
       foo: {
         bar: 'bar'
-      }, splits: {}
+      },
+      splits: {}
     })
   })
   it('return split test config', () => {
-    process.env = { ...process.env, VERCEL_URL: 'vercel.example.com', VERCEL_ENV: 'production' }
+    process.env = {
+      ...process.env,
+      VERCEL_URL: 'vercel.example.com',
+      VERCEL_ENV: 'production'
+    }
     const conf = withSplit({
       splits: {
         test1: {
@@ -123,9 +137,7 @@ describe('withSplit', () => {
     })
     return conf.rewrites().then((res) => {
       expect(res).toEqual({
-        beforeFiles: [
-
-        ]
+        beforeFiles: []
       })
     })
   })
