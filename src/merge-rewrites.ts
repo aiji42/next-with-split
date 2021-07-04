@@ -8,10 +8,11 @@ export const mergeRewrites = (
   if (!originalRules) return {
     beforeFiles: newRules
   }
-  if (Array.isArray(originalRules)) return [
-    ...newRules,
-    ...originalRules
-  ]
+
+  if (Array.isArray(originalRules)) return {
+    beforeFiles: newRules,
+    afterFiles: originalRules
+  }
 
   return {
     ...originalRules,

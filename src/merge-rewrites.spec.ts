@@ -21,7 +21,7 @@ describe('mergeRewrites', () => {
   })
 
   describe('originalRewrite is array type rewrite', () => {
-    it('must return merged array rules', () => {
+    it('must return merged object type rules', () => {
       expect(
         mergeRewrites(
           [
@@ -32,13 +32,15 @@ describe('mergeRewrites', () => {
           ],
           newRewrites
         )
-      ).toEqual([
-        ...newRewrites,
-        {
-          destination: '/foo/',
-          source: '/bar'
-        }
-      ])
+      ).toEqual({
+        beforeFiles: newRewrites,
+        afterFiles: [
+          {
+            destination: '/foo/',
+            source: '/bar'
+          }
+        ]
+      })
     })
   })
 
