@@ -30,31 +30,13 @@ npm install --save next-with-split
 ```
 
 ## Usage
-1. Customize next.config.js. (in main branch)
-```js
-// next.config.js
-const { withSplit } = require('next-with-split');
+1. Derive two branches from the main branch.
+    - Original branch: Same as the main branch. (Naming it differently from the main branch will cause a deployment to occur.)
+    - Challenger branch: A branch to distribute access to the origin. Develop the ideas you want to test on this branch. 
 
-module.export = withSplit({
-  // write your next.js configuration values.
-})
-```
+2. Deploy the original branch and challenger branch in Vercel for preview and get the URLs.
 
-2. Create `pages/_split-challenge.ts` (`.js`). (in main branch)  
-
-This file is a function to provide cookies for content separation.
-```ts
-// pages/_split-challenge.ts (.js)
-export { getServerSideProps } from 'next-with-split'
-const SplitChallenge = () => null
-export default SplitChallenge
-```
-
-3. Derive a branch for Challenger and modify the content.
-
-4. Deploy the Challenger branch in Vercel for preview and get the URL.
-
-5. Modify next.config.js in both the main branch and the challenger branch.
+3. Modify next.config.js in the main branch.
 
 ```js
 // next.config.js
@@ -62,59 +44,36 @@ const { withSplit } = require('next-with-split');
 
 module.export = withSplit({
   splits: {
-    branchMappings: {
-      your-challenger-branch: // challenger branch name
-        'https://example-challenger-branch.vercel.app' // preview URL
+    example1: { // Identification of A/B tests (any)
+      path: '/foo/:path*', // Paths to perform A/B testing. (Follow the notation of the rewrite rules.)
+      hosts: {
+        // [branch name]: host name
+        original: 'example-original.vercel.app',
+        'challenger-for-example1': 'challenger-for-example1.vercel.app',
+      },
+      cookie: { // Optional (For Sticky's control)
+        maxAge: 60 * 60 * 12 // Number of valid seconds for sticky sessions. (default is 1 day)
+      }
+    },
+    // Multiple AB tests can be run simultaneously.
+    example2: {
+      path: '/bar/:path*',
+      hosts: {
+        original: 'example-original.vercel.app',
+        'challenger-for-example2': 'challenger-for-example2.vercel.app',
+        // It is possible to distribute access to two or more targets as in A/B/C testing.
+        'challenger2-for-example2': 'challenger2-for-example2.vercel.app',
+      }
     }
   }
   // write your next.js configuration values.
 })
 ```
 
-6. Deploy both the main branch and the challenger branch.
+4. Deploy the main branch.
 
-7. The network will be automatically split and the content will be served!  
+5. The network will be automatically split and the content will be served!  
 It is also sticky, controlled by cookies.
-
-## Function
-### withSplit
-
-```ts
-const withSplit = (args: WithSplitArgs) => WithSplitResult
-
-type Options = {
-  branchMappings: { [branch: string]: string }
-  rootPage: string
-  mainBranch: string
-  active: boolean
-}
-
-type WithSplitArgs = {
-  splits?: Partial<Options>
-  [x: string]: unknown // next.js configuration values.
-}
-```
-
-#### Options
-
-|key|type|note|
-| ---- | ---- | ---- |
-|branchMappings|{ [branch: string]: string } \| undefined|Set the map data with the challenger branch name as the key and the preview URL corresponding to that branch as the value.<br />You can specify more than one challenger as in A/B/C testing.|
-|rootPage|string \| undefined|**default: 'top'**<br />If there is a page file corresponding to /(index), specify the file name (no extension required).<br />Unfortunately, pages/index.tsx\|jsx cannot be used, so you will need to rename it. [See more](https://github.com/aiji42/next-with-split#Supplement)|
-|mainBranch|string \| undefined|**default: 'main'**<br />Specify the name of the branch that is registered as the production branch on Vercel.|
-|active|boolean \| undefined|If you want to force the function to be active in a development, set it to `true`.<br />If you start a split test with the challenger branch set to `active: true`, you will get serious problems such as redirection loops. Be sure to keep the change of this setting value to the development environment.|
-
-### Supplement
-
-#### pages/index.tsx cannot be used
-
-The root page name cannot be `index`. (This seems to be a restriction of the rewrite rules.)
-
-You can continue to treat it as the root page by renaming it to something other than `index` and specifying the `withSplit` option as `rootPage: 'top'`.
-
-#### trailingSlash will be forced to be true
-
-It cannot be set to `trailingSlash: false`. (This seems to be a restriction of the rewrite rules.)
 
 ## LICENSE
 
