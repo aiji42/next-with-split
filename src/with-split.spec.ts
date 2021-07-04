@@ -104,7 +104,7 @@ describe('withSplit', () => {
       }
     })
     expect(conf.assetPrefix).toEqual('')
-    expect(conf.images).toEqual({ path: '' })
+    expect(conf.images).toEqual({ path: '/_next/image' })
     expect(conf.serverRuntimeConfig).toEqual({
       splits: {
         test1: {

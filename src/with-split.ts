@@ -42,7 +42,7 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
     assetPrefix: nextConfig.assetPrefix || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : ''),
     images: {
       ...nextConfig.images,
-      path: nextConfig.images?.path || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/_next/image` : '')
+      path: nextConfig.images?.path || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/_next/image` : '/_next/image')
     },
     serverRuntimeConfig: {
       ...nextConfig.serverRuntimeConfig,
