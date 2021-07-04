@@ -39,7 +39,6 @@
     "semantic-release": "semantic-release"
   },
   "dependencies": {
-    "node-fetch": "^2.6.1",
     "nookies": "^2.5.2"
   },
   "peerDependencies": {
@@ -54,7 +53,6 @@
     "@types/cookie": "^0.4.0",
     "@types/jest": "^26.0.23",
     "@types/node": "^15.12.4",
-    "@types/node-fetch": "^2.5.10",
     "@typescript-eslint/eslint-plugin": "^4.28.0",
     "@typescript-eslint/parser": "^4.28.0",
     "babel-jest": "^27.0.5",
