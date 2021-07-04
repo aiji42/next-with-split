@@ -33,7 +33,7 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
       Object.entries(splits).map(([testKey, options]) => ({
         testKey,
         path: options.path,
-        abcs: Object.keys(options.hosts)
+        distributions: Object.keys(options.hosts)
       }))
     )
   }
