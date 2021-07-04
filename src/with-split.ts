@@ -40,10 +40,10 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
 
   return {
     ...nextConfig,
-    assetPrefix: nextConfig.assetPrefix || `https://${process.env.VERCEL_URL}` || '',
+    assetPrefix: nextConfig.assetPrefix || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : ''),
     images: {
       ...nextConfig.images,
-      path: nextConfig.images?.path || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/_next/image` : ''
+      path: nextConfig.images?.path || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/_next/image` : '')
     },
     serverRuntimeConfig: {
       ...nextConfig.serverRuntimeConfig,

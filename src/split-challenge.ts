@@ -32,7 +32,7 @@ type SplitConfig = { branch: string } & Distribution
 
 const cookieKey = (key: string) => `x-split-key-${key}`
 
-const getSplitConfig = (req: IncomingMessage, splitKey: string): SplitConfig => {
+export const getSplitConfig = (req: IncomingMessage, splitKey: string): SplitConfig => {
   const distributions: Record<string, Distribution> = getConfig().serverRuntimeConfig.splits[splitKey]
   const cookie = parseCookies({ req })
   const cookieValue = cookie[cookieKey(splitKey)]
@@ -49,16 +49,14 @@ const getSplitConfig = (req: IncomingMessage, splitKey: string): SplitConfig => 
   }
 }
 
-const sticky = (res: ServerResponse, config: SplitConfig, splitKey: string) => {
-  setCookie(
-    { res },
-    cookieKey(splitKey),
-    config.branch,
-    config.cookie
-  )
-}
+export const sticky = (res: ServerResponse, config: SplitConfig, splitKey: string) => setCookie(
+  { res },
+  cookieKey(splitKey),
+  config.branch,
+  config.cookie
+)
 
-const getPath = (config: SplitConfig, query: ParsedUrlQuery) => {
+export const getPath = (config: SplitConfig, query: ParsedUrlQuery) => {
   const keys: {
     name: string,
     prefix: string,
