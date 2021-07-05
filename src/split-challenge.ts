@@ -39,7 +39,7 @@ export const sticky = (
 ): ReturnType<typeof setCookie> =>
   setCookie(ctx, cookieKey(splitKey), config.branch, config.cookie)
 
-export const getPath = (config: SplitConfig, query: ParsedUrlQuery) => {
+export const getPath = (config: SplitConfig, query: ParsedUrlQuery): string => {
   const keys: {
     name: string
     prefix: string
