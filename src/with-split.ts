@@ -5,6 +5,7 @@ import { makeRuntimeConfig } from './makeRuntimeConfig'
 
 type WithSplitArgs = {
   splits?: SplitOptions
+  challengeFileExisting?: boolean
   rewrites?: () => Promise<Rewrites>
   assetPrefix?: string
   serverRuntimeConfig?: {
@@ -22,7 +23,7 @@ type WithSplitResult = Omit<Required<WithSplitArgs>, 'splits'> & {
 }
 
 export const withSplit = (args: WithSplitArgs): WithSplitResult => {
-  const { splits = {}, ...nextConfig } = args
+  const { splits = {}, challengeFileExisting, ...nextConfig } = args
 
   if (
     Object.keys(splits).length > 0 &&
@@ -38,7 +39,7 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
     )
   }
 
-  prepareSplitChallenge(splits)
+  prepareSplitChallenge(challengeFileExisting)
 
   return {
     ...nextConfig,

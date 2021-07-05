@@ -1,7 +1,6 @@
 import { prepareSplitChallenge } from './prepare-split-challenge'
 import { writeFileSync, existsSync, mkdirSync } from 'fs'
 import { findPagesDir } from 'next/dist/lib/find-pages-dir'
-import { SplitOptions } from './types'
 
 jest.mock('fs', () => ({
   writeFileSync: jest.fn(),
@@ -14,10 +13,11 @@ jest.mock('next/dist/lib/find-pages-dir', () => ({
 }))
 
 jest.spyOn(console, 'error').mockImplementation((mes) => console.log(mes))
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+
 const mockExit = jest
   .spyOn(process, 'exit')
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   .mockImplementation((code) => console.log('exit: ', code))
 
 describe('prepareSplitChallenge', () => {
@@ -34,7 +34,7 @@ describe('prepareSplitChallenge', () => {
     process.env = { ...process.env, VERCEL_ENV: 'production' }
     ;(findPagesDir as jest.Mock).mockReturnValue('pages')
     ;(existsSync as jest.Mock).mockReturnValue(false)
-    prepareSplitChallenge({})
+    prepareSplitChallenge()
     expect(mkdirSync).toBeCalled()
     expect(writeFileSync).toBeCalledWith(
       'pages/_split-challenge/[__key].js',
@@ -48,16 +48,16 @@ export default SplitChallenge
     process.env = { ...process.env, VERCEL_ENV: 'production' }
     ;(findPagesDir as jest.Mock).mockReturnValue('pages')
     ;(existsSync as jest.Mock).mockReturnValue(true)
-    prepareSplitChallenge({})
+    prepareSplitChallenge()
     expect(mkdirSync).not.toBeCalled()
   })
   it('must not work when runs on not production', () => {
-    prepareSplitChallenge({})
+    prepareSplitChallenge()
     expect(writeFileSync).not.toBeCalled()
   })
   it('must not work when challenge file is existing', () => {
     process.env = { ...process.env, VERCEL_ENV: 'production' }
-    prepareSplitChallenge({ challengeFileExisting: true } as SplitOptions)
+    prepareSplitChallenge(true)
     expect(writeFileSync).not.toBeCalled()
   })
   it('must request a self-creation when an exception is raised', () => {
@@ -65,7 +65,7 @@ export default SplitChallenge
     ;(findPagesDir as jest.Mock).mockImplementation(() => {
       throw new Error('some error.')
     })
-    prepareSplitChallenge({})
+    prepareSplitChallenge()
     expect(writeFileSync).not.toBeCalled()
     expect(mockExit).toBeCalledWith(1)
   })

@@ -104,6 +104,51 @@ describe('withSplit', () => {
       })
     })
   })
+  it('return split test config when challenge file existing', () => {
+    process.env = {
+      ...process.env,
+      VERCEL_URL: 'vercel.example.com',
+      VERCEL_ENV: 'production'
+    }
+    const conf = withSplit({
+      splits: {
+        test1: {
+          hosts: {
+            branch1: 'https://branch1.example.com',
+            branch2: 'https://branch2.example.com'
+          },
+          path: '/foo/:path*'
+        }
+      },
+      challengeFileExisting: true
+    })
+    expect(conf.serverRuntimeConfig).toEqual({
+      splits: {
+        test1: {
+          branch1: {
+            host: 'https://branch1.example.com',
+            path: '/foo/:path*',
+            cookie: { path: '/', maxAge: 60 * 60 * 24 }
+          },
+          branch2: {
+            host: 'https://branch2.example.com',
+            path: '/foo/:path*',
+            cookie: { path: '/', maxAge: 60 * 60 * 24 }
+          }
+        }
+      }
+    })
+    return conf.rewrites().then((res) => {
+      expect(res).toEqual({
+        beforeFiles: [
+          {
+            source: '/foo/:path*',
+            destination: '/_split-challenge/test1'
+          }
+        ]
+      })
+    })
+  })
   it('return empty rewrite rules when runs on not production', () => {
     process.env = { ...process.env, VERCEL_ENV: 'preview' }
     const conf = withSplit({

@@ -10,7 +10,6 @@ export type Rewrites =
   | Rewrite[]
 
 export type SplitOptions = {
-  challengeFileExisting?: boolean
   [keyName: string]: {
     path: string
     hosts: {
