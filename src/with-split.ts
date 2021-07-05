@@ -51,7 +51,7 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
         nextConfig.images?.path ||
         (process.env.VERCEL_URL
           ? `https://${process.env.VERCEL_URL}/_next/image`
-          : '/_next/image')
+          : undefined)
     },
     serverRuntimeConfig: {
       ...nextConfig.serverRuntimeConfig,
