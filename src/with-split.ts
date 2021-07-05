@@ -38,7 +38,7 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
     )
   }
 
-  prepareSplitChallenge()
+  prepareSplitChallenge(splits)
 
   return {
     ...nextConfig,
