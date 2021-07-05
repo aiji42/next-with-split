@@ -10,10 +10,9 @@ export const prepareSplitChallenge = (
   challengeFileExisting?: boolean
 ): void => {
   if (process.env.VERCEL_ENV !== 'production' || challengeFileExisting) return
+  let dir = ''
   try {
-    const dir = `${findPagesDir('')}/_split-challenge`
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
-    writeFileSync(`${dir}/[__key].js`, scriptText)
+    dir = `${findPagesDir('')}/_split-challenge`
   } catch (e) {
     console.error(e.message)
     console.log(`> Could not create the necessary file for the split test.
@@ -22,5 +21,15 @@ The code in the file should look like this
 // pages/_split-challenge/[__key].js
 ${scriptText}`)
     process.exit(1)
+    return
   }
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
+  if (
+    existsSync(`${dir}/[__key].ts`) ||
+    existsSync(`${dir}/[__key].tsx`) ||
+    existsSync(`${dir}/[__key].js`) ||
+    existsSync(`${dir}/[__key].jsx`)
+  )
+    return
+  writeFileSync(`${dir}/[__key].js`, scriptText)
 }

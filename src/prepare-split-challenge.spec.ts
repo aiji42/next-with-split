@@ -59,6 +59,26 @@ export default SplitChallenge
     process.env = { ...process.env, VERCEL_ENV: 'production' }
     prepareSplitChallenge(true)
     expect(writeFileSync).not.toBeCalled()
+    ;(existsSync as jest.Mock).mockImplementation((path: string) =>
+      path.includes('[__key].ts')
+    )
+    prepareSplitChallenge()
+    expect(writeFileSync).not.toBeCalled()
+    ;(existsSync as jest.Mock).mockImplementation((path: string) =>
+      path.includes('[__key].tsx')
+    )
+    prepareSplitChallenge()
+    expect(writeFileSync).not.toBeCalled()
+    ;(existsSync as jest.Mock).mockImplementation((path: string) =>
+      path.includes('[__key].js')
+    )
+    prepareSplitChallenge()
+    expect(writeFileSync).not.toBeCalled()
+    ;(existsSync as jest.Mock).mockImplementation((path: string) =>
+      path.includes('[__key].jsx')
+    )
+    prepareSplitChallenge()
+    expect(writeFileSync).not.toBeCalled()
   })
   it('must request a self-creation when an exception is raised', () => {
     process.env = { ...process.env, VERCEL_ENV: 'production' }
