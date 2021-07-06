@@ -1,10 +1,15 @@
-import { Rewrite } from 'next/dist/lib/load-custom-routes'
+import { Rewrite, RouteHas } from 'next/dist/lib/load-custom-routes'
 import { mergeRewrites } from './merge-rewrites'
 import { Rewrites, SplitOptions } from './types'
 
-const rule = (source: string, destination: string): Rewrite => ({
+const rule = (
+  source: string,
+  destination: string,
+  has: RouteHas[]
+): Rewrite => ({
   source,
-  destination
+  destination,
+  has
 })
 
 export const makeRewrites =
@@ -21,7 +26,11 @@ export const makeRewrites =
     return mergeRewrites(
       rewrite,
       Object.entries(options).map(([key, option]) =>
-        rule(option.path, `/_split-challenge/${key}`)
+        // Access from the browser will be directed to the RP,
+        // but access from the RP will be directed to the normal path.
+        rule(option.path, `/_split-challenge/${key}`, [
+          { type: 'header', key: 'user-agent' }
+        ])
       )
     )
   }

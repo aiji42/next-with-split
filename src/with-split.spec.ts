@@ -98,7 +98,8 @@ describe('withSplit', () => {
         beforeFiles: [
           {
             source: '/foo/:path*',
-            destination: '/_split-challenge/test1'
+            destination: '/_split-challenge/test1',
+            has: [{ type: 'header', key: 'user-agent' }]
           }
         ]
       })
@@ -143,7 +144,8 @@ describe('withSplit', () => {
         beforeFiles: [
           {
             source: '/foo/:path*',
-            destination: '/_split-challenge/test1'
+            destination: '/_split-challenge/test1',
+            has: [{ type: 'header', key: 'user-agent' }]
           }
         ]
       })

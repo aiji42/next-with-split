@@ -1,13 +1,16 @@
 import { mergeRewrites } from './merge-rewrites'
+import { Rewrites } from './types'
 
-const newRewrites = [
+const newRewrites: Rewrites = [
   {
     destination: '/foo/:path*',
-    source: '/_split-challenge/foo'
+    source: '/_split-challenge/foo',
+    has: [{ type: 'header', key: 'user-agent' }]
   },
   {
     destination: '/bar/:path*',
-    source: '/_split-challenge/bar'
+    source: '/_split-challenge/bar',
+    has: [{ type: 'header', key: 'user-agent' }]
   }
 ]
 
