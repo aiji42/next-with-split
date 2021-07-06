@@ -10,9 +10,9 @@ module.exports = withSplit({
       }
     },
     test2: {
-      path: '/',
+      path: '/top',
       hosts: {
-        original: 'https://nextjs-split-test-git-abtest-original-2021-07-04-aiji42.vercel.app',
+        original: 'http://localhost:3000',
         challenger: 'https://nextjs-split-test-git-abtest-example-2021-07-04-aiji42.vercel.app'
       }
     }

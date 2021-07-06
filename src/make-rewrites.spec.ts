@@ -26,7 +26,11 @@ describe('makeRewrites', () => {
     )().then((res) => {
       expect(res).toEqual({
         beforeFiles: [
-          { source: '/foo/:path*', destination: '/_split-challenge/foo' }
+          {
+            source: '/foo/:path*',
+            destination: '/_split-challenge/foo',
+            has: [{ type: 'header', key: 'user-agent' }]
+          }
         ]
       })
     })
@@ -55,10 +59,15 @@ describe('makeRewrites', () => {
     )().then((res) => {
       expect(res).toEqual({
         beforeFiles: [
-          { source: '/foo/:path*', destination: '/_split-challenge/foo' },
+          {
+            source: '/foo/:path*',
+            destination: '/_split-challenge/foo',
+            has: [{ type: 'header', key: 'user-agent' }]
+          },
           {
             source: '/bar/:path*',
-            destination: '/_split-challenge/bar'
+            destination: '/_split-challenge/bar',
+            has: [{ type: 'header', key: 'user-agent' }]
           }
         ]
       })
@@ -98,7 +107,11 @@ describe('makeRewrites', () => {
     )().then((res) => {
       expect(res).toEqual({
         beforeFiles: [
-          { source: '/foo/:path*', destination: '/_split-challenge/foo' }
+          {
+            source: '/foo/:path*',
+            destination: '/_split-challenge/foo',
+            has: [{ type: 'header', key: 'user-agent' }]
+          }
         ],
         afterFiles: [
           {

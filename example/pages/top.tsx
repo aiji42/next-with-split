@@ -13,7 +13,7 @@ const Home: FC = () => {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>ORIGINAL</h1>
+        <h1 className={styles.title}>ORIGINALaaaaaaa</h1>
       </main>
 
       <footer className={styles.footer}>
