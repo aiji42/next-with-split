@@ -83,7 +83,7 @@ It is also sticky, controlled by cookies.
 
 ## MEMO
 
-- If you place `pages/split-challenge/[__key].js` yourself, set it to `challengeFileExisting: true`.
+- If you place `pages/split-challenge/[__key].js` yourself, set `challengeFileExisting: true` in `withSplit`.
 ```js
 withSplit({
   splits: {...},
@@ -92,7 +92,7 @@ withSplit({
 })
 ```
 
-- If the deployment is subject to AB testing, `process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING` will be set to 'true'.
+- If the deployment is subject to AB testing, `process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING` is set to 'true'.
     - CAUTION: Only if the key set in `hosts` matches the branch name.
 
 ## LICENSE
