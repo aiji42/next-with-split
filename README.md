@@ -81,6 +81,20 @@ module.export = withSplit({
 6\. The network will be automatically split and the content will be served!  
 It is also sticky, controlled by cookies.
 
+## MEMO
+
+- If you place `pages/split-challenge/[__key].js` yourself, set it to `challengeFileExisting: true`.
+```js
+withSplit({
+  splits: {...},
+  // You can skip the automatic generation `pages/split-challenge/[__key].js`.
+  challengeFileExisting: true
+})
+```
+
+- If the deployment is subject to AB testing, `process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING` will be set to 'true'.
+    - CAUTION: Only if the key set in `hosts` matches the branch name.
+
 ## LICENSE
 
 [MIT](https://github.com/aiji42/next-with-split/blob/main/LICENSE) © AijiUejima
