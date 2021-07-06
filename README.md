@@ -17,8 +17,8 @@ You deploy the main branch (original) and the branch derived from it (challenger
 
 ## Require
 
-- useing Next.js >=10.1
-- hosting by Vercel.
+- Using Next.js >=10.1
+- Hosting by Vercel.
 
 Theoretically, you could use this package with any provider other than Vercel if you can deploy a preview environment. However, at the moment, it only works with Vecel because some logic depends on Vercel's environment variables.  
 Contributions and requests are welcome.
@@ -40,11 +40,9 @@ module.export = withSplit({
 })
 ```
 
-2\. Derive two branches from the main branch.
-- Original branch: Same as the main branch. (Naming it differently from the main branch will cause a deployment to occur.)
-- Challenger branch: A branch to distribute access to the origin. Develop the ideas you want to test on this branch. 
+2\. Derive a branch from the main branch as challenger. 
 
-3\. Deploy the original branch and challenger branch in Vercel for preview and get the URLs.
+3\. Deploy the challenger branch in Vercel for preview and get the hostname.
 
 4\. Modify next.config.js in the main branch.
 ```js
@@ -57,7 +55,7 @@ module.export = withSplit({
       path: '/foo/:path*', // Paths to perform A/B testing. (Follow the notation of the rewrite rules.)
       hosts: {
         // [branch name]: host name
-        original: 'example-original.vercel.app',
+        original: 'example.com',
         'challenger-for-example1': 'challenger-for-example1.vercel.app',
       },
       cookie: { // Optional (For Sticky's control)
@@ -68,7 +66,7 @@ module.export = withSplit({
     example2: {
       path: '/bar/:path*',
       hosts: {
-        original: 'example-original.vercel.app',
+        original: 'example.com',
         'challenger-for-example2': 'challenger-for-example2.vercel.app',
         // It is possible to distribute access to two or more targets as in A/B/C testing.
         'challenger2-for-example2': 'challenger2-for-example2.vercel.app',
