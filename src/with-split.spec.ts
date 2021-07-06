@@ -151,8 +151,12 @@ describe('withSplit', () => {
       })
     })
   })
-  it('return empty rewrite rules when runs on not production', () => {
-    process.env = { ...process.env, VERCEL_ENV: 'preview' }
+  it('return empty rewrite rules when runs on not production and NEXT_PUBLIC_IS_TARGET_SPLIT_BRANCH is "true"', () => {
+    process.env = {
+      ...process.env,
+      VERCEL_ENV: 'preview',
+      VERCEL_GIT_COMMIT_REF: 'branch1'
+    }
     const conf = withSplit({
       splits: {
         test1: {
@@ -164,6 +168,7 @@ describe('withSplit', () => {
         }
       }
     })
+    expect(process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING).toEqual('true')
     expect(conf.assetPrefix).toEqual('')
     expect(conf.images).toEqual({ path: undefined })
     expect(conf.serverRuntimeConfig).toEqual({

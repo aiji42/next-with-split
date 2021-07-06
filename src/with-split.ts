@@ -39,6 +39,12 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
     )
   }
 
+  const branches = Object.values(splits)
+    .map(({ hosts }) => Object.keys(hosts))
+    .flat()
+  if (branches.includes(process.env.VERCEL_GIT_COMMIT_REF ?? ''))
+    process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'
+
   prepareSplitChallenge(challengeFileExisting)
 
   return {
