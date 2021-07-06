@@ -41,8 +41,8 @@ module.export = withSplit({
 ```
 
 2\. Derive two branches from the main branch.
-    - Original branch: Same as the main branch. (Naming it differently from the main branch will cause a deployment to occur.)
-    - Challenger branch: A branch to distribute access to the origin. Develop the ideas you want to test on this branch. 
+- Original branch: Same as the main branch. (Naming it differently from the main branch will cause a deployment to occur.)
+- Challenger branch: A branch to distribute access to the origin. Develop the ideas you want to test on this branch. 
 
 3\. Deploy the original branch and challenger branch in Vercel for preview and get the URLs.
 
