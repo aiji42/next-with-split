@@ -4,7 +4,7 @@
 # :ab: next-with-split
 
 **This is magic!:crystal_ball:**  
-It enables branch-based split testing (AB testing) on Vercel, just like the Netify's [Split Testing](https://docs.netlify.com/site-deploys/split-testing/).
+It enables branch-based split testing (A/B testing) on Vercel and other providers, just like the Netify's [Split Testing](https://docs.netlify.com/site-deploys/split-testing/).
 
 This plugin lets you divide traffic to your site between different deploys, straight from CDN network. It is not the traditional split testing on a per-component or per-page file basis.   
 You deploy the main branch (original) and the branch derived from it (challenger) on Vercel, and use Next.js Rewrite Rules and Cookies to separate two or more environments. Since there is no need to duplicate code, it is easier to manage and prevents the bundle size from increasing.
@@ -15,13 +15,11 @@ You deploy the main branch (original) and the branch derived from it (challenger
 
 ![How it works 02](https://github.com/aiji42/next-with-split/blob/main/readme/02.png?raw=true)
 
+Note: Vercel is used as an example, but other providers are supported after v2.5.
+
 ## Require
 
 - Using Next.js >=10.1
-- Hosting by Vercel.
-
-Theoretically, you could use this package with any provider other than Vercel if you can deploy a preview environment. However, at the moment, it only works with Vecel because some logic depends on Vercel's environment variables.  
-Contributions and requests are welcome.
 
 ## Installation
 
@@ -42,7 +40,7 @@ module.export = withSplit({
 
 2\. Derive a branch from the main branch as challenger. 
 
-3\. Deploy the challenger branch in Vercel for preview and get the hostname.
+3\. Deploy the challenger branch for preview and get the hostname.
 
 4\. Modify next.config.js in the main branch.
 ```js
@@ -76,6 +74,23 @@ module.export = withSplit({
   // write your next.js configuration values.
 })
 ```
+- If you use a provider other than Vercel, please configure the following manual.  
+**Note: This setting is also required for the Challenger branches.**
+```js
+// next.config.js
+const { withSplit } = require('next-with-split');
+
+module.export = withSplit({
+  splits: {...},
+  manualConfig: {
+    isOriginal: false, // Control it so that it is true on the original branch (basically the main branch) and false on all other branches.,
+    hostname: 'challenger.example.com', // Set the hostname in the Challenger branch. If this is not set, you will not be able to access the assets and images.
+    currentBranch: 'chllenger1', // Optional. Set the value if you use `process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING`.
+  }
+  // write your next.js configuration values.
+})
+```
+
 5\. Deploy the main branch.
 
 6\. The network will be automatically split and the content will be served!  
@@ -83,16 +98,18 @@ It is also sticky, controlled by cookies.
 
 ## MEMO
 
-- If you place `pages/split-challenge/[__key].js` yourself, set `challengeFileExisting: true` in `withSplit`.
+- If you place `pages/split-challenge/[__key].js` yourself, set `manualConfig.prepared: true`.
 ```js
 withSplit({
   splits: {...},
   // You can skip the automatic generation `pages/split-challenge/[__key].js`.
-  challengeFileExisting: true
+  manualConfig: {
+    prepared: true
+  }
 })
 ```
 
-- If the deployment is subject to AB testing, `process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING` is set to 'true'.
+- If the deployment is subject to A/B testing, `process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING` is set to 'true'.
     - CAUTION: Only if the key set in `hosts` matches the branch name.
 
 ## LICENSE
