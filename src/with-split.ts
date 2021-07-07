@@ -51,16 +51,12 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
     ...nextConfig,
     assetPrefix:
       nextConfig.assetPrefix ||
-      (!isProd && assetHost
-        ? `https://${assetHost}`
-        : ''),
+      (!isProd && assetHost ? `https://${assetHost}` : ''),
     images: {
       ...nextConfig.images,
       path:
         nextConfig.images?.path ||
-        (!isProd && assetHost
-          ? `https://${assetHost}/_next/image`
-          : undefined)
+        (!isProd && assetHost ? `https://${assetHost}/_next/image` : undefined)
     },
     serverRuntimeConfig: {
       ...nextConfig.serverRuntimeConfig,
