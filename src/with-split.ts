@@ -25,6 +25,8 @@ type WithSplitResult = Omit<Required<WithSplitArgs>, 'splits'> & {
 export const withSplit = (args: WithSplitArgs): WithSplitResult => {
   const { splits = {}, challengeFileExisting, ...nextConfig } = args
   const isProd = process.env.VERCEL_ENV === 'production'
+  const assetHost = process.env.VERCEL_URL
+  const currentBranch = process.env.VERCEL_GIT_COMMIT_REF ?? ''
 
   if (Object.keys(splits).length > 0 && isProd) {
     console.log('Split tests are active.')
@@ -40,7 +42,7 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
   const branches = Object.values(splits)
     .map(({ hosts }) => Object.keys(hosts))
     .flat()
-  if (branches.includes(process.env.VERCEL_GIT_COMMIT_REF ?? ''))
+  if (branches.includes(currentBranch))
     process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'
 
   prepareSplitChallenge(isProd, challengeFileExisting)
@@ -49,15 +51,15 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
     ...nextConfig,
     assetPrefix:
       nextConfig.assetPrefix ||
-      (!isProd && process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
+      (!isProd && assetHost
+        ? `https://${assetHost}`
         : ''),
     images: {
       ...nextConfig.images,
       path:
         nextConfig.images?.path ||
-        (!isProd && process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}/_next/image`
+        (!isProd && assetHost
+          ? `https://${assetHost}/_next/image`
           : undefined)
     },
     serverRuntimeConfig: {
