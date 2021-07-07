@@ -1,4 +1,4 @@
-import { prepareSplitChallenge } from './prepare-split-challenge'
+import { prepareSplitChallenge } from '../prepare-split-challenge'
 import { writeFileSync, existsSync, mkdirSync } from 'fs'
 import { findPagesDir } from 'next/dist/lib/find-pages-dir'
 

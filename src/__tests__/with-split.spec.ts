@@ -1,6 +1,6 @@
-import { withSplit } from './with-split'
+import { withSplit } from '../with-split'
 
-jest.mock('./prepare-split-challenge', () => ({
+jest.mock('../prepare-split-challenge', () => ({
   prepareSplitChallenge: jest.fn()
 }))
 

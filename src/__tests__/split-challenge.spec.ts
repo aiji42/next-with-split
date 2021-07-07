@@ -4,19 +4,19 @@ import {
   sticky,
   runReverseProxy,
   getServerSideProps
-} from './split-challenge'
-import { reverseProxy } from './reverse-proxy'
+} from '../split-challenge'
+import { reverseProxy } from '../reverse-proxy'
 import { parseCookies, setCookie } from 'nookies'
 import getConfig from 'next/config'
 import { GetServerSidePropsContext } from 'next'
-import { SplitConfig } from './types'
+import { SplitConfig } from '../types'
 
 jest.mock('nookies', () => ({
   parseCookies: jest.fn(),
   setCookie: jest.fn()
 }))
 
-jest.mock('./reverse-proxy', () => ({
+jest.mock('../reverse-proxy', () => ({
   reverseProxy: jest.fn()
 }))
 

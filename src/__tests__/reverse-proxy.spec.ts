@@ -1,4 +1,4 @@
-import { _reverseProxy } from './reverse-proxy'
+import { _reverseProxy } from '../reverse-proxy'
 import { request as httpRequest } from 'http'
 import { request } from 'https'
 

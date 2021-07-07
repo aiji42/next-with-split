@@ -1,4 +1,4 @@
-import { makeRewrites } from './make-rewrites'
+import { makeRewrites } from '../make-rewrites'
 
 describe('makeRewrites', () => {
   const OLD_ENV = process.env
