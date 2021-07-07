@@ -1,4 +1,5 @@
 import { withSplit } from '../with-split'
+import { prepareSplitChallenge } from '../prepare-split-challenge'
 
 jest.mock('../prepare-split-challenge', () => ({
   prepareSplitChallenge: jest.fn()
@@ -139,6 +140,7 @@ describe('withSplit', () => {
         }
       }
     })
+    expect(prepareSplitChallenge).toBeCalledWith(true, true)
     return conf.rewrites().then((res) => {
       expect(res).toEqual({
         beforeFiles: [
@@ -171,7 +173,9 @@ describe('withSplit', () => {
     })
     expect(process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING).toEqual('true')
     expect(conf.assetPrefix).toEqual('https://preview.example.com')
-    expect(conf.images).toEqual({ path: 'https://preview.example.com/_next/image' })
+    expect(conf.images).toEqual({
+      path: 'https://preview.example.com/_next/image'
+    })
     expect(conf.serverRuntimeConfig).toEqual({
       splits: {
         test1: {
@@ -192,6 +196,152 @@ describe('withSplit', () => {
       expect(res).toEqual({
         beforeFiles: []
       })
+    })
+  })
+
+  describe('manual config', () => {
+    it('prepareSplitChallenge must call with prepared option when manualConfig.prepared is set true', () => {
+      withSplit({
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'https://branch1.example.com',
+              branch2: 'https://branch2.example.com'
+            },
+            path: '/foo/:path*'
+          }
+        },
+        manualConfig: {
+          prepared: true
+        }
+      })
+      expect(prepareSplitChallenge).toBeCalledWith(false, true)
+    })
+
+    it('must return rewrite rules manualConfig.isOriginal is set true', () => {
+      const conf = withSplit({
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'https://branch1.example.com',
+              branch2: 'https://branch2.example.com'
+            },
+            path: '/foo/:path*'
+          }
+        },
+        manualConfig: {
+          isOriginal: true
+        }
+      })
+      return conf.rewrites().then((res) => {
+        expect(res).toEqual({
+          beforeFiles: [
+            {
+              source: '/foo/:path*',
+              destination: '/_split-challenge/test1',
+              has: [{ type: 'header', key: 'user-agent' }]
+            }
+          ]
+        })
+      })
+    })
+
+    it('must return empty rewrite rules when manualConfig.isOriginal is set false', () => {
+      const conf = withSplit({
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'https://branch1.example.com',
+              branch2: 'https://branch2.example.com'
+            },
+            path: '/foo/:path*'
+          }
+        },
+        manualConfig: {
+          isOriginal: false
+        }
+      })
+      return conf.rewrites().then((res) => {
+        expect(res).toEqual({ beforeFiles: [] })
+      })
+    })
+
+    it('Env variable indicate targeting when manualConfig.currentBranch is set target branch', () => {
+      withSplit({
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'https://branch1.example.com',
+              branch2: 'https://branch2.example.com'
+            },
+            path: '/foo/:path*'
+          }
+        },
+        manualConfig: {
+          currentBranch: 'branch1'
+        }
+      })
+      expect(process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING).toEqual('true')
+    })
+
+    it('Env variable must not indicate targeting when manualConfig.currentBranch is set NOT targeted branch', () => {
+      withSplit({
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'https://branch1.example.com',
+              branch2: 'https://branch2.example.com'
+            },
+            path: '/foo/:path*'
+          }
+        },
+        manualConfig: {
+          currentBranch: 'branch3'
+        }
+      })
+      expect(process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING).toBeUndefined()
+    })
+
+    it('must return assetPrefix and image.path when manualConfig.hostname is set and isOriginal is set false', () => {
+      const conf = withSplit({
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'https://branch1.example.com',
+              branch2: 'https://branch2.example.com'
+            },
+            path: '/foo/:path*'
+          }
+        },
+        manualConfig: {
+          hostname: 'preview.example.com',
+          isOriginal: false
+        }
+      })
+      expect(conf.assetPrefix).toEqual('https://preview.example.com')
+      expect(conf.images).toEqual({
+        path: 'https://preview.example.com/_next/image'
+      })
+    })
+
+    it('must return blank assetPrefix and image.path when manualConfig.hostname is set and isOriginal is set true', () => {
+      const conf = withSplit({
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'https://branch1.example.com',
+              branch2: 'https://branch2.example.com'
+            },
+            path: '/foo/:path*'
+          }
+        },
+        manualConfig: {
+          hostname: 'preview.example.com',
+          isOriginal: true
+        }
+      })
+      expect(conf.assetPrefix).toEqual('')
+      expect(conf.images).toEqual({ path: undefined })
     })
   })
 })
