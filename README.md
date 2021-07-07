@@ -7,13 +7,15 @@
 It enables branch-based split testing (A/B testing) on Vercel and other providers, just like the Netify's [Split Testing](https://docs.netlify.com/site-deploys/split-testing/).
 
 This plugin lets you divide traffic to your site between different deploys, straight from CDN network. It is not the traditional split testing on a per-component or per-page file basis.   
-You deploy the main branch (original) and the branch derived from it (challenger) on Vercel, and use Next.js Rewrite Rules and Cookies to separate two or more environments. Since there is no need to duplicate code, it is easier to manage and prevents the bundle size from increasing.
+You deploy the main branch (original) and the branch derived from it (challenger) on Vercel and other providers, and use Next.js Rewrite Rules and Cookies to separate two or more environments. Since there is no need to duplicate code, it is easier to manage and prevents the bundle size from increasing.
 
 ## How it works
 
 ![How it works 01](https://github.com/aiji42/next-with-split/blob/main/readme/01.png?raw=true)
 
 ![How it works 02](https://github.com/aiji42/next-with-split/blob/main/readme/02.png?raw=true)
+
+:bulb: In getServerSideProps, it is running an http(s) server to act as a reverse proxy.
 
 Note: Vercel is used as an example, but other providers are supported after v2.5.
 
