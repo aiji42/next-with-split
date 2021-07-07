@@ -7,9 +7,10 @@ export default SplitChallenge
 `
 
 export const prepareSplitChallenge = (
+  isProduction: boolean,
   challengeFileExisting?: boolean
 ): void => {
-  if (process.env.VERCEL_ENV !== 'production' || challengeFileExisting) return
+  if (!isProduction || challengeFileExisting) return
   let dir = ''
   try {
     dir = `${findPagesDir('')}/_split-challenge`

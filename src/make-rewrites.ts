@@ -15,13 +15,12 @@ const rule = (
 export const makeRewrites =
   (
     options: SplitOptions,
-    originalRewrite: (() => Promise<Rewrites>) | undefined
+    originalRewrite: (() => Promise<Rewrites>) | undefined,
+    isProduction: boolean
   ) =>
   async (): Promise<Rewrites> => {
     const rewrite = await originalRewrite?.()
-    const active = process.env.VERCEL_ENV === 'production'
-
-    if (!active) return mergeRewrites(rewrite, [])
+    if (!isProduction) return mergeRewrites(rewrite, [])
 
     return mergeRewrites(
       rewrite,

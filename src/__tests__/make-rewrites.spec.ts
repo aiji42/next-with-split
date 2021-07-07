@@ -1,17 +1,7 @@
 import { makeRewrites } from '../make-rewrites'
 
 describe('makeRewrites', () => {
-  const OLD_ENV = process.env
-  beforeEach(() => {
-    jest.resetModules()
-    process.env = { ...OLD_ENV }
-  })
-  afterAll(() => {
-    process.env = OLD_ENV
-  })
-
   it('must return a rewrite rule', () => {
-    process.env = { ...process.env, VERCEL_ENV: 'production' }
     return makeRewrites(
       {
         foo: {
@@ -22,7 +12,8 @@ describe('makeRewrites', () => {
           }
         }
       },
-      undefined
+      undefined,
+      true
     )().then((res) => {
       expect(res).toEqual({
         beforeFiles: [
@@ -37,7 +28,6 @@ describe('makeRewrites', () => {
   })
 
   it('must return rewrite rules', () => {
-    process.env = { ...process.env, VERCEL_ENV: 'production' }
     return makeRewrites(
       {
         foo: {
@@ -55,7 +45,8 @@ describe('makeRewrites', () => {
           }
         }
       },
-      undefined
+      undefined,
+      true
     )().then((res) => {
       expect(res).toEqual({
         beforeFiles: [
@@ -75,16 +66,15 @@ describe('makeRewrites', () => {
   })
 
   it('must return no rewrite rule when option is empty', () => {
-    process.env = { ...process.env, VERCEL_ENV: 'production' }
-    return makeRewrites({}, undefined)().then((res) => {
+    return makeRewrites({}, undefined, true)().then((res) => {
       expect(res).toEqual({
         beforeFiles: []
       })
     })
   })
 
-  it('must return no rewrite rule when runs on not production', () => {
-    return makeRewrites({}, undefined)().then((res) => {
+  it('must return no rewrite rule when runs on NOT production', () => {
+    return makeRewrites({}, undefined, false)().then((res) => {
       expect(res).toEqual({
         beforeFiles: []
       })
@@ -92,7 +82,6 @@ describe('makeRewrites', () => {
   })
 
   it('must return merged rewrite rules', () => {
-    process.env = { ...process.env, VERCEL_ENV: 'production' }
     return makeRewrites(
       {
         foo: {
@@ -103,7 +92,8 @@ describe('makeRewrites', () => {
           }
         }
       },
-      async () => [{ source: '/foo/bar/:path*', destination: '/foo/bar' }]
+      async () => [{ source: '/foo/bar/:path*', destination: '/foo/bar' }],
+      true
     )().then((res) => {
       expect(res).toEqual({
         beforeFiles: [

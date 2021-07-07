@@ -43,7 +43,7 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
   if (branches.includes(process.env.VERCEL_GIT_COMMIT_REF ?? ''))
     process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'
 
-  prepareSplitChallenge(challengeFileExisting)
+  prepareSplitChallenge(isProd, challengeFileExisting)
 
   return {
     ...nextConfig,
@@ -64,6 +64,6 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
       ...nextConfig.serverRuntimeConfig,
       splits: makeRuntimeConfig(splits)
     },
-    rewrites: makeRewrites(splits, nextConfig.rewrites)
+    rewrites: makeRewrites(splits, nextConfig.rewrites, isProd)
   }
 }
