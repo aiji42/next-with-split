@@ -24,7 +24,7 @@ describe('prepareSplitChallenge', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
-  it('must make split-challenge script when runs on production', () => {
+  it('must make split-challenge script when runs on main branch', () => {
     ;(findPagesDir as jest.Mock).mockReturnValue('pages')
     ;(existsSync as jest.Mock).mockReturnValue(false)
     prepareSplitChallenge(true)
@@ -43,7 +43,7 @@ export default SplitChallenge
     prepareSplitChallenge(true)
     expect(mkdirSync).not.toBeCalled()
   })
-  it('must not work when runs on not production', () => {
+  it('must not work when runs on not main branch', () => {
     prepareSplitChallenge(false)
     expect(writeFileSync).not.toBeCalled()
   })

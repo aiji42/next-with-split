@@ -151,7 +151,7 @@ describe('withSplit', () => {
       })
     })
   })
-  it('return empty rewrite rules when runs on not production', () => {
+  it('return empty rewrite rules when runs on not main branch', () => {
     process.env = {
       ...process.env,
       VERCEL_ENV: 'preview',

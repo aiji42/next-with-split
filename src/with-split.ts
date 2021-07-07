@@ -5,7 +5,13 @@ import { makeRuntimeConfig } from './makeRuntimeConfig'
 
 type WithSplitArgs = {
   splits?: SplitOptions
-  challengeFileExisting?: boolean
+  challengeFileExisting?: boolean // TODO: Discontinued in the next major update
+  manualConfig?: {
+    prepared?: boolean
+    currentBranch?: string
+    isOriginal?: boolean
+    hostname?: string
+  }
   rewrites?: () => Promise<Rewrites>
   assetPrefix?: string
   serverRuntimeConfig?: {
@@ -23,12 +29,27 @@ type WithSplitResult = Omit<Required<WithSplitArgs>, 'splits'> & {
 }
 
 export const withSplit = (args: WithSplitArgs): WithSplitResult => {
-  const { splits = {}, challengeFileExisting, ...nextConfig } = args
-  const isProd = process.env.VERCEL_ENV === 'production'
-  const assetHost = process.env.VERCEL_URL
-  const currentBranch = process.env.VERCEL_GIT_COMMIT_REF ?? ''
+  const {
+    splits = {},
+    challengeFileExisting,
+    manualConfig: {
+      prepared,
+      hostname,
+      currentBranch: branch,
+      isOriginal
+    } = {},
+    ...nextConfig
+  } = args
+  const isMain = isOriginal ?? process.env.VERCEL_ENV === 'production'
+  const assetHost = hostname ?? process.env.VERCEL_URL
+  const currentBranch = branch ?? process.env.VERCEL_GIT_COMMIT_REF ?? ''
 
-  if (Object.keys(splits).length > 0 && isProd) {
+  if (challengeFileExisting !== undefined)
+    console.warn(
+      'Deprecated: `challengeFileExisting` will be deprecated in the next major update. Use `manualConfig.prepared` instead.'
+    )
+
+  if (Object.keys(splits).length > 0 && isMain) {
     console.log('Split tests are active.')
     console.table(
       Object.entries(splits).map(([testKey, options]) => ({
@@ -45,23 +66,23 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
   if (branches.includes(currentBranch))
     process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'
 
-  prepareSplitChallenge(isProd, challengeFileExisting)
+  prepareSplitChallenge(isMain, prepared ?? challengeFileExisting) // TODO: Discontinued in the next major update
 
   return {
     ...nextConfig,
     assetPrefix:
       nextConfig.assetPrefix ||
-      (!isProd && assetHost ? `https://${assetHost}` : ''),
+      (!isMain && assetHost ? `https://${assetHost}` : ''),
     images: {
       ...nextConfig.images,
       path:
         nextConfig.images?.path ||
-        (!isProd && assetHost ? `https://${assetHost}/_next/image` : undefined)
+        (!isMain && assetHost ? `https://${assetHost}/_next/image` : undefined)
     },
     serverRuntimeConfig: {
       ...nextConfig.serverRuntimeConfig,
       splits: makeRuntimeConfig(splits)
     },
-    rewrites: makeRewrites(splits, nextConfig.rewrites, isProd)
+    rewrites: makeRewrites(splits, nextConfig.rewrites, isMain)
   }
 }

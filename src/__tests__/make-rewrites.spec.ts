@@ -73,7 +73,7 @@ describe('makeRewrites', () => {
     })
   })
 
-  it('must return no rewrite rule when runs on NOT production', () => {
+  it('must return no rewrite rule when runs on NOT main branch', () => {
     return makeRewrites({}, undefined, false)().then((res) => {
       expect(res).toEqual({
         beforeFiles: []

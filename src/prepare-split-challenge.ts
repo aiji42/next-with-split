@@ -7,10 +7,10 @@ export default SplitChallenge
 `
 
 export const prepareSplitChallenge = (
-  isProduction: boolean,
-  challengeFileExisting?: boolean
+  isMain: boolean,
+  prepared?: boolean
 ): void => {
-  if (!isProduction || challengeFileExisting) return
+  if (!isMain || prepared) return
   let dir = ''
   try {
     dir = `${findPagesDir('')}/_split-challenge`

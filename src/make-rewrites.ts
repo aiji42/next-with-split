@@ -16,11 +16,11 @@ export const makeRewrites =
   (
     options: SplitOptions,
     originalRewrite: (() => Promise<Rewrites>) | undefined,
-    isProduction: boolean
+    isMain: boolean
   ) =>
   async (): Promise<Rewrites> => {
     const rewrite = await originalRewrite?.()
-    if (!isProduction) return mergeRewrites(rewrite, [])
+    if (!isMain) return mergeRewrites(rewrite, [])
 
     return mergeRewrites(
       rewrite,
