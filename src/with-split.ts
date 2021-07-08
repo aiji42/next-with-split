@@ -19,13 +19,19 @@ type WithSplitArgs = {
   [x: string]: unknown
 }
 
-type WithSplitResult = Omit<Required<WithSplitArgs>, 'splits'> & {
+type NextConfig = Omit<Required<WithSplitArgs>, 'splits'>
+
+type WithSplitResult = NextConfig & {
   rewrites: () => Promise<Rewrites>
 }
 
 export const withSplit = (args: WithSplitArgs): WithSplitResult => {
   const { splits = {}, challengeFileExisting, manuals, ...nextConfig } = args
-  const isMain = manuals?.isOriginal ?? process.env.VERCEL_ENV === 'production'
+  if (process.env.SPLIT_DISABLE) return <WithSplitResult>nextConfig
+
+  const isMain =
+    !!process.env.SPLIT_ACTIVE ||
+    (manuals?.isOriginal ?? process.env.VERCEL_ENV === 'production')
   const assetHost = manuals?.hostname ?? process.env.VERCEL_URL
   const currentBranch =
     manuals?.currentBranch ?? process.env.VERCEL_GIT_COMMIT_REF ?? ''
