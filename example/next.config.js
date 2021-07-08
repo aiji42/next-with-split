@@ -5,7 +5,8 @@ module.exports = withSplit({
     test1: {
       path: '/foo/abtest/:path*',
       hosts: {
-        original: 'https://nextjs-split-test-git-abtest-original-2021-07-04-aiji42.vercel.app',
+        original: 'http://localhost:3000',
+        // original: 'https://nextjs-split-test-git-abtest-original-2021-07-04-aiji42.vercel.app',
         challenger: 'https://nextjs-split-test-git-abtest-example-2021-07-04-aiji42.vercel.app'
       }
     },
@@ -16,5 +17,17 @@ module.exports = withSplit({
         challenger: 'https://nextjs-split-test-git-abtest-example-2021-07-04-aiji42.vercel.app'
       }
     }
-  }
+  },
+  manuals: {
+    prepare: true,
+    isOriginal: true
+  },
+  rewrites: async () => ({
+    beforeFiles: [
+      {
+        source: '/foo/:path*',
+        destination: '/foo/bar'
+      }
+    ]
+  })
 })
