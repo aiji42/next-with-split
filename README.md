@@ -122,6 +122,11 @@ withSplit({
 - If the deployment is subject to A/B testing, `process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING` is set to 'true'.
     - CAUTION: Only if the key set in `hosts` matches the branch name.
 
+- You can control the behavior of `withSplit` by forcing it by passing an environment variable at server startup.  
+Use it for verification in your development environment.
+    - `SPLIT_ACTIVE=true yarn dev`: forced active.
+    - `SPLIT_DISABLE=true yarn dev`: forced disable.
+
 ## LICENSE
 
 [MIT](https://github.com/aiji42/next-with-split/blob/main/LICENSE) © AijiUejima
