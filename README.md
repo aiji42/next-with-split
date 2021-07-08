@@ -101,7 +101,15 @@ It is also sticky, controlled by cookies.
 ## MEMO
 
 - If you place `pages/split-challenge/[__key].js` yourself, set `manuals.prepared: true`.
+    - This file acts as a reverse proxy to distribute the access to the target path to each branch deployments.
 ```js
+// pages/split-challenge/[__key].js (.ts when using typescript)
+export { getServerSideProps } from 'next-with-split'
+const SplitChallenge = () => null
+export default SplitChallenge
+```
+```js
+// next.config.js
 withSplit({
   splits: {...},
   // You can skip the automatic generation `pages/split-challenge/[__key].js`.
