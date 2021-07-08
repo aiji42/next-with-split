@@ -84,7 +84,7 @@ const { withSplit } = require('next-with-split');
 
 module.export = withSplit({
   splits: {...},
-  manualConfig: {
+  manuals: {
     isOriginal: false, // Control it so that it is true on the original branch (basically the main branch) and false on all other branches.,
     hostname: 'challenger.example.com', // Set the hostname in the Challenger branch. If this is not set, you will not be able to access the assets and images.
     currentBranch: 'chllenger1', // Optional. Set the value if you use `process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING`.
@@ -100,12 +100,12 @@ It is also sticky, controlled by cookies.
 
 ## MEMO
 
-- If you place `pages/split-challenge/[__key].js` yourself, set `manualConfig.prepared: true`.
+- If you place `pages/split-challenge/[__key].js` yourself, set `manuals.prepared: true`.
 ```js
 withSplit({
   splits: {...},
   // You can skip the automatic generation `pages/split-challenge/[__key].js`.
-  manualConfig: {
+  manuals: {
     prepared: true
   }
 })
