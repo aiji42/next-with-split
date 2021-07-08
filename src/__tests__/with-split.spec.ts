@@ -200,7 +200,7 @@ describe('withSplit', () => {
   })
 
   describe('manual config', () => {
-    it('prepareSplitChallenge must call with prepared option when manualConfig.prepared is set true', () => {
+    it('prepareSplitChallenge must call with prepared option when manuals.prepared is set true', () => {
       withSplit({
         splits: {
           test1: {
@@ -211,14 +211,14 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manualConfig: {
+        manuals: {
           prepared: true
         }
       })
       expect(prepareSplitChallenge).toBeCalledWith(false, true)
     })
 
-    it('must return rewrite rules manualConfig.isOriginal is set true', () => {
+    it('must return rewrite rules manuals.isOriginal is set true', () => {
       const conf = withSplit({
         splits: {
           test1: {
@@ -229,7 +229,7 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manualConfig: {
+        manuals: {
           isOriginal: true
         }
       })
@@ -246,7 +246,7 @@ describe('withSplit', () => {
       })
     })
 
-    it('must return empty rewrite rules when manualConfig.isOriginal is set false', () => {
+    it('must return empty rewrite rules when manuals.isOriginal is set false', () => {
       const conf = withSplit({
         splits: {
           test1: {
@@ -257,7 +257,7 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manualConfig: {
+        manuals: {
           isOriginal: false
         }
       })
@@ -266,7 +266,7 @@ describe('withSplit', () => {
       })
     })
 
-    it('Env variable indicate targeting when manualConfig.currentBranch is set target branch', () => {
+    it('Env variable indicate targeting when manuals.currentBranch is set target branch', () => {
       withSplit({
         splits: {
           test1: {
@@ -277,14 +277,14 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manualConfig: {
+        manuals: {
           currentBranch: 'branch1'
         }
       })
       expect(process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING).toEqual('true')
     })
 
-    it('Env variable must not indicate targeting when manualConfig.currentBranch is set NOT targeted branch', () => {
+    it('Env variable must not indicate targeting when manuals.currentBranch is set NOT targeted branch', () => {
       withSplit({
         splits: {
           test1: {
@@ -295,14 +295,14 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manualConfig: {
+        manuals: {
           currentBranch: 'branch3'
         }
       })
       expect(process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING).toBeUndefined()
     })
 
-    it('must return assetPrefix and image.path when manualConfig.hostname is set and isOriginal is set false', () => {
+    it('must return assetPrefix and image.path when manuals.hostname is set and isOriginal is set false', () => {
       const conf = withSplit({
         splits: {
           test1: {
@@ -313,7 +313,7 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manualConfig: {
+        manuals: {
           hostname: 'preview.example.com',
           isOriginal: false
         }
@@ -324,7 +324,7 @@ describe('withSplit', () => {
       })
     })
 
-    it('must return blank assetPrefix and image.path when manualConfig.hostname is set and isOriginal is set true', () => {
+    it('must return blank assetPrefix and image.path when manuals.hostname is set and isOriginal is set true', () => {
       const conf = withSplit({
         splits: {
           test1: {
@@ -335,7 +335,7 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manualConfig: {
+        manuals: {
           hostname: 'preview.example.com',
           isOriginal: true
         }

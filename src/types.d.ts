@@ -9,6 +9,13 @@ export type Rewrites =
     }
   | Rewrite[]
 
+export type Manuals = {
+  prepared?: boolean
+  currentBranch?: string
+  isOriginal?: boolean
+  hostname?: string
+}
+
 export type SplitOptions = {
   [keyName: string]: {
     path: string
