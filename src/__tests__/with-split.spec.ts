@@ -343,5 +343,55 @@ describe('withSplit', () => {
       expect(conf.assetPrefix).toEqual('')
       expect(conf.images).toEqual({ path: undefined })
     })
+
+    it('must through nextConfig without doing anything when SPLIT_DISABLE', () => {
+      process.env = { ...process.env, SPLIT_DISABLE: 'true' }
+      const conf = withSplit({
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'https://branch1.example.com',
+              branch2: 'https://branch2.example.com'
+            },
+            path: '/foo/:path*'
+          }
+        },
+        manuals: {
+          hostname: 'preview.example.com',
+          isOriginal: true
+        }
+      })
+      expect(conf).toEqual({})
+    })
+
+    it('must return forced rewrite rules when SPLIT_ACTIVE', () => {
+      process.env = { ...process.env, SPLIT_ACTIVE: 'true' }
+      const conf = withSplit({
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'https://branch1.example.com',
+              branch2: 'https://branch2.example.com'
+            },
+            path: '/foo/:path*'
+          }
+        },
+        manuals: {
+          hostname: 'preview.example.com',
+          isOriginal: false
+        }
+      })
+      return conf.rewrites().then((res) => {
+        expect(res).toEqual({
+          beforeFiles: [
+            {
+              source: '/foo/:path*',
+              destination: '/_split-challenge/test1',
+              has: [{ type: 'header', key: 'user-agent' }]
+            }
+          ]
+        })
+      })
+    })
   })
 })
