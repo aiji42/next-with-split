@@ -62,7 +62,7 @@ module.export = withSplit({
         maxAge: 60 * 60 * 12 // Number of valid seconds for sticky sessions. (default is 1 day)
       }
     },
-    // Multiple AB tests can be run simultaneously.
+    // Multiple A/B tests can be run simultaneously.
     example2: {
       path: '/bar/:path*',
       hosts: {
