@@ -1,11 +1,12 @@
 import { prepareSplitChallenge } from './prepare-split-challenge'
 import { makeRewrites } from './make-rewrites'
-import { Rewrites, SplitOptions } from './types'
+import { Manuals, Rewrites, SplitOptions } from './types'
 import { makeRuntimeConfig } from './makeRuntimeConfig'
 
 type WithSplitArgs = {
   splits?: SplitOptions
-  challengeFileExisting?: boolean
+  challengeFileExisting?: boolean // TODO: Discontinued in the next major update
+  manuals?: Manuals
   rewrites?: () => Promise<Rewrites>
   assetPrefix?: string
   serverRuntimeConfig?: {
@@ -23,10 +24,18 @@ type WithSplitResult = Omit<Required<WithSplitArgs>, 'splits'> & {
 }
 
 export const withSplit = (args: WithSplitArgs): WithSplitResult => {
-  const { splits = {}, challengeFileExisting, ...nextConfig } = args
-  const isProd = process.env.VERCEL_ENV === 'production'
+  const { splits = {}, challengeFileExisting, manuals, ...nextConfig } = args
+  const isMain = manuals?.isOriginal ?? process.env.VERCEL_ENV === 'production'
+  const assetHost = manuals?.hostname ?? process.env.VERCEL_URL
+  const currentBranch =
+    manuals?.currentBranch ?? process.env.VERCEL_GIT_COMMIT_REF ?? ''
 
-  if (Object.keys(splits).length > 0 && isProd) {
+  if (challengeFileExisting !== undefined)
+    console.warn(
+      'Deprecated: `challengeFileExisting` will be deprecated in the next major update. Use `manuals.prepared` instead.'
+    )
+
+  if (Object.keys(splits).length > 0 && isMain) {
     console.log('Split tests are active.')
     console.table(
       Object.entries(splits).map(([testKey, options]) => ({
@@ -40,30 +49,26 @@ export const withSplit = (args: WithSplitArgs): WithSplitResult => {
   const branches = Object.values(splits)
     .map(({ hosts }) => Object.keys(hosts))
     .flat()
-  if (branches.includes(process.env.VERCEL_GIT_COMMIT_REF ?? ''))
+  if (branches.includes(currentBranch))
     process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'
 
-  prepareSplitChallenge(challengeFileExisting)
+  prepareSplitChallenge(isMain, manuals?.prepared ?? challengeFileExisting) // TODO: Discontinued in the next major update
 
   return {
     ...nextConfig,
     assetPrefix:
       nextConfig.assetPrefix ||
-      (!isProd && process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : ''),
+      (!isMain && assetHost ? `https://${assetHost}` : ''),
     images: {
       ...nextConfig.images,
       path:
         nextConfig.images?.path ||
-        (!isProd && process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}/_next/image`
-          : undefined)
+        (!isMain && assetHost ? `https://${assetHost}/_next/image` : undefined)
     },
     serverRuntimeConfig: {
       ...nextConfig.serverRuntimeConfig,
       splits: makeRuntimeConfig(splits)
     },
-    rewrites: makeRewrites(splits, nextConfig.rewrites)
+    rewrites: makeRewrites(splits, nextConfig.rewrites, isMain)
   }
 }

@@ -1,4 +1,4 @@
-import { prepareSplitChallenge } from './prepare-split-challenge'
+import { prepareSplitChallenge } from '../prepare-split-challenge'
 import { writeFileSync, existsSync, mkdirSync } from 'fs'
 import { findPagesDir } from 'next/dist/lib/find-pages-dir'
 
@@ -21,20 +21,13 @@ const mockExit = jest
   .mockImplementation((code) => console.log('exit: ', code))
 
 describe('prepareSplitChallenge', () => {
-  const OLD_ENV = process.env
   beforeEach(() => {
-    jest.resetModules()
     jest.clearAllMocks()
-    process.env = { ...OLD_ENV }
   })
-  afterAll(() => {
-    process.env = OLD_ENV
-  })
-  it('must make split-challenge script when runs on production', () => {
-    process.env = { ...process.env, VERCEL_ENV: 'production' }
+  it('must make split-challenge script when runs on main branch', () => {
     ;(findPagesDir as jest.Mock).mockReturnValue('pages')
     ;(existsSync as jest.Mock).mockReturnValue(false)
-    prepareSplitChallenge()
+    prepareSplitChallenge(true)
     expect(mkdirSync).toBeCalled()
     expect(writeFileSync).toBeCalledWith(
       'pages/_split-challenge/[__key].js',
@@ -45,47 +38,44 @@ export default SplitChallenge
     )
   })
   it('must not call mkdirSync when existing directory', () => {
-    process.env = { ...process.env, VERCEL_ENV: 'production' }
     ;(findPagesDir as jest.Mock).mockReturnValue('pages')
     ;(existsSync as jest.Mock).mockReturnValue(true)
-    prepareSplitChallenge()
+    prepareSplitChallenge(true)
     expect(mkdirSync).not.toBeCalled()
   })
-  it('must not work when runs on not production', () => {
-    prepareSplitChallenge()
+  it('must not work when runs on not main branch', () => {
+    prepareSplitChallenge(false)
     expect(writeFileSync).not.toBeCalled()
   })
   it('must not work when challenge file is existing', () => {
-    process.env = { ...process.env, VERCEL_ENV: 'production' }
     prepareSplitChallenge(true)
     expect(writeFileSync).not.toBeCalled()
     ;(existsSync as jest.Mock).mockImplementation((path: string) =>
       path.includes('[__key].ts')
     )
-    prepareSplitChallenge()
+    prepareSplitChallenge(true)
     expect(writeFileSync).not.toBeCalled()
     ;(existsSync as jest.Mock).mockImplementation((path: string) =>
       path.includes('[__key].tsx')
     )
-    prepareSplitChallenge()
+    prepareSplitChallenge(true)
     expect(writeFileSync).not.toBeCalled()
     ;(existsSync as jest.Mock).mockImplementation((path: string) =>
       path.includes('[__key].js')
     )
-    prepareSplitChallenge()
+    prepareSplitChallenge(true)
     expect(writeFileSync).not.toBeCalled()
     ;(existsSync as jest.Mock).mockImplementation((path: string) =>
       path.includes('[__key].jsx')
     )
-    prepareSplitChallenge()
+    prepareSplitChallenge(true)
     expect(writeFileSync).not.toBeCalled()
   })
   it('must request a self-creation when an exception is raised', () => {
-    process.env = { ...process.env, VERCEL_ENV: 'production' }
     ;(findPagesDir as jest.Mock).mockImplementation(() => {
       throw new Error('some error.')
     })
-    prepareSplitChallenge()
+    prepareSplitChallenge(true)
     expect(writeFileSync).not.toBeCalled()
     expect(mockExit).toBeCalledWith(1)
   })

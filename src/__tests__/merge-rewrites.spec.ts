@@ -1,5 +1,5 @@
-import { mergeRewrites } from './merge-rewrites'
-import { Rewrites } from './types'
+import { mergeRewrites } from '../merge-rewrites'
+import { Rewrites } from '../types'
 
 const newRewrites: Rewrites = [
   {

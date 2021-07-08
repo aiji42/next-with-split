@@ -32,7 +32,7 @@
   },
   "homepage": "https://github.com/aiji42/next-with-split#readme",
   "scripts": {
-    "lint": "eslint ./src/*.ts",
+    "lint": "eslint ./src/**/*.ts ./src/*.ts",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "build": "tsc",
