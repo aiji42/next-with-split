@@ -1,6 +1,4 @@
-const { withSplit } = require('next-with-split')
-
-module.exports = withSplit({
+const withSplit = require('next-with-split')({
   splits: {
     test1: {
       path: '/foo/abtest/:path*',
@@ -18,10 +16,11 @@ module.exports = withSplit({
       }
     }
   },
-  manuals: {
-    prepare: true,
-    isOriginal: true
-  },
+  prepared: true,
+  isOriginal: true
+})
+
+module.exports = withSplit({
   rewrites: async () => ({
     beforeFiles: [
       {
