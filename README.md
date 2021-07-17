@@ -33,7 +33,7 @@ npm install --save next-with-split
 1\. Customize next.config.js. (in main branch)
 ```js
 // next.config.js
-const { withSplit } = require('next-with-split')({})
+const withSplit = require('next-with-split')({})
 
 module.export = withSplit({
   // write your next.js configuration values.
@@ -47,7 +47,7 @@ module.export = withSplit({
 4\. Modify next.config.js in the main branch.
 ```js
 // next.config.js
-const { withSplit } = require('next-with-split')({
+const withSplit = require('next-with-split')({
   splits: {
     example1: { // Identification of A/B tests (any)
       path: '/foo/:path*', // Paths to perform A/B testing. (Follow the notation of the rewrite rules.)
@@ -81,7 +81,7 @@ module.export = withSplit({
 **Note: This setting is also required for the Challenger branches.**
 ```js
 // next.config.js
-const { withSplit } = require('next-with-split')({
+const withSplit = require('next-with-split')({
   splits: {...},
   isOriginal: false, // Control it so that it is true on the original branch (basically the main branch) and false on all other branches.,
   hostname: 'challenger.example.com', // Set the hostname in the Challenger branch. If this is not set, you will not be able to access the assets and images.
@@ -110,7 +110,7 @@ export default SplitChallenge
 ```
 ```js
 // next.config.js
-const { withSplit } = require('next-with-split')({
+const withSplit = require('next-with-split')({
   splits: {...},
   // You can skip the automatic generation `pages/split-challenge/[__key].js`.
   prepared: true
