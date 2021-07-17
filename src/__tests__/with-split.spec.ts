@@ -23,13 +23,13 @@ describe('withSplit', () => {
       VERCEL_URL: 'vercel.example.com',
       VERCEL_ENV: 'production'
     }
-    const conf = withSplit({})
+    const conf = withSplit({})({})
     expect(conf.assetPrefix).toEqual('')
     expect(conf.images).toEqual({
       path: undefined
     })
     expect(conf.serverRuntimeConfig).toEqual({ splits: {} })
-    return conf.rewrites().then((res) => {
+    return conf.rewrites?.().then((res) => {
       expect(res).toEqual({
         beforeFiles: []
       })
@@ -41,7 +41,7 @@ describe('withSplit', () => {
       VERCEL_URL: 'vercel.example.com',
       VERCEL_ENV: 'production'
     }
-    const conf = withSplit({
+    const conf = withSplit({})({
       assetPrefix: 'https://hoge.com',
       images: {
         path: 'https://hoge.com/_next/image'
@@ -77,7 +77,7 @@ describe('withSplit', () => {
           path: '/foo/:path*'
         }
       }
-    })
+    })({})
     expect(conf.serverRuntimeConfig).toEqual({
       splits: {
         test1: {
@@ -94,54 +94,7 @@ describe('withSplit', () => {
         }
       }
     })
-    return conf.rewrites().then((res) => {
-      expect(res).toEqual({
-        beforeFiles: [
-          {
-            source: '/foo/:path*',
-            destination: '/_split-challenge/test1',
-            has: [{ type: 'header', key: 'user-agent' }]
-          }
-        ]
-      })
-    })
-  })
-  it('return split test config when challenge file existing', () => {
-    process.env = {
-      ...process.env,
-      VERCEL_URL: 'vercel.example.com',
-      VERCEL_ENV: 'production'
-    }
-    const conf = withSplit({
-      splits: {
-        test1: {
-          hosts: {
-            branch1: 'https://branch1.example.com',
-            branch2: 'https://branch2.example.com'
-          },
-          path: '/foo/:path*'
-        }
-      },
-      challengeFileExisting: true
-    })
-    expect(conf.serverRuntimeConfig).toEqual({
-      splits: {
-        test1: {
-          branch1: {
-            host: 'https://branch1.example.com',
-            path: '/foo/:path*',
-            cookie: { path: '/', maxAge: 60 * 60 * 24 }
-          },
-          branch2: {
-            host: 'https://branch2.example.com',
-            path: '/foo/:path*',
-            cookie: { path: '/', maxAge: 60 * 60 * 24 }
-          }
-        }
-      }
-    })
-    expect(prepareSplitChallenge).toBeCalledWith(true, true)
-    return conf.rewrites().then((res) => {
+    return conf.rewrites?.().then((res) => {
       expect(res).toEqual({
         beforeFiles: [
           {
@@ -170,7 +123,7 @@ describe('withSplit', () => {
           path: '/foo/:path*'
         }
       }
-    })
+    })({})
     expect(process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING).toEqual('true')
     expect(conf.assetPrefix).toEqual('https://preview.example.com')
     expect(conf.images).toEqual({
@@ -192,7 +145,7 @@ describe('withSplit', () => {
         }
       }
     })
-    return conf.rewrites().then((res) => {
+    return conf.rewrites?.().then((res) => {
       expect(res).toEqual({
         beforeFiles: []
       })
@@ -200,7 +153,7 @@ describe('withSplit', () => {
   })
 
   describe('manual config', () => {
-    it('prepareSplitChallenge must call with prepared option when manuals.prepared is set true', () => {
+    it('prepareSplitChallenge must call with prepared option when prepared is set true', () => {
       withSplit({
         splits: {
           test1: {
@@ -211,14 +164,12 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manuals: {
-          prepared: true
-        }
-      })
+        prepared: true
+      })({})
       expect(prepareSplitChallenge).toBeCalledWith(false, true)
     })
 
-    it('must return rewrite rules manuals.isOriginal is set true', () => {
+    it('must return rewrite rules isOriginal is set true', () => {
       const conf = withSplit({
         splits: {
           test1: {
@@ -229,11 +180,9 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manuals: {
-          isOriginal: true
-        }
-      })
-      return conf.rewrites().then((res) => {
+        isOriginal: true
+      })({})
+      return conf.rewrites?.().then((res) => {
         expect(res).toEqual({
           beforeFiles: [
             {
@@ -246,7 +195,7 @@ describe('withSplit', () => {
       })
     })
 
-    it('must return empty rewrite rules when manuals.isOriginal is set false', () => {
+    it('must return empty rewrite rules when isOriginal is set false', () => {
       const conf = withSplit({
         splits: {
           test1: {
@@ -257,16 +206,14 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manuals: {
-          isOriginal: false
-        }
-      })
-      return conf.rewrites().then((res) => {
+        isOriginal: false
+      })({})
+      return conf.rewrites?.().then((res) => {
         expect(res).toEqual({ beforeFiles: [] })
       })
     })
 
-    it('Env variable indicate targeting when manuals.currentBranch is set target branch', () => {
+    it('Env variable indicate targeting when currentBranch is set target branch', () => {
       withSplit({
         splits: {
           test1: {
@@ -277,14 +224,12 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manuals: {
-          currentBranch: 'branch1'
-        }
-      })
+        currentBranch: 'branch1'
+      })({})
       expect(process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING).toEqual('true')
     })
 
-    it('Env variable must not indicate targeting when manuals.currentBranch is set NOT targeted branch', () => {
+    it('Env variable must not indicate targeting when currentBranch is set NOT targeted branch', () => {
       withSplit({
         splits: {
           test1: {
@@ -295,14 +240,12 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manuals: {
-          currentBranch: 'branch3'
-        }
-      })
+        currentBranch: 'branch3'
+      })({})
       expect(process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING).toBeUndefined()
     })
 
-    it('must return assetPrefix and image.path when manuals.hostname is set and isOriginal is set false', () => {
+    it('must return assetPrefix and image.path when hostname is set and isOriginal is set false', () => {
       const conf = withSplit({
         splits: {
           test1: {
@@ -313,18 +256,16 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manuals: {
-          hostname: 'preview.example.com',
-          isOriginal: false
-        }
-      })
+        hostname: 'preview.example.com',
+        isOriginal: false
+      })({})
       expect(conf.assetPrefix).toEqual('https://preview.example.com')
       expect(conf.images).toEqual({
         path: 'https://preview.example.com/_next/image'
       })
     })
 
-    it('must return blank assetPrefix and image.path when manuals.hostname is set and isOriginal is set true', () => {
+    it('must return blank assetPrefix and image.path when hostname is set and isOriginal is set true', () => {
       const conf = withSplit({
         splits: {
           test1: {
@@ -335,11 +276,9 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manuals: {
-          hostname: 'preview.example.com',
-          isOriginal: true
-        }
-      })
+        hostname: 'preview.example.com',
+        isOriginal: true
+      })({})
       expect(conf.assetPrefix).toEqual('')
       expect(conf.images).toEqual({ path: undefined })
     })
@@ -356,11 +295,9 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manuals: {
-          hostname: 'preview.example.com',
-          isOriginal: true
-        }
-      })
+        hostname: 'preview.example.com',
+        isOriginal: true
+      })({})
       expect(conf).toEqual({})
     })
 
@@ -376,12 +313,10 @@ describe('withSplit', () => {
             path: '/foo/:path*'
           }
         },
-        manuals: {
-          hostname: 'preview.example.com',
-          isOriginal: false
-        }
-      })
-      return conf.rewrites().then((res) => {
+        hostname: 'preview.example.com',
+        isOriginal: false
+      })({})
+      return conf.rewrites?.().then((res) => {
         expect(res).toEqual({
           beforeFiles: [
             {
