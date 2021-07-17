@@ -1,2 +1,2 @@
-export { withSplit } from './with-split.js'
-export { getServerSideProps } from './split-challenge.js'
+import { withSplit } from './with-split.js'
+export default withSplit

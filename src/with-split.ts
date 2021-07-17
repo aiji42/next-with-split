@@ -1,12 +1,17 @@
 import { prepareSplitChallenge } from './prepare-split-challenge'
 import { makeRewrites } from './make-rewrites'
-import { Manuals, Rewrites, SplitOptions } from './types'
-import { makeRuntimeConfig } from './makeRuntimeConfig'
+import { Rewrites, SplitOptions } from './types'
+import { makeRuntimeConfig } from './make-runtime-config'
 
 type WithSplitArgs = {
   splits?: SplitOptions
-  challengeFileExisting?: boolean // TODO: Discontinued in the next major update
-  manuals?: Manuals
+  prepared?: boolean
+  currentBranch?: string
+  isOriginal?: boolean
+  hostname?: string
+}
+
+type NextConfig = {
   rewrites?: () => Promise<Rewrites>
   assetPrefix?: string
   serverRuntimeConfig?: {
@@ -19,62 +24,54 @@ type WithSplitArgs = {
   [x: string]: unknown
 }
 
-type NextConfig = Omit<Required<WithSplitArgs>, 'splits'>
+export const withSplit =
+  ({ splits = {}, ...manuals }: WithSplitArgs) =>
+  (nextConfig: NextConfig): NextConfig => {
+    if (process.env.SPLIT_DISABLE) return nextConfig
 
-type WithSplitResult = NextConfig & {
-  rewrites: () => Promise<Rewrites>
-}
+    const isMain =
+      !!process.env.SPLIT_ACTIVE ||
+      (manuals?.isOriginal ?? process.env.VERCEL_ENV === 'production')
+    const assetHost = manuals?.hostname ?? process.env.VERCEL_URL
+    const currentBranch =
+      manuals?.currentBranch ?? process.env.VERCEL_GIT_COMMIT_REF ?? ''
 
-export const withSplit = (args: WithSplitArgs): WithSplitResult => {
-  const { splits = {}, challengeFileExisting, manuals, ...nextConfig } = args
-  if (process.env.SPLIT_DISABLE) return <WithSplitResult>nextConfig
+    if (Object.keys(splits).length > 0 && isMain) {
+      console.log('Split tests are active.')
+      console.table(
+        Object.entries(splits).map(([testKey, options]) => ({
+          testKey,
+          path: options.path,
+          distributions: Object.keys(options.hosts)
+        }))
+      )
+    }
 
-  const isMain =
-    !!process.env.SPLIT_ACTIVE ||
-    (manuals?.isOriginal ?? process.env.VERCEL_ENV === 'production')
-  const assetHost = manuals?.hostname ?? process.env.VERCEL_URL
-  const currentBranch =
-    manuals?.currentBranch ?? process.env.VERCEL_GIT_COMMIT_REF ?? ''
+    const branches = Object.values(splits)
+      .map(({ hosts }) => Object.keys(hosts))
+      .flat()
+    if (branches.includes(currentBranch))
+      process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'
 
-  if (challengeFileExisting !== undefined)
-    console.warn(
-      'Deprecated: `challengeFileExisting` will be deprecated in the next major update. Use `manuals.prepared` instead.'
-    )
+    prepareSplitChallenge(isMain, manuals?.prepared)
 
-  if (Object.keys(splits).length > 0 && isMain) {
-    console.log('Split tests are active.')
-    console.table(
-      Object.entries(splits).map(([testKey, options]) => ({
-        testKey,
-        path: options.path,
-        distributions: Object.keys(options.hosts)
-      }))
-    )
+    return {
+      ...nextConfig,
+      assetPrefix:
+        nextConfig.assetPrefix ||
+        (!isMain && assetHost ? `https://${assetHost}` : ''),
+      images: {
+        ...nextConfig.images,
+        path:
+          nextConfig.images?.path ||
+          (!isMain && assetHost
+            ? `https://${assetHost}/_next/image`
+            : undefined)
+      },
+      serverRuntimeConfig: {
+        ...nextConfig.serverRuntimeConfig,
+        splits: makeRuntimeConfig(splits)
+      },
+      rewrites: makeRewrites(splits, nextConfig.rewrites, isMain)
+    }
   }
-
-  const branches = Object.values(splits)
-    .map(({ hosts }) => Object.keys(hosts))
-    .flat()
-  if (branches.includes(currentBranch))
-    process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'
-
-  prepareSplitChallenge(isMain, manuals?.prepared ?? challengeFileExisting) // TODO: Discontinued in the next major update
-
-  return {
-    ...nextConfig,
-    assetPrefix:
-      nextConfig.assetPrefix ||
-      (!isMain && assetHost ? `https://${assetHost}` : ''),
-    images: {
-      ...nextConfig.images,
-      path:
-        nextConfig.images?.path ||
-        (!isMain && assetHost ? `https://${assetHost}/_next/image` : undefined)
-    },
-    serverRuntimeConfig: {
-      ...nextConfig.serverRuntimeConfig,
-      splits: makeRuntimeConfig(splits)
-    },
-    rewrites: makeRewrites(splits, nextConfig.rewrites, isMain)
-  }
-}

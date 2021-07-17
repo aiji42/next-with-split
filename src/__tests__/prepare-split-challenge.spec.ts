@@ -31,7 +31,7 @@ describe('prepareSplitChallenge', () => {
     expect(mkdirSync).toBeCalled()
     expect(writeFileSync).toBeCalledWith(
       'pages/_split-challenge/[__key].js',
-      `export { getServerSideProps } from 'next-with-split'
+      `export { getServerSideProps } from 'next-with-split/build/split-challenge'
 const SplitChallenge = () => null
 export default SplitChallenge
 `
