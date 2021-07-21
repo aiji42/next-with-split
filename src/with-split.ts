@@ -1,7 +1,8 @@
 import { prepareSplitChallenge } from './prepare-split-challenge'
 import { makeRewrites } from './make-rewrites'
-import { Rewrites, SplitOptions } from './types'
+import { SplitOptions } from './types'
 import { makeRuntimeConfig } from './make-runtime-config'
+import { NextConfig } from 'next/dist/next-server/server/config-shared'
 
 type WithSplitArgs = {
   splits?: SplitOptions
@@ -9,19 +10,6 @@ type WithSplitArgs = {
   currentBranch?: string
   isOriginal?: boolean
   hostname?: string
-}
-
-type NextConfig = {
-  rewrites?: () => Promise<Rewrites>
-  assetPrefix?: string
-  serverRuntimeConfig?: {
-    [x: string]: unknown
-  }
-  images?: {
-    path?: string
-    [x: string]: unknown
-  }
-  [x: string]: unknown
 }
 
 export const withSplit =
@@ -72,6 +60,8 @@ export const withSplit =
         ...nextConfig.serverRuntimeConfig,
         splits: makeRuntimeConfig(splits)
       },
-      rewrites: makeRewrites(splits, nextConfig.rewrites, isMain)
+      rewrites: <NextConfig['rewrites']>(
+        makeRewrites(splits, nextConfig.rewrites, isMain)
+      )
     }
   }
