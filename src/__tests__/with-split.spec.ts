@@ -84,12 +84,14 @@ describe('withSplit', () => {
           branch1: {
             host: 'https://branch1.example.com',
             path: '/foo/:path*',
-            cookie: { path: '/', maxAge: 60 * 60 * 24 }
+            cookie: { path: '/', maxAge: 60 * 60 * 24 },
+            isOriginal: false
           },
           branch2: {
             host: 'https://branch2.example.com',
             path: '/foo/:path*',
-            cookie: { path: '/', maxAge: 60 * 60 * 24 }
+            cookie: { path: '/', maxAge: 60 * 60 * 24 },
+            isOriginal: false
           }
         }
       }
@@ -105,6 +107,62 @@ describe('withSplit', () => {
         ]
       })
     })
+  })
+  it('return split test config with isOriginal === true when branch name is original | main | master', () => {
+    process.env = {
+      ...process.env,
+      VERCEL_URL: 'vercel.example.com',
+      VERCEL_ENV: 'production'
+    }
+    const conf1 = withSplit({
+      splits: {
+        test1: {
+          hosts: {
+            branch1: 'https://branch1.example.com',
+            original: 'https://original.example.com'
+          },
+          path: '/foo/:path*'
+        }
+      }
+    })({})
+    expect(conf1.serverRuntimeConfig.splits.test1.branch1.isOriginal).toEqual(
+      false
+    )
+    expect(conf1.serverRuntimeConfig.splits.test1.original.isOriginal).toEqual(
+      true
+    )
+    const conf2 = withSplit({
+      splits: {
+        test1: {
+          hosts: {
+            branch1: 'https://branch1.example.com',
+            main: 'https://original.example.com'
+          },
+          path: '/foo/:path*'
+        }
+      }
+    })({})
+    expect(conf2.serverRuntimeConfig.splits.test1.branch1.isOriginal).toEqual(
+      false
+    )
+    expect(conf2.serverRuntimeConfig.splits.test1.main.isOriginal).toEqual(true)
+    const conf3 = withSplit({
+      splits: {
+        test1: {
+          hosts: {
+            branch1: 'https://branch1.example.com',
+            master: 'https://original.example.com'
+          },
+          path: '/foo/:path*'
+        }
+      }
+    })({})
+    expect(conf3.serverRuntimeConfig.splits.test1.branch1.isOriginal).toEqual(
+      false
+    )
+    expect(conf3.serverRuntimeConfig.splits.test1.master.isOriginal).toEqual(
+      true
+    )
   })
   it('return empty rewrite rules when runs on not main branch', () => {
     process.env = {
@@ -135,12 +193,14 @@ describe('withSplit', () => {
           branch1: {
             host: 'https://branch1.example.com',
             path: '/foo/:path*',
-            cookie: { path: '/', maxAge: 60 * 60 * 24 }
+            cookie: { path: '/', maxAge: 60 * 60 * 24 },
+            isOriginal: false
           },
           branch2: {
             host: 'https://branch2.example.com',
             path: '/foo/:path*',
-            cookie: { path: '/', maxAge: 60 * 60 * 24 }
+            cookie: { path: '/', maxAge: 60 * 60 * 24 },
+            isOriginal: false
           }
         }
       }

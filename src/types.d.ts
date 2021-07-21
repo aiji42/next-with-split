@@ -25,6 +25,7 @@ export type Distribution = {
   host: string
   path: string
   cookie: CookieSerializeOptions
+  isOriginal: boolean
 }
 
 export type RuntimeConfig = {

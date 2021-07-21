@@ -16,6 +16,18 @@ export const getSplitConfig = (
 ): SplitConfig => {
   const distributions: Record<string, Distribution> =
     getConfig().serverRuntimeConfig.splits[splitKey]
+
+  if (ctx.preview) {
+    const distribution = Object.entries(distributions).find(
+      ([, dist]) => dist.isOriginal
+    )
+    if (distribution)
+      return {
+        branch: distribution[0],
+        ...distribution[1]
+      }
+  }
+
   const cookie = parseCookies(ctx)
   const cookieValue = cookie[cookieKey(splitKey)]
   if (cookieValue && distributions[cookieValue])
@@ -72,33 +84,29 @@ export const runReverseProxy = async (
   { req, res, query }: GetServerSidePropsContext,
   config: SplitConfig
 ): Promise<void> => {
+  let url: null | URL = null
+  const headers = { ...req.headers }
+  delete headers['user-agent']
   try {
-    const url = new URL(config.host)
-    await reverseProxy(
-      { req, res },
-      {
-        host: url.hostname,
-        method: req.method,
-        port: url.port,
-        path: getPath(config, query)
-      },
-      url.protocol === 'https:'
-    )
-  } catch (e) {
-    await reverseProxy(
-      { req, res },
-      {
-        host: config.host,
-        method: req.method,
-        path: getPath(config, query)
-      },
-      true
-    )
+    url = new URL(config.host)
+  } catch (_e) {
+    // no operation
   }
+  await reverseProxy(
+    { req, res },
+    {
+      host: url?.hostname ?? config.host,
+      method: req.method,
+      port: url?.port,
+      path: getPath(config, query),
+      headers
+    },
+    url === null || url.protocol === 'https:'
+  )
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const config = getSplitConfig(ctx, ctx.query.__key as string)
+  const config = getSplitConfig(ctx, <string>ctx.query.__key)
   sticky(ctx, config, ctx.query.__key as string)
 
   await runReverseProxy(ctx, config)
