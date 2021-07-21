@@ -2,6 +2,15 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { FC } from 'react'
 import styles from '../../styles/Home.module.css'
+import { GetServerSideProps } from 'next'
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  console.log(req.headers)
+
+  return {
+    props: {}
+  }
+}
 
 const Home: FC = () => {
   return (

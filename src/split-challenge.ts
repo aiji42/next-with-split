@@ -72,29 +72,25 @@ export const runReverseProxy = async (
   { req, res, query }: GetServerSidePropsContext,
   config: SplitConfig
 ): Promise<void> => {
+  let url: null | URL = null
+  const headers = { ...req.headers }
+  delete headers['user-agent']
   try {
-    const url = new URL(config.host)
-    await reverseProxy(
-      { req, res },
-      {
-        host: url.hostname,
-        method: req.method,
-        port: url.port,
-        path: getPath(config, query)
-      },
-      url.protocol === 'https:'
-    )
-  } catch (e) {
-    await reverseProxy(
-      { req, res },
-      {
-        host: config.host,
-        method: req.method,
-        path: getPath(config, query)
-      },
-      true
-    )
+    url = new URL(config.host)
+  } catch (_e) {
+    // no operation
   }
+  await reverseProxy(
+    { req, res },
+    {
+      host: url?.hostname ?? config.host,
+      method: req.method,
+      port: url?.port,
+      path: getPath(config, query),
+      headers
+    },
+    url === null || url.protocol === 'https:'
+  )
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {

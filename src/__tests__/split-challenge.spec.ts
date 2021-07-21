@@ -156,7 +156,8 @@ describe('split-challenge', () => {
             host: 'example.com',
             path: '/foo',
             method: 'GET',
-            port: ''
+            port: '',
+            headers: {}
           },
           false
         )
@@ -180,7 +181,8 @@ describe('split-challenge', () => {
             host: 'example.com',
             path: '/foo',
             method: 'GET',
-            port: ''
+            port: '',
+            headers: {}
           },
           true
         )
@@ -204,9 +206,44 @@ describe('split-challenge', () => {
             host: 'example.com',
             path: '/foo',
             method: 'GET',
-            port: ''
+            port: undefined,
+            headers: {}
           },
-          false
+          true
+        )
+      })
+    })
+    it('must call reverse proxy with headers that is excluded user-agent', () => {
+      return runReverseProxy(
+        {
+          req: {
+            method: 'GET',
+            headers: { 'user-agent': 'USER_AGENT', cookie: 'COOKIE' }
+          },
+          res: {},
+          query: {}
+        } as GetServerSidePropsContext,
+        {
+          host: 'https://example.com',
+          path: '/foo'
+        } as SplitConfig
+      ).then(() => {
+        expect(reverseProxy).toBeCalledWith(
+          {
+            req: {
+              method: 'GET',
+              headers: { 'user-agent': 'USER_AGENT', cookie: 'COOKIE' }
+            },
+            res: {}
+          },
+          {
+            host: 'example.com',
+            path: '/foo',
+            method: 'GET',
+            port: '',
+            headers: { cookie: 'COOKIE' }
+          },
+          true
         )
       })
     })
