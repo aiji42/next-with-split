@@ -15,6 +15,7 @@ export type SplitOptions = {
     hosts: {
       [branchName: string]: string
     }
+    original?: string
     cookie?: CookieSerializeOptions
   }
 }
@@ -25,6 +26,7 @@ export type Distribution = {
   host: string
   path: string
   cookie: CookieSerializeOptions
+  isOriginal: boolean
 }
 
 export type RuntimeConfig = {

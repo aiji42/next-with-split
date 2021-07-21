@@ -14,7 +14,7 @@ type WithSplitArgs = {
 
 export const withSplit =
   ({ splits = {}, ...manuals }: WithSplitArgs) =>
-  (nextConfig: NextConfig): NextConfig => {
+  (nextConfig: Partial<NextConfig>): Partial<NextConfig> => {
     if (process.env.SPLIT_DISABLE) return nextConfig
 
     const isMain =
