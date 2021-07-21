@@ -31,12 +31,14 @@ describe('split-challenge', () => {
             branch1: {
               host: 'https://branch1.example.com',
               path: '/foo/:path*',
-              cookie: { path: '/', maxAge: 60 * 60 * 24 }
+              cookie: { path: '/', maxAge: 60 * 60 * 24 },
+              isOriginal: true
             },
             branch2: {
               host: 'https://branch2.example.com',
               path: '/foo/:path*',
-              cookie: { path: '/', maxAge: 60 * 60 * 24 }
+              cookie: { path: '/', maxAge: 60 * 60 * 24 },
+              isOriginal: false
             }
           }
         }
@@ -52,7 +54,8 @@ describe('split-challenge', () => {
         branch: 'branch1',
         cookie: { path: '/', maxAge: 60 * 60 * 24 },
         host: 'https://branch1.example.com',
-        path: '/foo/:path*'
+        path: '/foo/:path*',
+        isOriginal: true
       })
     })
     it('must return A or B split config when cookie is not set', () => {
@@ -63,7 +66,54 @@ describe('split-challenge', () => {
         branch: expect.any(String),
         cookie: { path: '/', maxAge: 60 * 60 * 24 },
         host: expect.any(String),
-        path: '/foo/:path*'
+        path: '/foo/:path*',
+        isOriginal: expect.any(Boolean)
+      })
+    })
+    it('must return A (original) split config when preview mode', () => {
+      ;(parseCookies as jest.Mock).mockReturnValue({
+        'x-split-key-test1': 'branch2'
+      })
+      expect(
+        getSplitConfig({ preview: true } as GetServerSidePropsContext, 'test1')
+      ).toEqual({
+        branch: 'branch1',
+        cookie: { path: '/', maxAge: 60 * 60 * 24 },
+        host: 'https://branch1.example.com',
+        path: '/foo/:path*',
+        isOriginal: true
+      })
+    })
+    it("must return one or the other when preview mode and the original can't be identified", () => {
+      ;(getConfig as jest.Mock).mockReturnValue({
+        serverRuntimeConfig: {
+          splits: {
+            test1: {
+              branch1: {
+                host: 'https://branch1.example.com',
+                path: '/foo/:path*',
+                cookie: { path: '/', maxAge: 60 * 60 * 24 },
+                isOriginal: false
+              },
+              branch2: {
+                host: 'https://branch2.example.com',
+                path: '/foo/:path*',
+                cookie: { path: '/', maxAge: 60 * 60 * 24 },
+                isOriginal: false
+              }
+            }
+          }
+        }
+      })
+      ;(parseCookies as jest.Mock).mockReturnValue({})
+      expect(
+        getSplitConfig({ preview: true } as GetServerSidePropsContext, 'test1')
+      ).toMatchObject({
+        branch: expect.any(String),
+        cookie: { path: '/', maxAge: 60 * 60 * 24 },
+        host: expect.any(String),
+        path: '/foo/:path*',
+        isOriginal: expect.any(Boolean)
       })
     })
   })
