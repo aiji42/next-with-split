@@ -128,6 +128,8 @@ Use it for verification in your development environment.
     - `SPLIT_ACTIVE=true yarn dev`: forced active.
     - `SPLIT_DISABLE=true yarn dev`: forced disable.
 
-## LICENSE
+## Contributing
+Please read [CONTRIBUTING.md](https://github.com/aiji42/next-with-split/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
-[MIT](https://github.com/aiji42/next-with-split/blob/main/LICENSE) © AijiUejima
+## License
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/aiji42/next-with-split/blob/main/LICENSE) file for details
