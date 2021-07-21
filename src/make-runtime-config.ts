@@ -1,5 +1,5 @@
 import { RuntimeConfig, SplitOptions } from './types'
-import { ORIGINAL_DISTRIBUTION_KEY } from './constants'
+import { ORIGINAL_DISTRIBUTION_KEYS } from './constants'
 
 export const makeRuntimeConfig = (options: SplitOptions): RuntimeConfig => {
   return Object.entries(options).reduce<RuntimeConfig>(
@@ -12,8 +12,7 @@ export const makeRuntimeConfig = (options: SplitOptions): RuntimeConfig => {
             host,
             path: option.path,
             cookie: { path: '/', maxAge: 60 * 60 * 24, ...option.cookie },
-            isOriginal:
-              (option.original ?? ORIGINAL_DISTRIBUTION_KEY) === branch
+            isOriginal: ORIGINAL_DISTRIBUTION_KEYS.includes(branch)
           }
         }),
         {}

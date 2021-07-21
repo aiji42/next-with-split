@@ -15,7 +15,6 @@ export type SplitOptions = {
     hosts: {
       [branchName: string]: string
     }
-    original?: string
     cookie?: CookieSerializeOptions
   }
 }
