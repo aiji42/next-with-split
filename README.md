@@ -78,13 +78,13 @@ module.export = withSplit({
 })
 ```
 - If you use a provider other than Vercel, please configure the following manual.  
-**Note: This setting is also required for the Challenger branches.**
+**Note: This setting is also required for the Challenger deployments.**
 ```js
 // next.config.js
 const withSplit = require('next-with-split')({
   splits: {...},
-  isOriginal: false, // Control it so that it is true on the original branch (basically the main branch) and false on all other branches.,
-  hostname: 'challenger.example.com', // Set the hostname in the Challenger branch. If this is not set, you will not be able to access the assets and images.
+  isOriginal: false, // Control it so that it is true on the original deployment (basically the main branch) and false on all other deployments.,
+  hostname: 'challenger.example.com', // Set the hostname in the Challenger deployment. If this is not set, you will not be able to access the assets and images.
   currentBranch: 'chllenger1', // Optional. Set the value if you use `process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING`.
 })
 
@@ -98,7 +98,7 @@ module.export = withSplit({
 6\. The network will be automatically split and the content will be served!  
 It is also sticky, controlled by cookies.
 
-## MEMO
+## Features
 
 - If you place `pages/split-challenge/[__key].js` yourself, set `prepared: true`.
     - This file acts as a reverse proxy to distribute the access to the target path to each branch deployments.
@@ -119,6 +119,9 @@ const withSplit = require('next-with-split')({
 
 - If the deployment is subject to A/B testing, `process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING` is set to 'true'.
     - CAUTION: Only if the key set in `hosts` matches the branch name.
+    
+- When Next.js preview mode is turned on, access will automatically be allocated to the original deployment.
+    - Set the `hosts` key to `original`, `master` or `main`.
 
 - You can control the behavior of `withSplit` by forcing it by passing an environment variable at server startup.  
 Use it for verification in your development environment.
