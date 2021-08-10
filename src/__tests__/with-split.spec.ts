@@ -85,13 +85,15 @@ describe('withSplit', () => {
             host: 'https://branch1.example.com',
             path: '/foo/:path*',
             cookie: { path: '/', maxAge: 60 * 60 * 24 },
-            isOriginal: false
+            isOriginal: false,
+            weight: 1
           },
           branch2: {
             host: 'https://branch2.example.com',
             path: '/foo/:path*',
             cookie: { path: '/', maxAge: 60 * 60 * 24 },
-            isOriginal: false
+            isOriginal: false,
+            weight: 1
           }
         }
       }
@@ -106,6 +108,44 @@ describe('withSplit', () => {
           }
         ]
       })
+    })
+  })
+  it('must return config with the biases when passed the biases', () => {
+    process.env = {
+      ...process.env,
+      VERCEL_URL: 'vercel.example.com',
+      VERCEL_ENV: 'production'
+    }
+    const conf = withSplit({
+      splits: {
+        test1: {
+          hosts: {
+            branch1: { host: 'https://branch1.example.com', weight: 10 },
+            branch2: 'https://branch2.example.com'
+          },
+          path: '/foo/:path*'
+        }
+      }
+    })({})
+    expect(conf.serverRuntimeConfig).toEqual({
+      splits: {
+        test1: {
+          branch1: {
+            host: 'https://branch1.example.com',
+            path: '/foo/:path*',
+            cookie: { path: '/', maxAge: 60 * 60 * 24 },
+            isOriginal: false,
+            weight: 10
+          },
+          branch2: {
+            host: 'https://branch2.example.com',
+            path: '/foo/:path*',
+            cookie: { path: '/', maxAge: 60 * 60 * 24 },
+            isOriginal: false,
+            weight: 1
+          }
+        }
+      }
     })
   })
   it('return split test config with isOriginal === true when branch name is original | main | master', () => {
@@ -194,13 +234,15 @@ describe('withSplit', () => {
             host: 'https://branch1.example.com',
             path: '/foo/:path*',
             cookie: { path: '/', maxAge: 60 * 60 * 24 },
-            isOriginal: false
+            isOriginal: false,
+            weight: 1
           },
           branch2: {
             host: 'https://branch2.example.com',
             path: '/foo/:path*',
             cookie: { path: '/', maxAge: 60 * 60 * 24 },
-            isOriginal: false
+            isOriginal: false,
+            weight: 1
           }
         }
       }
