@@ -13,7 +13,16 @@ const Home: FC = () => {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>ORIGINALaaaaaaa</h1>
+        <h1 className={styles.title}>ORIGINAL</h1>
+        <button
+          onClick={() => {
+            document.cookie = `x-split-key-test1=; path=/; expires=${new Date(
+              '1999-12-31T23:59:59Z'
+            ).toUTCString()}`
+          }}
+        >
+          Reset Split Sticky
+        </button>
       </main>
 
       <footer className={styles.footer}>
