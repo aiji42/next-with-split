@@ -4,7 +4,10 @@ import { FC } from 'react'
 import styles from '../../styles/Home.module.css'
 import { GetServerSideProps } from 'next'
 
-export const getServerSideProps: GetServerSideProps = async ({ req, preview }) => {
+export const getServerSideProps: GetServerSideProps = async ({
+  req,
+  preview
+}) => {
   console.log(req.headers)
   console.log(preview)
 
@@ -24,6 +27,15 @@ const Home: FC = () => {
 
       <main className={styles.main}>
         <h1 className={styles.title}>FOO/BAR</h1>
+        <button
+          onClick={() => {
+            document.cookie = `x-split-key-test1=; path=/; expires=${new Date(
+              '1999-12-31T23:59:59Z'
+            ).toUTCString()}`
+          }}
+        >
+          Reset Split Sticky
+        </button>
       </main>
 
       <footer className={styles.footer}>

@@ -36,7 +36,10 @@ export const getSplitConfig = (
       ...distributions[cookieValue]
     }
 
-  const keys = Object.keys(distributions)
+  const keys = Object.entries(distributions).reduce<string[]>(
+    (res, [key, { weight }]) => [...res, ...new Array(weight).fill(key)],
+    []
+  )
   const key = keys[Math.floor(Math.random() * keys.length)]
   return {
     branch: key,

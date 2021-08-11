@@ -127,6 +127,27 @@ const withSplit = require('next-with-split')({
 Use it for verification in your development environment.
     - `SPLIT_ACTIVE=true yarn dev`: forced active.
     - `SPLIT_DISABLE=true yarn dev`: forced disable.
+    
+- By default, access to deployments is allocated in equal proportions. If you want to add bias to the access sorting, set `wight`.
+```js
+// next.config.js
+const withSplit = require('next-with-split')({
+  splits: {
+    example1: {
+      path: '/foo/:path*',
+      hosts: {
+        // original : challenger1 : challenger2 = 3(50%) : 2(33%) : 1(16%)
+        original: { host: 'example.com', weith: 3 },
+        challenger1: { host: 'challenger1.vercel.app', weight: 2 },
+        challenger2: 'challenger2.vercel.app', // If `weight` is not specified, the value is 1.
+      },
+      cookie: { // Optional (For Sticky's control)
+        maxAge: 60 * 60 * 12 // Number of valid seconds for sticky sessions. (default is 1 day)
+      }
+    }
+  }
+})
+```
 
 ## Contributing
 Please read [CONTRIBUTING.md](https://github.com/aiji42/next-with-split/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
