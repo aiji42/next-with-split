@@ -38,7 +38,7 @@
     "test:coverage": "jest --coverage",
     "build": "tsc && ts-add-module-exports",
     "semantic-release": "semantic-release",
-    "postinstall": "husky install"
+    "prepare": "husky install"
   },
   "dependencies": {
     "nookies": "^2.5.2"
