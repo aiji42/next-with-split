@@ -430,5 +430,47 @@ describe('withSplit', () => {
         })
       })
     })
+
+    describe('using the Spectrum', () => {
+      it('must reads the environment variables (SPLIT_CONFIG_BY_SPECTRUM) and returns config', () => {
+        process.env = {
+          ...process.env,
+          VERCEL_URL: 'vercel.example.com',
+          VERCEL_ENV: 'production',
+          SPLIT_CONFIG_BY_SPECTRUM: JSON.stringify({
+            test1: {
+              path: '/foo/bar',
+              hosts: {
+                original: { host: 'vercel.example.com', weight: 1 },
+                challenger: { host: 'challenger.vercel.example.com', weight: 1 }
+              },
+              cookie: { maxAge: 60 }
+            }
+          })
+        }
+
+        const conf = withSplit({})({})
+        expect(conf.serverRuntimeConfig).toEqual({
+          splits: {
+            test1: {
+              original: {
+                host: 'vercel.example.com',
+                path: '/foo/bar',
+                cookie: { path: '/', maxAge: 60 },
+                isOriginal: true,
+                weight: 1
+              },
+              challenger: {
+                host: 'challenger.vercel.example.com',
+                path: '/foo/bar',
+                cookie: { path: '/', maxAge: 60 },
+                isOriginal: false,
+                weight: 1
+              }
+            }
+          }
+        })
+      })
+    })
   })
 })
