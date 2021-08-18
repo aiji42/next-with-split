@@ -17,7 +17,7 @@ describe('withSplit', () => {
     process.env = OLD_ENV
   })
 
-  it('default', () => {
+  it('default', async () => {
     process.env = {
       ...process.env,
       VERCEL_URL: 'vercel.example.com',
@@ -29,7 +29,7 @@ describe('withSplit', () => {
       path: undefined
     })
     expect(conf.serverRuntimeConfig).toEqual({ splits: {} })
-    return conf.rewrites?.().then((res) => {
+    await conf.rewrites?.().then((res) => {
       expect(res).toEqual({
         beforeFiles: []
       })
@@ -61,7 +61,7 @@ describe('withSplit', () => {
       splits: {}
     })
   })
-  it('return split test config', () => {
+  it('return split test config', async () => {
     process.env = {
       ...process.env,
       VERCEL_URL: 'vercel.example.com',
@@ -98,7 +98,7 @@ describe('withSplit', () => {
         }
       }
     })
-    return conf.rewrites?.().then((res) => {
+    await conf.rewrites?.().then((res) => {
       expect(res).toEqual({
         beforeFiles: [
           {
@@ -204,7 +204,7 @@ describe('withSplit', () => {
       true
     )
   })
-  it('return empty rewrite rules when runs on not main branch', () => {
+  it('return empty rewrite rules when runs on not main branch', async () => {
     process.env = {
       ...process.env,
       VERCEL_ENV: 'preview',
@@ -247,7 +247,7 @@ describe('withSplit', () => {
         }
       }
     })
-    return conf.rewrites?.().then((res) => {
+    await conf.rewrites?.().then((res) => {
       expect(res).toEqual({
         beforeFiles: []
       })
@@ -271,7 +271,7 @@ describe('withSplit', () => {
       expect(prepareSplitChallenge).toBeCalledWith(false, true)
     })
 
-    it('must return rewrite rules isOriginal is set true', () => {
+    it('must return rewrite rules isOriginal is set true', async () => {
       const conf = withSplit({
         splits: {
           test1: {
@@ -284,7 +284,7 @@ describe('withSplit', () => {
         },
         isOriginal: true
       })({})
-      return conf.rewrites?.().then((res) => {
+      await conf.rewrites?.().then((res) => {
         expect(res).toEqual({
           beforeFiles: [
             {
@@ -297,7 +297,7 @@ describe('withSplit', () => {
       })
     })
 
-    it('must return empty rewrite rules when isOriginal is set false', () => {
+    it('must return empty rewrite rules when isOriginal is set false', async () => {
       const conf = withSplit({
         splits: {
           test1: {
@@ -310,7 +310,7 @@ describe('withSplit', () => {
         },
         isOriginal: false
       })({})
-      return conf.rewrites?.().then((res) => {
+      await conf.rewrites?.().then((res) => {
         expect(res).toEqual({ beforeFiles: [] })
       })
     })
@@ -403,7 +403,7 @@ describe('withSplit', () => {
       expect(conf).toEqual({})
     })
 
-    it('must return forced rewrite rules when SPLIT_ACTIVE', () => {
+    it('must return forced rewrite rules when SPLIT_ACTIVE', async () => {
       process.env = { ...process.env, SPLIT_ACTIVE: 'true' }
       const conf = withSplit({
         splits: {
@@ -418,7 +418,7 @@ describe('withSplit', () => {
         hostname: 'preview.example.com',
         isOriginal: false
       })({})
-      return conf.rewrites?.().then((res) => {
+      await conf.rewrites?.().then((res) => {
         expect(res).toEqual({
           beforeFiles: [
             {
