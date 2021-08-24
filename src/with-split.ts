@@ -13,9 +13,15 @@ type WithSplitArgs = {
 }
 
 export const withSplit =
-  ({ splits = {}, ...manuals }: WithSplitArgs) =>
+  ({ splits: _splits = {}, ...manuals }: WithSplitArgs) =>
   (nextConfig: Partial<NextConfig>): Partial<NextConfig> => {
     if (process.env.SPLIT_DISABLE) return nextConfig
+
+    // Load the configuration using Spectrum.
+    const splits: SplitOptions =
+      Object.keys(_splits).length > 0
+        ? _splits
+        : JSON.parse(process.env.SPLIT_CONFIG_BY_SPECTRUM ?? '{}')
 
     const isMain =
       !!process.env.SPLIT_ACTIVE ||
