@@ -1,6 +1,8 @@
 [![codecov](https://codecov.io/gh/aiji42/next-with-split/branch/main/graph/badge.svg?token=P126VM3CI1)](https://codecov.io/gh/aiji42/next-with-split)
 [![npm version](https://badge.fury.io/js/next-with-split.svg)](https://badge.fury.io/js/next-with-split)
 
+![How it works 01](https://github.com/aiji42/next-with-split/blob/main/readme/00.png?raw=true)
+
 # :ab: next-with-split
 
 **This is magic!:crystal_ball:**  
@@ -8,6 +10,10 @@ It enables branch-based split testing (A/B testing) on Vercel and other provider
 
 This plugin lets you divide traffic to your site between different deploys, straight from CDN network. It is not the traditional split testing on a per-component or per-page file basis.   
 You deploy the main branch (original) and the branch derived from it (challenger) on Vercel and other providers, and use Next.js Rewrite Rules and Cookies to separate two or more environments. Since there is no need to duplicate code, it is easier to manage and prevents the bundle size from increasing.
+
+## [Spectrum](https://spectrum-kappa.vercel.app/)
+
+[Spectrum](https://spectrum-kappa.vercel.app/) enables you to control your A/B testing from a web console. Please give it a try.
 
 ## How it works
 
