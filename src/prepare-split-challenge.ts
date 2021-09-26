@@ -15,7 +15,7 @@ export const prepareSplitChallenge = (
   try {
     dir = `${findPagesDir('')}/_split-challenge`
   } catch (e) {
-    console.error(e.message)
+    if (e instanceof Error) console.error(e.message)
     console.log(`> Could not create the necessary file for the split test.
 Create the file yourself and set \`prepared: true\`.
 The code in the file should look like this
