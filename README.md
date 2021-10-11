@@ -155,6 +155,11 @@ const withSplit = require('next-with-split')({
 })
 ```
 
+## Note
+
+:warning: If you set the target path of the split test to `/:path*`, it will not work correctly. This is because the path conflicts with the default paths `/_next/image` and `/_next/data`.
+Please specify the target path and set it so that it does not conflict with the default path. For example, `/:path(foo|bar)` `/foo/:path*`.
+
 ## Contributing
 Please read [CONTRIBUTING.md](https://github.com/aiji42/next-with-split/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
