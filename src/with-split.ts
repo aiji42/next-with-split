@@ -2,7 +2,7 @@ import { prepareSplitChallenge } from './prepare-split-challenge'
 import { makeRewrites } from './make-rewrites'
 import { SplitOptions } from './types'
 import { makeRuntimeConfig } from './make-runtime-config'
-import { NextConfig } from 'next/dist/next-server/server/config-shared'
+import { NextConfig } from 'next/dist/server/config'
 
 type WithSplitArgs = {
   splits?: SplitOptions
@@ -14,7 +14,7 @@ type WithSplitArgs = {
 
 export const withSplit =
   ({ splits: _splits = {}, ...manuals }: WithSplitArgs) =>
-  (nextConfig: Partial<NextConfig>): Partial<NextConfig> => {
+  (nextConfig: NextConfig): NextConfig => {
     if (process.env.SPLIT_DISABLE) return nextConfig
 
     // Load the configuration using Spectrum.
@@ -61,7 +61,7 @@ export const withSplit =
           (!isMain && assetHost
             ? `https://${assetHost}/_next/image`
             : undefined)
-      },
+      } as NextConfig['images'],
       serverRuntimeConfig: {
         ...nextConfig.serverRuntimeConfig,
         splits: makeRuntimeConfig(splits)

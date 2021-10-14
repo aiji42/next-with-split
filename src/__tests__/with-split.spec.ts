@@ -1,5 +1,6 @@
 import { withSplit } from '../with-split'
 import { prepareSplitChallenge } from '../prepare-split-challenge'
+import { NextConfig } from 'next'
 
 jest.mock('../prepare-split-challenge', () => ({
   prepareSplitChallenge: jest.fn()
@@ -45,7 +46,7 @@ describe('withSplit', () => {
       assetPrefix: 'https://hoge.com',
       images: {
         path: 'https://hoge.com/_next/image'
-      },
+      } as NextConfig['images'],
       serverRuntimeConfig: {
         foo: {
           bar: 'bar'
@@ -165,10 +166,10 @@ describe('withSplit', () => {
         }
       }
     })({})
-    expect(conf1.serverRuntimeConfig.splits.test1.branch1.isOriginal).toEqual(
+    expect(conf1.serverRuntimeConfig?.splits.test1.branch1.isOriginal).toEqual(
       false
     )
-    expect(conf1.serverRuntimeConfig.splits.test1.original.isOriginal).toEqual(
+    expect(conf1.serverRuntimeConfig?.splits.test1.original.isOriginal).toEqual(
       true
     )
     const conf2 = withSplit({
@@ -182,10 +183,12 @@ describe('withSplit', () => {
         }
       }
     })({})
-    expect(conf2.serverRuntimeConfig.splits.test1.branch1.isOriginal).toEqual(
+    expect(conf2.serverRuntimeConfig?.splits.test1.branch1.isOriginal).toEqual(
       false
     )
-    expect(conf2.serverRuntimeConfig.splits.test1.main.isOriginal).toEqual(true)
+    expect(conf2.serverRuntimeConfig?.splits.test1.main.isOriginal).toEqual(
+      true
+    )
     const conf3 = withSplit({
       splits: {
         test1: {
@@ -197,10 +200,10 @@ describe('withSplit', () => {
         }
       }
     })({})
-    expect(conf3.serverRuntimeConfig.splits.test1.branch1.isOriginal).toEqual(
+    expect(conf3.serverRuntimeConfig?.splits.test1.branch1.isOriginal).toEqual(
       false
     )
-    expect(conf3.serverRuntimeConfig.splits.test1.master.isOriginal).toEqual(
+    expect(conf3.serverRuntimeConfig?.splits.test1.master.isOriginal).toEqual(
       true
     )
   })
