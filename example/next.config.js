@@ -38,20 +38,15 @@
 module.exports = {
   env: {
     splits: {
-      test1: {
-        original: {
-          host: 'localhost:3000',
-          path: 'foo/*',
-          cookie: {},
-          isOriginal: true,
-          weight: 1,
+      example1: {
+        path: '/foo/*',
+        hosts: {
+          // original : challenger1 : challenger2 = 3(50%) : 2(33%) : 1(16%)
+          original: { host: 'localhost:3000', weith: 3 },
+          challenger1: { host: 'https://nextjs-split-test-git-abtest-example-2021-07-04-aiji42.vercel.app', weight: 2 },
         },
-        challenger: {
-          host: 'https://nextjs-split-test-git-abtest-example-2021-07-04-aiji42.vercel.app',
-          path: 'foo/*',
-          cookie: {},
-          isOriginal: false,
-          weight: 1,
+        cookie: { // Optional (For Sticky's control)
+          maxAge: 60 * 60 * 12 // Number of valid seconds for sticky sessions. (default is 1 day)
         }
       }
     }

@@ -8,8 +8,8 @@ export const getServerSideProps: GetServerSideProps = async ({
   req,
   preview
 }) => {
-  console.log(req.headers)
-  console.log(preview)
+  // console.log(req.headers)
+  // console.log(preview)
 
   return {
     props: {}
