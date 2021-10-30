@@ -4,7 +4,7 @@ import {
   sticky,
   runReverseProxy,
   getServerSideProps
-} from '../split-challenge'
+} from '../middleware'
 import { reverseProxy } from '../reverse-proxy'
 import { parseCookies, setCookie } from 'nookies'
 import getConfig from 'next/config'
