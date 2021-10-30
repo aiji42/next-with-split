@@ -10,16 +10,7 @@ export const makeRuntimeConfig = (options: SplitOptions): RuntimeConfig => {
         hosts: Object.fromEntries(
           Object.entries(option.hosts).map(([branch, host]) => [
             branch,
-            typeof host === 'string'
-              ? {
-                  weight: 1,
-                  host,
-                  isOriginal: ORIGINAL_DISTRIBUTION_KEYS.includes(branch)
-                }
-              : {
-                  ...host,
-                  isOriginal: ORIGINAL_DISTRIBUTION_KEYS.includes(branch)
-                }
+            convertHost(branch, host)
           ])
         ),
         cookie: { path: '/', maxAge: 60 ** 2 * 24 * 1000, ...option.cookie }
@@ -27,4 +18,21 @@ export const makeRuntimeConfig = (options: SplitOptions): RuntimeConfig => {
     }),
     {}
   )
+}
+
+const convertHost = (
+  branch: string,
+  host: SplitOptions[string]['hosts'][string]
+): RuntimeConfig[string]['hosts'][string] => {
+  const isOriginal = ORIGINAL_DISTRIBUTION_KEYS.includes(branch)
+  return typeof host === 'string'
+    ? {
+        weight: 1,
+        host,
+        isOriginal
+      }
+    : {
+        ...host,
+        isOriginal
+      }
 }

@@ -59,9 +59,11 @@ export const withSplit =
       } as NextConfig['images'],
       env: {
         ...nextConfig.env,
-        NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(
-          makeRuntimeConfig(splits)
-        )
+        ...(isMain && {
+          NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(
+            makeRuntimeConfig(splits)
+          )
+        })
       }
     }
   }
