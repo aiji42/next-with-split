@@ -3,7 +3,9 @@
   "version": "0.0.0-development",
   "description": "This is a plugin for split testing (AB testing) in Next.js.",
   "main": "./build/index.js",
-  "types": "./build/index.d.ts",
+  "module": "./esm/main.js",
+  "types": "./esm/main.d.ts",
+  "type": "module",
   "files": [
     "build"
   ],
@@ -36,7 +38,7 @@
     "format": "prettier './src/**/*.ts' './src/*.ts' --write",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "build": "tsc && ts-add-module-exports",
+    "build": "tsc && ts-add-module-exports && tsc -p tsconfig.esm.json",
     "semantic-release": "semantic-release",
     "prepare": "husky install"
   },
