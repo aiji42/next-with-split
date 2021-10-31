@@ -27,7 +27,7 @@ Note: Vercel is used as an example, but other providers are supported after v2.5
 
 ## Require
 
-- Using Next.js >=10.2
+- Using Next.js >=12
 
 ## Installation
 
@@ -56,14 +56,14 @@ module.export = withSplit({
 const withSplit = require('next-with-split')({
   splits: {
     example1: { // Identification of A/B tests (any)
-      path: '/foo/:path*', // Paths to perform A/B testing. (Follow the notation of the rewrite rules.)
+      path: '/foo/*', // Paths to perform A/B testing. (regular expression)
       hosts: {
         // [branch name]: host name
         original: 'example.com',
         'challenger-for-example1': 'challenger-for-example1.vercel.app',
       },
       cookie: { // Optional (For Sticky's control)
-        maxAge: 60 * 60 * 12 // Number of valid seconds for sticky sessions. (default is 1 day)
+        maxAge: 60 * 60 * 12 * 1000 // Number of valid milliseconds for sticky sessions. (default is 1 day)
       }
     },
     // Multiple A/B tests can be run simultaneously.
@@ -105,24 +105,6 @@ module.export = withSplit({
 It is also sticky, controlled by cookies.
 
 ## Features
-
-- If you place `pages/split-challenge/[__key].js` yourself, set `prepared: true`.
-    - This file acts as a reverse proxy to distribute the access to the target path to each branch deployments.
-```js
-// pages/split-challenge/[__key].js (.ts when using typescript)
-export { getServerSideProps } from 'next-with-split/build/split-challenge'
-const SplitChallenge = () => null
-export default SplitChallenge
-```
-```js
-// next.config.js
-const withSplit = require('next-with-split')({
-  splits: {...},
-  // You can skip the automatic generation `pages/split-challenge/[__key].js`.
-  prepared: true
-})
-```
-
 - If the deployment is subject to A/B testing, `process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING` is set to 'true'.
     - CAUTION: Only if the key set in `hosts` matches the branch name.
     
@@ -140,25 +122,17 @@ Use it for verification in your development environment.
 const withSplit = require('next-with-split')({
   splits: {
     example1: {
-      path: '/foo/:path*',
+      path: '/foo/*',
       hosts: {
         // original : challenger1 : challenger2 = 3(50%) : 2(33%) : 1(16%)
-        original: { host: 'example.com', weith: 3 },
+        original: { host: 'example.com', weight: 3 },
         challenger1: { host: 'challenger1.vercel.app', weight: 2 },
         challenger2: 'challenger2.vercel.app', // If `weight` is not specified, the value is 1.
-      },
-      cookie: { // Optional (For Sticky's control)
-        maxAge: 60 * 60 * 12 // Number of valid seconds for sticky sessions. (default is 1 day)
       }
     }
   }
 })
 ```
-
-## Note
-
-:warning: If you set the target path of the split test to `/:path*`, it will not work correctly. This is because the path conflicts with the default paths `/_next/image` and `/_next/data`.
-Please specify the target path and set it so that it does not conflict with the default path. For example, `/:path(foo|bar)` `/foo/:path*`.
 
 ## Contributing
 Please read [CONTRIBUTING.md](https://github.com/aiji42/next-with-split/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
