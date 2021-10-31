@@ -5,7 +5,6 @@
   "main": "./build/index.js",
   "module": "./esm/main.js",
   "types": "./esm/main.d.ts",
-  "type": "module",
   "files": [
     "build",
     "esm"
