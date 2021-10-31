@@ -1,1 +1,1 @@
-export { middleware } from 'next-with-split/build/middleware'
+export { middleware } from 'next-with-split'
