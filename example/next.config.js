@@ -36,7 +36,7 @@
 
 const withSplit = require('next-with-split')({
   splits: {
-    example1: {
+    test1: {
       path: '/foo/*',
       hosts: {
         original: 'localhost:3000',
