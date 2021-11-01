@@ -1,5 +1,6 @@
 import { middleware } from 'next-with-split'
-export default function(req) {
+import { NextRequest } from 'next/server'
+export default function (req: NextRequest) {
   console.log(req.nextUrl)
   return middleware(req)
 }
