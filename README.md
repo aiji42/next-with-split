@@ -21,7 +21,7 @@ You deploy the main branch (original) and the branch derived from it (challenger
 
 - Using Next.js >=12
 
-his plugin depends on the middleware of Next.js v12. If you are using Next.js v11 or earlier, please use next-with-split [v3](https://www.npmjs.com/package/next-with-split/v/3.3.2).
+This plugin depends on the middleware of Next.js v12. If you are using Next.js v11 or earlier, please use next-with-split [v3](https://www.npmjs.com/package/next-with-split/v/3.3.2).
 
 ## Installation
 
@@ -30,7 +30,7 @@ npm install --save next-with-split
 ```
 
 ## Usage
-1\. Customize `next.config.js` and `pages/_middleware.js`. (in main branch)
+1\. Customize `next.config.js` and create `pages/_middleware.js`. (in main branch)
 ```js
 // next.config.js
 const withSplit = require('next-with-split')({})
