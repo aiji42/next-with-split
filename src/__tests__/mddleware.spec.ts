@@ -71,7 +71,8 @@ describe('middleware', () => {
       middleware({
         cookies: {},
         nextUrl: {
-          href: '/bar'
+          href: 'https://example.com/bar',
+          origin: 'https://example.com'
         }
       } as unknown as NextRequest)
     ).toBeUndefined()
@@ -87,7 +88,8 @@ describe('middleware', () => {
     middleware({
       cookies: { 'x-split-key-test1': 'branch2' },
       nextUrl: {
-        href: '/foo/bar'
+        href: 'https://example.com/foo/bar',
+        origin: 'https://example.com'
       }
     } as unknown as NextRequest)
 
@@ -111,7 +113,8 @@ describe('middleware', () => {
     middleware({
       cookies: {},
       nextUrl: {
-        href: '/foo/bar'
+        href: 'https://example.com/foo/bar',
+        origin: 'https://example.com'
       }
     } as unknown as NextRequest)
 

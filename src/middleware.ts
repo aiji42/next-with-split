@@ -9,7 +9,7 @@ export const middleware = (req: NextRequest) => {
   const branch = getBranch(req, splitKey, config)
   const res = NextResponse.rewrite(
     (config.hosts[branch].isOriginal ? '' : config.hosts[branch].host) +
-      req.nextUrl.href
+      req.nextUrl.href.replace(req.nextUrl.origin, '')
   )
   return sticky(res, splitKey, branch, config.cookie)
 }
