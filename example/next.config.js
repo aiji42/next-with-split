@@ -47,4 +47,14 @@ const withSplit = require('next-with-split')({
   }
 })
 
-module.exports = withSplit({})
+module.exports = withSplit({
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/foo/bar',
+        permanent: false
+      }
+    ]
+  }
+})
