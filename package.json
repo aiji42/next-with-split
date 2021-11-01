@@ -3,9 +3,11 @@
   "version": "0.0.0-development",
   "description": "This is a plugin for split testing (AB testing) in Next.js.",
   "main": "./build/index.js",
-  "types": "./build/index.d.ts",
+  "module": "./esm/main.js",
+  "types": "./esm/main.d.ts",
   "files": [
-    "build"
+    "build",
+    "esm"
   ],
   "publishConfig": {
     "access": "public"
@@ -36,15 +38,12 @@
     "format": "prettier './src/**/*.ts' './src/*.ts' --write",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "build": "tsc && ts-add-module-exports",
+    "build": "tsc && ts-add-module-exports && tsc -p tsconfig.esm.json",
     "semantic-release": "semantic-release",
     "prepare": "husky install"
   },
-  "dependencies": {
-    "nookies": "^2.5.2"
-  },
   "peerDependencies": {
-    "next": ">=10.1.0"
+    "next": ">=12.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.15.8",
@@ -54,21 +53,21 @@
     "@commitlint/config-conventional": "^13.2.0",
     "@types/cookie": "^0.4.1",
     "@types/jest": "^27.0.2",
-    "@types/node": "^16.10.9",
-    "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "@typescript-eslint/parser": "^5.0.0",
-    "babel-jest": "^27.2.5",
-    "eslint": "^8.0.1",
+    "@types/node": "^16.11.6",
+    "@typescript-eslint/eslint-plugin": "^5.2.0",
+    "@typescript-eslint/parser": "^5.2.0",
+    "babel-jest": "^27.3.1",
+    "eslint": "^8.1.0",
     "eslint-config-prettier": "^8.3.0",
-    "husky": "^7.0.2",
-    "jest": "^27.2.5",
-    "lint-staged": "^11.2.3",
-    "next": "^11.1.2",
+    "husky": "^7.0.4",
+    "jest": "^27.3.1",
+    "lint-staged": "^11.2.6",
+    "next": "^12.0.1",
     "prettier": "^2.4.1",
     "semantic-release": "^18.0.0",
     "semantic-release-cli": "^5.4.4",
     "ts-add-module-exports": "^1.0.0",
-    "ts-node": "^10.3.0",
+    "ts-node": "^10.4.0",
     "typescript": "^4.4.4"
   },
   "lint-staged": {

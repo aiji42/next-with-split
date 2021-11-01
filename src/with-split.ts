@@ -1,12 +1,9 @@
-import { prepareSplitChallenge } from './prepare-split-challenge'
-import { makeRewrites } from './make-rewrites'
 import { SplitOptions } from './types'
 import { makeRuntimeConfig } from './make-runtime-config'
 import { NextConfig } from 'next/dist/server/config'
 
 type WithSplitArgs = {
   splits?: SplitOptions
-  prepared?: boolean
   currentBranch?: string
   isOriginal?: boolean
   hostname?: string
@@ -47,8 +44,6 @@ export const withSplit =
     if (branches.includes(currentBranch))
       process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'
 
-    prepareSplitChallenge(isMain, manuals?.prepared)
-
     return {
       ...nextConfig,
       assetPrefix:
@@ -62,12 +57,13 @@ export const withSplit =
             ? `https://${assetHost}/_next/image`
             : undefined)
       } as NextConfig['images'],
-      serverRuntimeConfig: {
-        ...nextConfig.serverRuntimeConfig,
-        splits: makeRuntimeConfig(splits)
-      },
-      rewrites: <NextConfig['rewrites']>(
-        makeRewrites(splits, nextConfig.rewrites, isMain)
-      )
+      env: {
+        ...nextConfig.env,
+        ...(isMain && {
+          NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(
+            makeRuntimeConfig(splits)
+          )
+        })
+      }
     }
   }
