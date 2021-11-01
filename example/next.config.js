@@ -39,7 +39,7 @@ const withSplit = require('next-with-split')({
     test1: {
       path: '/foo/*',
       hosts: {
-        original: 'localhost:3000',
+        same: 'https://next-with-split.vercel.app',
         challenger1:
           'https://nextjs-split-test-git-abtest-example-2021-07-04-aiji42.vercel.app'
       }
