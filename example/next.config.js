@@ -41,7 +41,7 @@ const withSplit = require('next-with-split')({
       hosts: {
         original: 'https://next-with-split.vercel.app',
         challenger1:
-          'https://nextjs-split-test-git-abtest-example-2021-07-04-aiji42.vercel.app'
+          'https://nextjs-split-test-qtk5p8qln-aiji42.vercel.app'
       }
     }
   }
