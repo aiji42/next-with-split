@@ -10,13 +10,13 @@ const FooBar: FC = () => {
   return (
     <Page width="800px" padding={0}>
       <Head>
-        <title>original | next-with-split</title>
+        <title>challenger | next-with-split</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <Page.Content padding={1}>
-        <Text h1 font="32px">
-          This is Original Page
+        <Text h1 font="32px" type="error">
+          This is Challenger Page
         </Text>
         <Grid.Container gap={1}>
           <Grid>
