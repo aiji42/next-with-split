@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@geist-ui/react": "^2.2.0",
     "next": "12.0.1",
     "next-with-split": "^4.0.1",
     "react": "17.0.2",
