@@ -28,11 +28,22 @@ const convertHost = (
   return typeof host === 'string'
     ? {
         weight: 1,
-        host,
+        host: correctHost(host),
         isOriginal
       }
     : {
         ...host,
+        host: correctHost(host.host),
         isOriginal
       }
+}
+
+const correctHost = (host: string): string => {
+  const newHost = /^https?:\/\/.+/.test(host) ? host : `https://${host}`
+  try {
+    new URL(newHost)
+    return newHost
+  } catch (_) {
+    throw new Error(`Incorrect host format: ${host}`)
+  }
 }
