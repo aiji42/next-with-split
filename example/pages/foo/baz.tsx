@@ -17,7 +17,7 @@ const FooBar: FC = () => {
 
       <Page.Content padding={1}>
         <Text h1 font="32px" type="error">
-          This is Challenger Page BAR
+          This is Challenger Page BAZ
         </Text>
         <Grid.Container gap={1}>
           <Grid>
@@ -65,9 +65,9 @@ const FooBar: FC = () => {
 
         <Spacer />
 
-        <NextLink href="/foo/baz">
+        <NextLink href="/foo/bar">
           <Link color block>
-            Go /foo/baz
+            Go /foo/bar
           </Link>
         </NextLink>
       </Page.Content>
