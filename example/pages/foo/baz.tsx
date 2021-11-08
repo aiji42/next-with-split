@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { FC } from 'react'
 import { cookieReset, cookieSet } from '../../utils/cookie-control'
 import { useRouter } from 'next/router'
-import { Button, Text, Grid, Page, Spacer, Link } from '@geist-ui/react'
+import { Button, Text, Grid, Page, Link, Spacer } from '@geist-ui/react'
 import NextLink from 'next/link'
 
 const FooBar: FC = () => {
@@ -17,7 +17,7 @@ const FooBar: FC = () => {
 
       <Page.Content padding={1}>
         <Text h1 font="32px">
-          This is Original Page BAR
+          This is Original Page BAZ
         </Text>
         <Grid.Container gap={1}>
           <Grid>
@@ -64,9 +64,9 @@ const FooBar: FC = () => {
         </Grid.Container>
         <Spacer />
 
-        <NextLink href="/foo/baz">
+        <NextLink href="/foo/bar">
           <Link color block>
-            Go /foo/baz
+            Go /foo/bar
           </Link>
         </NextLink>
       </Page.Content>
