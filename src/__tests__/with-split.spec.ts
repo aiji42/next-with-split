@@ -298,6 +298,50 @@ describe('withSplit', () => {
       })
     })
 
+    test('hosts with no protocol must be complemented', () => {
+      process.env = {
+        ...process.env,
+        VERCEL_URL: 'vercel.example.com',
+        VERCEL_ENV: 'production'
+      }
+      const conf = withSplit({
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'branch1.example.com',
+              branch2: 'branch2.example.com'
+            },
+            path: '/foo/*'
+          }
+        }
+      })({})
+      expect(conf.env).toEqual({
+        NEXT_WITH_SPLIT_RUNTIME_CONFIG:
+          '{"test1":{"path":"/foo/*","hosts":{"branch1":{"weight":1,"host":"https://branch1.example.com","isOriginal":false},"branch2":{"weight":1,"host":"https://branch2.example.com","isOriginal":false}},"cookie":{"path":"/","maxAge":86400000}}}'
+      })
+    })
+
+    test('if the host format is wrong, an error occurs', () => {
+      process.env = {
+        ...process.env,
+        VERCEL_URL: 'vercel.example.com',
+        VERCEL_ENV: 'production'
+      }
+      expect(() =>
+        withSplit({
+          splits: {
+            test1: {
+              hosts: {
+                branch1: '//:branch1.example.com',
+                branch2: 'branch2.example.com'
+              },
+              path: '/foo/*'
+            }
+          }
+        })({})
+      ).toThrow('Incorrect host format: //:branch1.example.com')
+    })
+
     describe('using the Spectrum', () => {
       it('must reads the environment variables (SPLIT_CONFIG_BY_SPECTRUM) and returns config', () => {
         process.env = {
@@ -319,7 +363,7 @@ describe('withSplit', () => {
         const conf = withSplit({})({})
         expect(conf.env).toEqual({
           NEXT_WITH_SPLIT_RUNTIME_CONFIG:
-            '{"test1":{"path":"/foo/bar","hosts":{"original":{"host":"vercel.example.com","weight":1,"isOriginal":true},"challenger":{"host":"challenger.vercel.example.com","weight":1,"isOriginal":false}},"cookie":{"path":"/","maxAge":60}}}'
+            '{"test1":{"path":"/foo/bar","hosts":{"original":{"host":"https://vercel.example.com","weight":1,"isOriginal":true},"challenger":{"host":"https://challenger.vercel.example.com","weight":1,"isOriginal":false}},"cookie":{"path":"/","maxAge":60}}}'
         })
       })
     })
