@@ -13,7 +13,7 @@ You deploy the main branch (original) and the branch derived from it (challenger
 
 ## Example
 
-[A/B test example](https://next-with-split-iylfr42lu-aiji42.vercel.app/foo/bar)
+[A/B test example](https://next-with-split-aiji42.vercel.app/foo/bar)
 
 ## How it works
 
