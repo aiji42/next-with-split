@@ -30,11 +30,14 @@ const runtimeConfig = {
   }
 }
 
+const headersRewriteHas = jest.fn()
+
 describe('middleware', () => {
   const OLD_ENV = process.env
   beforeEach(() => {
     jest.resetModules()
     process.env = { ...OLD_ENV }
+    headersRewriteHas.mockReturnValue(false)
   })
   afterAll(() => {
     process.env = OLD_ENV
@@ -78,6 +81,46 @@ describe('middleware', () => {
     ).toBeUndefined()
   })
 
+  test('accessed by a bot', () => {
+    process.env = {
+      ...process.env,
+      NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
+    }
+
+    expect(
+      middleware({
+        cookies: {},
+        nextUrl: {
+          href: 'https://example.com/foo/bar',
+          origin: 'https://example.com'
+        },
+        ua: { isBot: true }
+      } as unknown as NextRequest)
+    ).toBeUndefined()
+  })
+
+  test('has custom rewrite header', () => {
+    process.env = {
+      ...process.env,
+      NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
+    }
+
+    headersRewriteHas.mockImplementation(
+      (key) => key === 'x-middleware-rewrite'
+    )
+
+    expect(
+      middleware({
+        cookies: {},
+        nextUrl: {
+          href: 'https://branch2.example.com/foo/bar',
+          origin: 'https://branch2.example.com'
+        },
+        headers: { has: headersRewriteHas }
+      } as unknown as NextRequest)
+    ).toBeUndefined()
+  })
+
   test('path is matched and has sticky cookie', () => {
     process.env = {
       ...process.env,
@@ -90,7 +133,8 @@ describe('middleware', () => {
       nextUrl: {
         href: 'https://example.com/foo/bar',
         origin: 'https://example.com'
-      }
+      },
+      headers: { has: headersRewriteHas }
     } as unknown as NextRequest)
 
     expect(NextResponse.rewrite).toBeCalledWith(
@@ -115,7 +159,8 @@ describe('middleware', () => {
       nextUrl: {
         href: 'https://example.com/foo/bar',
         origin: 'https://example.com'
-      }
+      },
+      headers: { has: headersRewriteHas }
     } as unknown as NextRequest)
 
     expect(NextResponse.rewrite).toBeCalledWith('/foo/bar')
