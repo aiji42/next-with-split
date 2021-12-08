@@ -342,6 +342,50 @@ describe('withSplit', () => {
       ).toThrow('Incorrect host format: //:branch1.example.com')
     })
 
+    test('if the host is set with a path, an error occurs', () => {
+      process.env = {
+        ...process.env,
+        VERCEL_URL: 'vercel.example.com',
+        VERCEL_ENV: 'production'
+      }
+      expect(() =>
+        withSplit({
+          splits: {
+            test1: {
+              hosts: {
+                branch1: 'https//:branch1.example.com/',
+                branch2: 'branch2.example.com/'
+              },
+              path: '/foo/*'
+            }
+          }
+        })({})
+      ).toThrow(
+        "Incorrect host format: Specify only the protocol and domain (you set 'https//:branch1.example.com/')"
+      )
+    })
+
+    test('if the path is not set, an error occurs', () => {
+      process.env = {
+        ...process.env,
+        VERCEL_URL: 'vercel.example.com',
+        VERCEL_ENV: 'production'
+      }
+      expect(() =>
+        withSplit({
+          splits: {
+            test1: {
+              hosts: {
+                branch1: 'https//:branch1.example.com',
+                branch2: 'branch2.example.com'
+              },
+              path: ''
+            }
+          }
+        })({})
+      ).toThrow('Incomplete Format: The `path` is not set on `test1`.')
+    })
+
     describe('using the Spectrum', () => {
       it('must reads the environment variables (SPLIT_CONFIG_BY_SPECTRUM) and returns config', () => {
         process.env = {
