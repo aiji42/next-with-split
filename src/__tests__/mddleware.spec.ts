@@ -78,6 +78,24 @@ describe('middleware', () => {
     ).toBeUndefined()
   })
 
+  test('accessed by a bot', () => {
+    process.env = {
+      ...process.env,
+      NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
+    }
+
+    expect(
+      middleware({
+        cookies: {},
+        nextUrl: {
+          href: 'https://example.com/foo/bar',
+          origin: 'https://example.com'
+        },
+        ua: { isBot: true }
+      } as unknown as NextRequest)
+    ).toBeUndefined()
+  })
+
   test('path is matched and has sticky cookie', () => {
     process.env = {
       ...process.env,
