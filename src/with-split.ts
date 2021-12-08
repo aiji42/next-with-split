@@ -30,11 +30,17 @@ export const withSplit =
     if (Object.keys(splits).length > 0 && isMain) {
       console.log('Split tests are active.')
       console.table(
-        Object.entries(splits).map(([testKey, options]) => ({
-          testKey,
-          path: options.path,
-          distributions: Object.keys(options.hosts)
-        }))
+        Object.entries(splits).map(([testKey, options]) => {
+          if (!options.path)
+            throw new Error(
+              `Incomplete Format: The \`path\` is not set on \`${testKey}\`.`
+            )
+          return {
+            testKey,
+            path: options.path,
+            distributions: Object.keys(options.hosts)
+          }
+        })
       )
     }
 

@@ -42,8 +42,13 @@ const correctHost = (host: string): string => {
   const newHost = /^https?:\/\/.+/.test(host) ? host : `https://${host}`
   try {
     new URL(newHost)
-    return newHost
   } catch (_) {
     throw new Error(`Incorrect host format: ${host}`)
   }
+  if (new URL(newHost).origin !== newHost)
+    throw new Error(
+      `Incorrect host format: Specify only the protocol and domain (you set '${host}')`
+    )
+
+  return newHost
 }
