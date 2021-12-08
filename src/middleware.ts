@@ -4,7 +4,7 @@ import { RuntimeConfig } from './types'
 
 export const middleware = (req: NextRequest) => {
   const [splitKey, config] = getCurrentSplitConfig(req) ?? []
-  if (!splitKey || !config) return
+  if (!splitKey || !config || req.ua?.isBot) return
 
   const branch = getBranch(req, splitKey, config)
   const res = NextResponse.rewrite(
