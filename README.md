@@ -63,6 +63,7 @@ export const middleware = (req) => {
 ```
 
 2\. Derive a branch from the main branch as challenger. 
+- **NOTE:** Challenger branch also needs to have `next.config.js` customized (No. 1).
 
 3\. Deploy the challenger branch for preview and get the hostname.
 
