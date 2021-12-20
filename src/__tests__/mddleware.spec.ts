@@ -2,11 +2,16 @@ import { middleware } from '../middleware'
 import { NextResponse, NextRequest } from 'next/server'
 
 jest.mock('next/server', () => ({
-  NextResponse: {
-    rewrite: jest.fn()
-  }
+  NextResponse: jest.fn()
 }))
 const cookieMock = jest.fn()
+const headerMock = {
+  get: jest.fn()
+}
+const rewriteMock = jest.fn().mockReturnValue({
+  cookie: cookieMock,
+  headers: headerMock
+})
 
 const runtimeConfig = {
   test1: {
@@ -126,7 +131,7 @@ describe('middleware', () => {
       ...process.env,
       NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
     }
-    ;(NextResponse.rewrite as jest.Mock).mockReturnValue({ cookie: cookieMock })
+    ;(NextResponse.rewrite as jest.Mock) = rewriteMock
 
     middleware({
       cookies: { 'x-split-key-test1': 'branch2' },
@@ -151,7 +156,7 @@ describe('middleware', () => {
       ...process.env,
       NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
     }
-    ;(NextResponse.rewrite as jest.Mock).mockReturnValue({ cookie: cookieMock })
+    ;(NextResponse.rewrite as jest.Mock) = rewriteMock
     jest.spyOn(global.Math, 'random').mockReturnValue(0)
 
     middleware({
@@ -168,5 +173,31 @@ describe('middleware', () => {
       maxAge: 86400000,
       path: '/'
     })
+  })
+
+  test('request by preflight and matched challenger', () => {
+    process.env = {
+      ...process.env,
+      NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
+    }
+    headerMock.get = jest
+      .fn()
+      .mockReturnValue('https://branch2.example.com/foo/bar')
+    ;(NextResponse.rewrite as jest.Mock) = rewriteMock
+
+    middleware({
+      cookies: { 'x-split-key-test1': 'branch2' },
+      nextUrl: {
+        href: 'https://example.com/foo/bar',
+        origin: 'https://example.com'
+      },
+      headers: { has: headersRewriteHas },
+      preflight: 1
+    } as unknown as NextRequest)
+
+    expect(NextResponse.rewrite).toBeCalledWith(
+      'https://branch2.example.com/foo/bar'
+    )
+    expect(NextResponse).toBeCalledWith(null)
   })
 })
