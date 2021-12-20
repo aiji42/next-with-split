@@ -10,12 +10,12 @@
   "dependencies": {
     "@geist-ui/react": "^2.2.0",
     "next": "12.0.7",
-    "next-with-split": "^4.2.0-beta.1",
+    "next-with-split": "^4.2.1-beta.1",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },
   "devDependencies": {
     "@types/react": "17.0.37",
-    "typescript": "4.5.2"
+    "typescript": "4.5.4"
   }
 }
