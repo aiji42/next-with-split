@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { CookieSerializeOptions } from 'cookie'
 import { RuntimeConfig } from './types'
+import { NextMiddlewareResult } from 'next/dist/server/web/types'
 
-export const middleware = (req: NextRequest) => {
+export const middleware = (req: NextRequest): NextMiddlewareResult => {
   const [splitKey, config] = getCurrentSplitConfig(req) ?? []
   if (
     !splitKey ||
@@ -17,6 +18,13 @@ export const middleware = (req: NextRequest) => {
     (config.hosts[branch].isOriginal ? '' : config.hosts[branch].host) +
       req.nextUrl.href.replace(req.nextUrl.origin, '')
   )
+
+  if (
+    req.preflight &&
+    res.headers.get('x-middleware-rewrite')?.startsWith('http')
+  )
+    return new NextResponse(null)
+
   return sticky(res, splitKey, branch, config.cookie)
 }
 
