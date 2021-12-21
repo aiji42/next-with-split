@@ -35,14 +35,15 @@ const runtimeConfig = {
   }
 }
 
-const headersRewriteHas = jest.fn()
-
 describe('middleware', () => {
   const OLD_ENV = process.env
   beforeEach(() => {
-    jest.resetModules()
-    process.env = { ...OLD_ENV }
-    headersRewriteHas.mockReturnValue(false)
+    jest.clearAllMocks()
+    process.env = {
+      ...OLD_ENV,
+      NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
+    }
+    ;(NextResponse.rewrite as jest.Mock) = rewriteMock
   })
   afterAll(() => {
     process.env = OLD_ENV
@@ -70,11 +71,6 @@ describe('middleware', () => {
   })
 
   test('has runtime config but path is not matched', () => {
-    process.env = {
-      ...process.env,
-      NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
-    }
-
     expect(
       middleware({
         cookies: {},
@@ -87,11 +83,6 @@ describe('middleware', () => {
   })
 
   test('accessed by a bot', () => {
-    process.env = {
-      ...process.env,
-      NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
-    }
-
     expect(
       middleware({
         cookies: {},
@@ -104,42 +95,13 @@ describe('middleware', () => {
     ).toBeUndefined()
   })
 
-  test('has custom rewrite header', () => {
-    process.env = {
-      ...process.env,
-      NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
-    }
-
-    headersRewriteHas.mockImplementation(
-      (key) => key === 'x-middleware-rewrite'
-    )
-
-    expect(
-      middleware({
-        cookies: {},
-        nextUrl: {
-          href: 'https://branch2.example.com/foo/bar',
-          origin: 'https://branch2.example.com'
-        },
-        headers: { has: headersRewriteHas }
-      } as unknown as NextRequest)
-    ).toBeUndefined()
-  })
-
   test('path is matched and has sticky cookie', () => {
-    process.env = {
-      ...process.env,
-      NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
-    }
-    ;(NextResponse.rewrite as jest.Mock) = rewriteMock
-
     middleware({
       cookies: { 'x-split-key-test1': 'branch2' },
       nextUrl: {
         href: 'https://example.com/foo/bar',
         origin: 'https://example.com'
-      },
-      headers: { has: headersRewriteHas }
+      }
     } as unknown as NextRequest)
 
     expect(NextResponse.rewrite).toBeCalledWith(
@@ -152,11 +114,6 @@ describe('middleware', () => {
   })
 
   test('path is matched and not has sticky cookie', () => {
-    process.env = {
-      ...process.env,
-      NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
-    }
-    ;(NextResponse.rewrite as jest.Mock) = rewriteMock
     jest.spyOn(global.Math, 'random').mockReturnValue(0)
 
     middleware({
@@ -164,8 +121,7 @@ describe('middleware', () => {
       nextUrl: {
         href: 'https://example.com/foo/bar',
         origin: 'https://example.com'
-      },
-      headers: { has: headersRewriteHas }
+      }
     } as unknown as NextRequest)
 
     expect(NextResponse.rewrite).toBeCalledWith('/foo/bar')
@@ -175,29 +131,103 @@ describe('middleware', () => {
     })
   })
 
-  test('request by preflight and matched challenger', () => {
-    process.env = {
-      ...process.env,
-      NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
-    }
-    headerMock.get = jest
-      .fn()
-      .mockReturnValue('https://branch2.example.com/foo/bar')
-    ;(NextResponse.rewrite as jest.Mock) = rewriteMock
+  describe('on preflight', () => {
+    describe('from NOT target path', () => {
+      test('matched original', () => {
+        headerMock.get = jest.fn().mockReturnValue('/foo/bar')
 
-    middleware({
-      cookies: { 'x-split-key-test1': 'branch2' },
-      nextUrl: {
-        href: 'https://example.com/foo/bar',
-        origin: 'https://example.com'
-      },
-      headers: { has: headersRewriteHas },
-      preflight: 1
-    } as unknown as NextRequest)
+        middleware({
+          cookies: {},
+          nextUrl: {
+            href: 'https://example.com/foo/bar',
+            origin: 'https://example.com'
+          },
+          headers: {
+            get: () => 'https://example.com/bar' // referrer
+          },
+          preflight: 1
+        } as unknown as NextRequest)
 
-    expect(NextResponse.rewrite).toBeCalledWith(
-      'https://branch2.example.com/foo/bar'
-    )
-    expect(NextResponse).toBeCalledWith(null)
+        expect(NextResponse).not.toBeCalled()
+      })
+
+      test('matched challenger', () => {
+        headerMock.get = jest
+          .fn()
+          .mockReturnValue('https://branch2.example.com/foo/bar')
+
+        middleware({
+          cookies: {},
+          nextUrl: {
+            href: 'https://example.com/foo/bar',
+            origin: 'https://example.com'
+          },
+          headers: {
+            get: () => 'https://example.com/bar' // referrer
+          },
+          preflight: 1
+        } as unknown as NextRequest)
+
+        expect(NextResponse).toBeCalledWith(null)
+      })
+    })
+    describe('from target path', () => {
+      test('matched original', () => {
+        headerMock.get = jest.fn().mockReturnValue('/foo/bar')
+
+        middleware({
+          cookies: {},
+          nextUrl: {
+            href: 'https://example.com/foo/bar',
+            origin: 'https://example.com'
+          },
+          headers: {
+            get: () => 'https://example.com/foo/baz' // referrer
+          },
+          preflight: 1
+        } as unknown as NextRequest)
+
+        expect(NextResponse).not.toBeCalled()
+      })
+      test('matched challenger', () => {
+        headerMock.get = jest
+          .fn()
+          .mockReturnValue('https://branch2.example.com/foo/bar')
+
+        middleware({
+          cookies: {},
+          nextUrl: {
+            href: 'https://example.com/foo/bar',
+            origin: 'https://example.com'
+          },
+          headers: {
+            get: () => 'https://example.com/foo/baz' // referrer
+          },
+          preflight: 1
+        } as unknown as NextRequest)
+
+        expect(NextResponse).not.toBeCalled()
+      })
+    })
+
+    test('can not get the referrer', () => {
+      headerMock.get = jest
+        .fn()
+        .mockReturnValue('https://branch2.example.com/foo/bar')
+
+      middleware({
+        cookies: {},
+        nextUrl: {
+          href: 'https://example.com/foo/bar',
+          origin: 'https://example.com'
+        },
+        headers: {
+          get: () => undefined // referrer
+        },
+        preflight: 1
+      } as unknown as NextRequest)
+
+      expect(NextResponse).not.toBeCalled()
+    })
   })
 })
