@@ -3,15 +3,11 @@ import { CookieSerializeOptions } from 'cookie'
 import { RuntimeConfig } from './types'
 import { NextMiddlewareResult } from 'next/dist/server/web/types'
 
+type Config = RuntimeConfig[string]
+
 export const middleware = (req: NextRequest): NextMiddlewareResult => {
   const [splitKey, config] = getCurrentSplitConfig(req) ?? []
-  if (
-    !splitKey ||
-    !config ||
-    req.ua?.isBot ||
-    req.headers.has('x-middleware-rewrite')
-  )
-    return
+  if (!splitKey || !config || req.ua?.isBot) return
 
   const branch = getBranch(req, splitKey, config)
   const res = NextResponse.rewrite(
@@ -19,13 +15,10 @@ export const middleware = (req: NextRequest): NextMiddlewareResult => {
       req.nextUrl.href.replace(req.nextUrl.origin, '')
   )
 
-  if (
-    req.preflight &&
-    res.headers.get('x-middleware-rewrite')?.startsWith('http')
+  return (
+    handlePreflight(req, res, config) ??
+    sticky(res, splitKey, branch, config.cookie)
   )
-    return new NextResponse(null)
-
-  return sticky(res, splitKey, branch, config.cookie)
 }
 
 const cookieKey = (key: string) => `x-split-key-${key}`
@@ -39,11 +32,7 @@ const getCurrentSplitConfig = (req: NextRequest) => {
   ).find(([, { path }]) => new RegExp(path).test(req.nextUrl.href))
 }
 
-const getBranch = (
-  req: NextRequest,
-  splitKey: string,
-  config: RuntimeConfig[string]
-) => {
+const getBranch = (req: NextRequest, splitKey: string, config: Config) => {
   const cookieBranch = req.cookies[cookieKey(splitKey)]
   if (cookieBranch && config.hosts[cookieBranch]) return cookieBranch
 
@@ -60,3 +49,20 @@ const sticky = (
   branch: string,
   cookieConfig: CookieSerializeOptions
 ) => res.cookie(cookieKey(splitKey), branch, cookieConfig)
+
+const handlePreflight = (
+  req: NextRequest,
+  res: NextResponse,
+  config: Config
+): undefined | NextResponse => {
+  if (!req.preflight) return
+  const isExternal = res.headers.get('x-middleware-rewrite')?.startsWith('http')
+  try {
+    const isFromTarget = new RegExp(config.path).test(
+      new URL(req.headers.get('referer') ?? '').pathname
+    )
+    if (!isFromTarget && isExternal) return new NextResponse(null)
+  } catch (_) {
+    return
+  }
+}
