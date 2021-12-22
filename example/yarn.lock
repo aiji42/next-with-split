@@ -1095,10 +1095,10 @@ nanoid@^3.1.23:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.30.tgz#63f93cc548d2a113dc5dfbc63bfa09e2b9b64362"
   integrity sha512-zJpuPDwOv8D2zq2WRoMe1HsfZthVewpel9CAvTfc/2mBD1uUT/agc5f7GHGWXlYkFvi1mVxe4IjvP2HNrop7nQ==
 
-next-with-split@4.2.1-beta.2:
-  version "4.2.1-beta.2"
-  resolved "https://registry.yarnpkg.com/next-with-split/-/next-with-split-4.2.1-beta.2.tgz#75476bbae257d2dcac31e8cf61578819e30cd8f3"
-  integrity sha512-pyXRW+8eif408r8RbE+qx37hexeFk3RtEaIsyTHxXlPviC6e87CnQdllxB/tjGo27hLpoTzvYh+Oy8/CTokp2w==
+next-with-split@4.2.3-beta.1:
+  version "4.2.3-beta.1"
+  resolved "https://registry.yarnpkg.com/next-with-split/-/next-with-split-4.2.3-beta.1.tgz#85a854eea2c0d02c81fb3b44bbba76a96588e8b8"
+  integrity sha512-J4Me+WcP8LWG9XUqvfKYU+hX41lUwwtyHAq8j4qzJud0FlFAGnFJJsKADvMYC7Bhi75z64PPQDaJi+zzGqsY8A==
 
 next@12.0.7:
   version "12.0.7"
