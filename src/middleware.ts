@@ -8,16 +8,13 @@ type Config = RuntimeConfig[string]
 export const middleware = (req: NextRequest): NextMiddlewareResult => {
   const [splitKey, config] = getCurrentSplitConfig(req) ?? []
   if (!splitKey || !config || req.ua?.isBot) return
-
   const branch = getBranch(req, splitKey, config)
-  const res = NextResponse.rewrite(
-    (config.hosts[branch].isOriginal ? '' : config.hosts[branch].host) +
-      req.nextUrl.href.replace(req.nextUrl.origin, '')
-  )
 
-  return (
-    handlePreflight(req, res, config) ??
-    sticky(res, splitKey, branch, config.cookie)
+  return sticky(
+    createResponse(req, branch, config),
+    splitKey,
+    branch,
+    config.cookie
   )
 }
 
@@ -50,19 +47,28 @@ const sticky = (
   cookieConfig: CookieSerializeOptions
 ) => res.cookie(cookieKey(splitKey), branch, cookieConfig)
 
-const handlePreflight = (
+const createResponse = (
   req: NextRequest,
-  res: NextResponse,
+  branch: string,
   config: Config
-): undefined | NextResponse => {
-  if (!req.preflight) return
-  const isExternal = res.headers.get('x-middleware-rewrite')?.startsWith('http')
+): NextResponse => {
+  const rewriteTo = `${
+    config.hosts[branch].isOriginal ? '' : config.hosts[branch].host
+  }${req.nextUrl.href.replace(req.nextUrl.origin, '')}`
+  const isExternal = rewriteTo.startsWith('http')
+  const isOutOfTarget = !new RegExp(config.path).test(getRefererPathname(req))
+
+  if (req.preflight && isExternal && isOutOfTarget)
+    return new NextResponse(null)
+  return NextResponse.rewrite(rewriteTo)
+}
+
+const getRefererPathname = (req: NextRequest) => {
+  let pathname = ''
   try {
-    const isFromTarget = new RegExp(config.path).test(
-      new URL(req.headers.get('referer') ?? '').pathname
-    )
-    if (!isFromTarget && isExternal) return new NextResponse(null)
+    pathname = new URL(req.headers.get('referer') ?? '').pathname
   } catch (_) {
-    return
+    return pathname
   }
+  return pathname
 }
