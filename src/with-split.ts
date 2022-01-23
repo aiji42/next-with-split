@@ -1,6 +1,7 @@
 import { SplitOptions } from './types'
 import { makeRuntimeConfig } from './make-runtime-config'
 import { NextConfig } from 'next/dist/server/config'
+import { exec } from 'child_process'
 
 type WithSplitArgs = {
   splits?: SplitOptions
@@ -47,7 +48,17 @@ export const withSplit =
       )
     }
 
-    // TODO: install or uninstall middleware when auto install mode
+    getMiddlewarePaths(splits).forEach((path) => {
+      // TODO: check filename _middleware.{ts, js}
+      exec(
+        `npm next-with-split ${isMain ? 'install' : 'remove'} ${path}`,
+        (err, stdout, stderr) => {
+          if (err) throw err
+          stdout && console.log(stdout)
+          stderr && console.log(stderr)
+        }
+      )
+    })
 
     if (isSubjectedSplitTest(splits, currentBranch))
       process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'
@@ -84,4 +95,10 @@ const isSubjectedSplitTest = (
     Object.keys(hosts)
   )
   return branches.includes(currentBranch)
+}
+
+const getMiddlewarePaths = (splits: SplitOptions): string[] => {
+  return Object.values(splits)
+    .map(({ middleware }) => middleware)
+    .filter((path): path is string => !!path)
 }
