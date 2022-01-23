@@ -5,10 +5,13 @@ import { resolve } from 'node:path'
 import * as yargs from 'yargs'
 
 const installMiddleware = (middlewarePath: string) => {
+  console.log('split traffic enabled, installing middleware: ', middlewarePath)
+  // TODO: Prohibit overwriting
   writeFileSync(resolve(__dirname, '../../..', middlewarePath), scriptText)
 }
 
 const removeMiddleware = (middlewarePath: string) => {
+  console.log('split traffic disabled, removing middleware: ', middlewarePath)
   const path = resolve(__dirname, '../../..', middlewarePath)
   if (
     statSync(path, {
@@ -27,6 +30,7 @@ export { middleware } from 'next-with-split'
 
 yargs
   .scriptName('next-with-split')
+  // TODO: Flag to force overwriting
   .command<{ middlewarePath: string }>(
     'install <middlewarePath>',
     'split traffic enabled, installing middleware',
