@@ -5,6 +5,9 @@
   "main": "./build/index.js",
   "module": "./esm/main.js",
   "types": "./esm/main.d.ts",
+  "bin": {
+    "with-next-split": "./build/script.js"
+  },
   "files": [
     "build",
     "esm"
