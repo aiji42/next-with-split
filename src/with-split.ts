@@ -12,7 +12,10 @@ type WithSplitArgs = {
 export const withSplit =
   ({ splits: _splits = {}, ...manuals }: WithSplitArgs) =>
   (nextConfig: NextConfig): NextConfig => {
-    if (process.env.SPLIT_DISABLE) return nextConfig
+    if (process.env.SPLIT_DISABLE) {
+      // TODO: uninstall middleware if auto install mode
+      return nextConfig
+    }
 
     // Load the configuration using Spectrum.
     const splits: SplitOptions =
@@ -44,10 +47,9 @@ export const withSplit =
       )
     }
 
-    const branches = Object.values(splits)
-      .map(({ hosts }) => Object.keys(hosts))
-      .flat()
-    if (branches.includes(currentBranch))
+    // TODO: install or uninstall middleware when auto install mode
+
+    if (isSubjectedSplitTest(splits, currentBranch))
       process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'
 
     return {
@@ -73,3 +75,13 @@ export const withSplit =
       }
     }
   }
+
+const isSubjectedSplitTest = (
+  splits: SplitOptions,
+  currentBranch: string
+): boolean => {
+  const branches = Object.values(splits).flatMap(({ hosts }) =>
+    Object.keys(hosts)
+  )
+  return branches.includes(currentBranch)
+}
