@@ -2,51 +2,55 @@
 
 import { statSync, unlinkSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import * as yargs from 'yargs'
 
-const installMiddleware = (pagePath: string) => {
-  writeFileSync(
-    resolve(__dirname, '../..', pagePath, '_middleware.js'),
-    scriptText
-  )
+const installMiddleware = (middlewarePath: string) => {
+  writeFileSync(resolve(__dirname, '../../..', middlewarePath), scriptText)
 }
 
-const removeMiddleware = (pagePath: string) => {
-  ;['js', 'ts'].forEach((ext) => {
-    const path = resolve(__dirname, '../..', pagePath, `_middleware.${ext}`)
-    if (
-      statSync(path, {
-        throwIfNoEntry: false
-      })
-    ) {
-      unlinkSync(path)
-    }
-  })
-}
-
-const scriptText = `// NOTE: in this location, this file does nothing
-// scripts/split.mjs will copy this file to /pages/_middleware.js at
-// install/deploy if process.env.NEXT_SPLIT_ACTIVE == 1
-export { middleware } from 'next-with-split'
-`
-
-const main = () => {
-  const command = process.argv[2]
-  const pagesPath = process.argv[3]
-
-  switch (command) {
-    case 'remove':
-      console.info(
-        `split traffic disabled, removing middleware from ${pagesPath}`
-      )
-      removeMiddleware(pagesPath)
-      break
-    case 'install':
-      console.info(
-        `split traffic enabled, installing middleware to ${pagesPath}`
-      )
-      installMiddleware(pagesPath)
-      break
+const removeMiddleware = (middlewarePath: string) => {
+  const path = resolve(__dirname, '../../..', middlewarePath)
+  if (
+    statSync(path, {
+      throwIfNoEntry: false
+    })
+  ) {
+    unlinkSync(path)
   }
 }
 
-main()
+// TODO: add README link
+const scriptText = `// This file was installed automatically by the with-next-split command.
+// Note: Do not update this file manually.
+export { middleware } from 'next-with-split'
+`
+
+yargs
+  .scriptName('next-with-split')
+  .command<{ middlewarePath: string }>(
+    'install <middlewarePath>',
+    'split traffic enabled, installing middleware',
+    (yargs) => {
+      yargs.positional('middlewarePath', {
+        type: 'string',
+        describe: 'middleware fire path (e.g. pages/_middleware.js)'
+      })
+    },
+    (argv) => {
+      installMiddleware(argv.middlewarePath)
+    }
+  )
+  .command<{ middlewarePath: string }>(
+    'remove <middlewarePath>',
+    'split traffic disabled, removing middleware',
+    (yargs) => {
+      yargs.positional('middlewarePath', {
+        type: 'string',
+        describe: 'middleware fire path (e.g. pages/_middleware.js)'
+      })
+    },
+    (argv) => {
+      removeMiddleware(argv.middlewarePath)
+    }
+  )
+  .help().argv
