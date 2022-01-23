@@ -7,11 +7,13 @@ import * as yargs from 'yargs'
 const installMiddleware = (middlewarePath: string) => {
   console.log('split traffic enabled, installing middleware: ', middlewarePath)
   // TODO: Prohibit overwriting
+  // TODO: use app-root-dir
   writeFileSync(resolve(__dirname, '../../..', middlewarePath), scriptText)
 }
 
 const removeMiddleware = (middlewarePath: string) => {
   console.log('split traffic disabled, removing middleware: ', middlewarePath)
+  // TODO: use app-root-dir
   const path = resolve(__dirname, '../../..', middlewarePath)
   if (
     statSync(path, {
