@@ -51,7 +51,7 @@ export const withSplit =
     getMiddlewarePaths(splits).forEach((path) => {
       // TODO: check filename _middleware.{ts, js}
       exec(
-        `npm next-with-split ${isMain ? 'install' : 'remove'} ${path}`,
+        `npx next-with-split ${isMain ? 'install' : 'remove'} ${path}`,
         (err, stdout, stderr) => {
           if (err) throw err
           stdout && console.log(stdout)
