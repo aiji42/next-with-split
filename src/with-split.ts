@@ -99,7 +99,10 @@ const prepareMiddleware = (
 ) => {
   getMiddlewarePaths(splits).forEach((path) => {
     exec(`npx next-with-split ${command} ${path}`, (err, stdout, stderr) => {
-      if (err) throw err
+      if (err instanceof Error) {
+        if (stderr) throw new Error(stderr)
+        throw err
+      }
       if (stderr) throw new Error(stderr)
       stdout && console.log(stdout)
     })
