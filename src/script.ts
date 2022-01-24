@@ -64,7 +64,7 @@ yargs
       try {
         installMiddleware(argv.middlewarePath)
       } catch (e) {
-        if (e instanceof Error) console.error('Error:', e.message)
+        if (e instanceof Error) console.error(e.message)
         process.exit(1)
       }
     }
@@ -82,7 +82,7 @@ yargs
       try {
         removeMiddleware(argv.middlewarePath)
       } catch (e) {
-        if (e instanceof Error) console.error('Error:', e.message)
+        if (e instanceof Error) console.error(e.message)
         process.exit(1)
       }
     }
