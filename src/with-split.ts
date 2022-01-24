@@ -13,19 +13,19 @@ type WithSplitArgs = {
 export const withSplit =
   ({ splits: _splits = {}, ...manuals }: WithSplitArgs) =>
   (nextConfig: NextConfig): NextConfig => {
-    if (process.env.SPLIT_DISABLE) {
-      // TODO: uninstall middleware if auto install mode
-      return nextConfig
-    }
-
     // Load the configuration using Spectrum.
     const splits: SplitOptions =
       Object.keys(_splits).length > 0
         ? _splits
         : JSON.parse(process.env.SPLIT_CONFIG_BY_SPECTRUM ?? '{}')
 
+    if (['true', '1'].includes(process.env.SPLIT_DISABLE ?? '')) {
+      prepareMiddleware(splits, 'remove')
+      return nextConfig
+    }
+
     const isMain =
-      !!process.env.SPLIT_ACTIVE ||
+      ['true', '1'].includes(process.env.SPLIT_ACTIVE ?? '') ||
       (manuals?.isOriginal ?? process.env.VERCEL_ENV === 'production')
     const assetHost = manuals?.hostname ?? process.env.VERCEL_URL
     const currentBranch =
@@ -37,7 +37,7 @@ export const withSplit =
         Object.entries(splits).map(([testKey, options]) => {
           if (!options.path)
             throw new Error(
-              `Incomplete Format: The \`path\` is not set on \`${testKey}\`.`
+              `Invalid format: The \`path\` is not set on \`${testKey}\`.`
             )
           return {
             testKey,
@@ -48,17 +48,7 @@ export const withSplit =
       )
     }
 
-    getMiddlewarePaths(splits).forEach((path) => {
-      exec(
-        `npx next-with-split ${isMain ? 'install' : 'remove'} ${path}`,
-        (err, stdout, stderr) => {
-          if (err) throw err
-          stdout && console.log(stdout)
-          // TODO: Check
-          stderr && console.log(stderr)
-        }
-      )
-    })
+    prepareMiddleware(splits, isMain ? 'install' : 'remove')
 
     if (isSubjectedSplitTest(splits, currentBranch))
       process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'
@@ -101,4 +91,17 @@ const getMiddlewarePaths = (splits: SplitOptions): string[] => {
   return Object.values(splits)
     .map(({ middleware }) => middleware)
     .filter((path): path is string => !!path)
+}
+
+const prepareMiddleware = (
+  splits: SplitOptions,
+  command: 'install' | 'remove'
+) => {
+  getMiddlewarePaths(splits).forEach((path) => {
+    exec(`npx next-with-split ${command} ${path}`, (err, stdout, stderr) => {
+      if (err) throw err
+      if (stderr) throw new Error(stderr)
+      stdout && console.log(stdout)
+    })
+  })
 }
