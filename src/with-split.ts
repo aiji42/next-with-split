@@ -1,6 +1,7 @@
 import { SplitOptions } from './types'
 import { makeRuntimeConfig } from './make-runtime-config'
 import { NextConfig } from 'next/dist/server/config'
+import { ImageConfig } from 'next/dist/server/image-config'
 import { exec } from 'child_process'
 
 type WithSplitArgs = {
@@ -65,7 +66,7 @@ export const withSplit =
           (!isMain && assetHost
             ? `https://${assetHost}/_next/image`
             : undefined)
-      } as NextConfig['images'],
+      } as ImageConfig,
       env: {
         ...nextConfig.env,
         ...(isMain && {
