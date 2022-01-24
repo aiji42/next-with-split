@@ -61,7 +61,12 @@ yargs
       })
     },
     (argv) => {
-      installMiddleware(argv.middlewarePath)
+      try {
+        installMiddleware(argv.middlewarePath)
+      } catch (e) {
+        if (e instanceof Error) console.error('Error:', e.message)
+        process.exit(1)
+      }
     }
   )
   .command<{ middlewarePath: string }>(
@@ -74,7 +79,12 @@ yargs
       })
     },
     (argv) => {
-      removeMiddleware(argv.middlewarePath)
+      try {
+        removeMiddleware(argv.middlewarePath)
+      } catch (e) {
+        if (e instanceof Error) console.error('Error:', e.message)
+        process.exit(1)
+      }
     }
   )
   .help().argv
