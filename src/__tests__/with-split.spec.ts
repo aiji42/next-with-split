@@ -383,7 +383,7 @@ describe('withSplit', () => {
             }
           }
         })({})
-      ).toThrow('Incomplete Format: The `path` is not set on `test1`.')
+      ).toThrow('Invalid format: The `path` is not set on `test1`.')
     })
 
     describe('using the Spectrum', () => {
