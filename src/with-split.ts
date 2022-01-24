@@ -49,14 +49,12 @@ export const withSplit =
     }
 
     getMiddlewarePaths(splits).forEach((path) => {
-      // TODO: check filename _middleware.{ts, js}
-      // TODO: Allowing commands to be overridden for development
-      // TODO: Allow the user to choose not to control it with environment variables.
       exec(
         `npx next-with-split ${isMain ? 'install' : 'remove'} ${path}`,
         (err, stdout, stderr) => {
           if (err) throw err
           stdout && console.log(stdout)
+          // TODO: Check
           stderr && console.log(stderr)
         }
       )

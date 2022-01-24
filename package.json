@@ -46,6 +46,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "app-root-path": "^3.0.0",
     "yargs": "^17.3.1"
   },
   "peerDependencies": {
@@ -57,6 +58,7 @@
     "@babel/preset-typescript": "^7.16.7",
     "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^16.0.0",
+    "@types/app-root-path": "^1.2.4",
     "@types/cookie": "^0.4.1",
     "@types/jest": "^27.4.0",
     "@types/node": "^17.0.10",
