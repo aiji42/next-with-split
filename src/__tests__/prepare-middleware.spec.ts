@@ -3,24 +3,16 @@ import {
   removeMiddleware,
   scriptText
 } from '../prepare-middleware'
-import { readFileSync, writeFileSync, unlinkSync, statSync } from 'node:fs'
-import { resolve } from 'app-root-path'
+import * as Fs from 'node:fs'
+import * as AppRootPath from 'app-root-path'
 
-jest.mock('app-root-path', () => ({
-  resolve: jest.fn()
-}))
-
-jest.mock('node:fs', () => ({
-  statSync: jest.fn(),
-  readFileSync: jest.fn(),
-  writeFileSync: jest.fn(),
-  unlinkSync: jest.fn()
-}))
+jest.mock('app-root-path')
+jest.mock('node:fs')
 
 describe('prepare-middleware', () => {
   beforeEach(() => {
     jest.resetAllMocks()
-    ;(resolve as jest.Mock).mockImplementation((path) => path)
+    jest.spyOn(AppRootPath, 'resolve').mockImplementation((path) => path)
   })
   describe('installMiddleware', () => {
     test('the path is validated', () => {
@@ -33,32 +25,33 @@ describe('prepare-middleware', () => {
     })
     describe('when middleware file is present', () => {
       beforeEach(() => {
-        ;(statSync as jest.Mock).mockReturnValue(true)
+        jest.spyOn(Fs, 'statSync').mockReturnValue(true as unknown as Fs.Stats)
       })
       test("if it's middleware that cannot be controlled, make an exception", () => {
         const content = 'export const middleware = () => {}'
-        ;(readFileSync as jest.Mock).mockReturnValue(content)
+        jest.spyOn(Fs, 'readFileSync').mockReturnValue(content)
         expect(() => installMiddleware('pages/_middleware.js')).toThrow(
           Error('Manually created middleware is present: pages/_middleware.js')
         )
       })
       test('override any middleware that can be controlled', () => {
         const content = 'export { middleware } from "next-with-split"'
-        ;(readFileSync as jest.Mock).mockReturnValue(content)
+        jest.spyOn(Fs, 'readFileSync').mockReturnValue(content)
+        const mock = jest.spyOn(Fs, 'writeFileSync').mockImplementation()
         installMiddleware('pages/_middleware.js')
-        expect(writeFileSync).toBeCalledWith('pages/_middleware.js', scriptText)
+        expect(mock).toBeCalledWith('pages/_middleware.js', scriptText)
       })
     })
     describe('when middleware file is NOT present', () => {
       beforeEach(() => {
-        ;(statSync as jest.Mock).mockReturnValue(false)
+        jest
+          .spyOn(Fs, 'statSync')
+          .mockReturnValue(undefined as unknown as Fs.Stats)
       })
       test('create middleware file', () => {
         installMiddleware('pages/foo/_middleware.js')
-        expect(writeFileSync).toBeCalledWith(
-          'pages/foo/_middleware.js',
-          scriptText
-        )
+        const mock = jest.spyOn(Fs, 'writeFileSync').mockImplementation()
+        expect(mock).toBeCalledWith('pages/foo/_middleware.js', scriptText)
       })
     })
   })
@@ -73,14 +66,18 @@ describe('prepare-middleware', () => {
       )
     })
     test('remove middleware if it exists', () => {
-      ;(statSync as jest.Mock).mockReturnValue(true)
+      jest.spyOn(Fs, 'statSync').mockReturnValue(true as unknown as Fs.Stats)
       removeMiddleware('pages/_middleware.js')
-      expect(unlinkSync).toBeCalledWith('pages/_middleware.js')
+      const mock = jest.spyOn(Fs, 'unlinkSync').mockImplementation()
+      expect(mock).toBeCalledWith('pages/_middleware.js')
     })
     test('unlinkSync will not be executed if the middleware does not exist', () => {
-      ;(statSync as jest.Mock).mockReturnValue(false)
+      jest
+        .spyOn(Fs, 'statSync')
+        .mockReturnValue(undefined as unknown as Fs.Stats)
+      const mock = jest.spyOn(Fs, 'unlinkSync').mockImplementation()
       removeMiddleware('pages/_middleware.js')
-      expect(unlinkSync).not.toBeCalled()
+      expect(mock).not.toBeCalled()
     })
   })
 })

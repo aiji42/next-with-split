@@ -1,5 +1,9 @@
 import { withSplit } from '../with-split'
 import { NextConfig } from 'next'
+import * as ChildProcess from 'child_process'
+import { ExecException } from 'child_process'
+
+jest.mock('child_process')
 
 describe('withSplit', () => {
   const OLD_ENV = process.env
@@ -409,6 +413,130 @@ describe('withSplit', () => {
           NEXT_WITH_SPLIT_RUNTIME_CONFIG:
             '{"test1":{"path":"/foo/bar","hosts":{"original":{"host":"https://vercel.example.com","weight":1,"isOriginal":true},"challenger":{"host":"https://challenger.vercel.example.com","weight":1,"isOriginal":false}},"cookie":{"path":"/","maxAge":60}}}'
         })
+      })
+    })
+  })
+
+  describe('auto middleware install', () => {
+    let mock: jest.SpyInstance
+    beforeEach(() => {
+      mock = jest.spyOn(ChildProcess, 'exec').mockImplementation()
+    })
+    it('must call remove middleware command when SPLIT_DISABLE', () => {
+      process.env = { ...process.env, SPLIT_DISABLE: 'true' }
+      withSplit({
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'https://branch1.example.com',
+              branch2: 'https://branch2.example.com'
+            },
+            path: '/foo/*',
+            middleware: 'pages/_middleware.js'
+          }
+        },
+        hostname: 'preview.example.com',
+        isOriginal: true
+      })({})
+
+      expect(mock).toBeCalledWith(
+        'npx next-with-split remove pages/_middleware.js',
+        expect.anything()
+      )
+    })
+
+    it('must call remove middleware command on a challenger (NOT main branch)', () => {
+      process.env = {
+        ...process.env,
+        VERCEL_ENV: 'preview',
+        VERCEL_URL: 'preview.example.com',
+        VERCEL_GIT_COMMIT_REF: 'branch1'
+      }
+      withSplit({
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'https://branch1.example.com',
+              branch2: 'https://branch2.example.com'
+            },
+            path: '/foo/*',
+            middleware: 'pages/_middleware.js'
+          }
+        }
+      })({})
+
+      expect(mock).toBeCalledWith(
+        'npx next-with-split remove pages/_middleware.js',
+        expect.anything()
+      )
+    })
+
+    it('must call remove middleware command on the original (main branch)', () => {
+      process.env = {
+        ...process.env,
+        VERCEL_ENV: 'production',
+        VERCEL_URL: 'example.com'
+      }
+      withSplit({
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'https://branch1.example.com',
+              branch2: 'https://branch2.example.com'
+            },
+            path: '/foo/*',
+            middleware: 'pages/_middleware.js'
+          }
+        }
+      })({})
+
+      expect(mock).toBeCalledWith(
+        'npx next-with-split install pages/_middleware.js',
+        expect.anything()
+      )
+    })
+
+    describe('when the installation of middleware fails', () => {
+      beforeEach(() => {
+        process.env = {
+          ...process.env,
+          VERCEL_ENV: 'production',
+          VERCEL_URL: 'example.com'
+        }
+      })
+      const config = {
+        splits: {
+          test1: {
+            hosts: {
+              branch1: 'https://branch1.example.com',
+              branch2: 'https://branch2.example.com'
+            },
+            path: '/foo/*',
+            middleware: 'pages/_middleware.js'
+          }
+        }
+      }
+      test('exec command returns Error and stderr', () => {
+        jest.spyOn(ChildProcess, 'exec').mockImplementation(((...[, cb]) => {
+          typeof cb === 'function' &&
+            cb(new Error('unexpected error'), '', 'some error')
+        }) as typeof ChildProcess.exec)
+        expect(() => withSplit(config)({})).toThrow(Error('some error'))
+      })
+
+      test('exec command returns stderr', () => {
+        jest.spyOn(ChildProcess, 'exec').mockImplementation(((...[, cb]) => {
+          typeof cb === 'function' && cb(null, 'executed', 'some error')
+        }) as typeof ChildProcess.exec)
+        expect(() => withSplit(config)({})).toThrow(Error('some error'))
+      })
+
+      test('exec command returns Error', () => {
+        jest.spyOn(ChildProcess, 'exec').mockImplementation(((...[, cb]) => {
+          typeof cb === 'function' && cb(new Error('unexpected error'), '', '')
+        }) as typeof ChildProcess.exec)
+
+        expect(() => withSplit(config)({})).toThrow(Error('unexpected error'))
       })
     })
   })
