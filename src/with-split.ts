@@ -9,10 +9,15 @@ type WithSplitArgs = {
   currentBranch?: string
   isOriginal?: boolean
   hostname?: string
+  middleware?: { manage?: boolean; paths?: string[] }
 }
 
 export const withSplit =
-  ({ splits: _splits = {}, ...manuals }: WithSplitArgs) =>
+  ({
+    splits: _splits = {},
+    middleware = { manage: false },
+    ...manuals
+  }: WithSplitArgs) =>
   (nextConfig: NextConfig): NextConfig => {
     // Load the configuration using Spectrum.
     const splits: SplitOptions =
@@ -21,7 +26,7 @@ export const withSplit =
         : JSON.parse(process.env.SPLIT_CONFIG_BY_SPECTRUM ?? '{}')
 
     if (['true', '1'].includes(process.env.SPLIT_DISABLE ?? '')) {
-      prepareMiddleware(splits, 'remove')
+      middleware.manage && manageMiddleware(middleware.paths ?? [], 'remove')
       return nextConfig
     }
 
@@ -49,7 +54,8 @@ export const withSplit =
       )
     }
 
-    prepareMiddleware(splits, isMain ? 'install' : 'remove')
+    middleware.manage &&
+      manageMiddleware(middleware.paths ?? [], isMain ? 'install' : 'remove')
 
     if (isSubjectedSplitTest(splits, currentBranch))
       process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'
@@ -88,18 +94,8 @@ const isSubjectedSplitTest = (
   return branches.includes(currentBranch)
 }
 
-const getMiddlewarePaths = (splits: SplitOptions): string[] => {
-  return Object.values(splits)
-    .map(({ middleware }) => middleware)
-    .filter((path): path is string => !!path)
-}
-
-const prepareMiddleware = (
-  splits: SplitOptions,
-  command: 'install' | 'remove'
-) => {
-  getMiddlewarePaths(splits).forEach((path) => {
-    console.log(path)
+const manageMiddleware = (paths: string[], command: 'install' | 'remove') => {
+  paths.forEach((path) => {
     exec(`npx next-with-split ${command} ${path}`, (err, stdout, stderr) => {
       if (stdout) console.log(stdout)
       if (err) {
@@ -109,4 +105,6 @@ const prepareMiddleware = (
       if (stderr) throw new Error(stderr)
     })
   })
+
+  // TODO: Explores the pages directory and alerts if there is middleware outside of its control.
 }

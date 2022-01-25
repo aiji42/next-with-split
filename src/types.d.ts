@@ -7,7 +7,6 @@ export type SplitOptions = {
       [branchName: string]: string | { host: string; weight: number }
     }
     cookie?: CookieSerializeOptions
-    middleware?: string
   }
 }
 
