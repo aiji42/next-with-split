@@ -151,6 +151,43 @@ const withSplit = require('next-with-split')({
 })
 ```
 
+## Impact on Performance
+
+This library uses middleware to allocate A/B tests. In general, inserting middleware into the route of the content adds some overhead.  
+We actually deployed it to Vercel and measured the difference between the original and challenger, and the average difference was 70 to 90ms ([#137](https://github.com/aiji42/next-with-split/issues/137#issuecomment-993518576)).  
+The challenger is rewritten to a different host according to the configuration in the middleware, which causes a round trip.  
+The original also had an overhead of about 50ms compared to when no A/B testing was done (when no middleware was deployed). In other words, the challenger has a delay of up to 150ms compared to when it is not A/B tested.  
+Once the user lands on a page, these delays are not a big problem since navigation between pages is resolved quickly by prefetch, but be careful when landing or processing a full page reload. (Google says that TTFB should be less than 200ms.)
+
+To avoid adding unnecessary latency...
+1. Make sure that the middleware does not get into routes that are not related to A/B testing.
+    - You don't need to place middleware at the top level of pages unless you want all pages to be subject to A/B testing. ([Middleware - Execution Order](https://nextjs.org/docs/middleware#execution-order))
+2. The middleware for next-with-split is not needed in challengers, so please remove it. (You do need to configure next.config.js, however.)
+3. If you are not doing A/B testing, remove the middleware.
+
+### Auto Install/Remove Middleware File
+
+You can automate the installation and removal of middleware.
+
+The following configuration will automatically remove the middleware for next-with-split when the Challenger deployment and A/B tests are stopped, and automatically install the middleware in the original deployment when the A/B tests are running.
+```js
+// next.config.js
+const withSplit = require('next-with-split')({
+  splits: {
+    example1: {
+      path: '/foo/*',
+      hosts: {
+        original: 'example.com',
+        challenger: 'challenger1.vercel.app'
+      },
+      middleware: 'pages/foo/_middleware.js' // this line
+    }
+  }
+})
+```
+If you write the path of the middleware file in this way, it will be installed or removed automatically. (`.js` as well as `.ts` are acceptable)  
+If the middleware already exists in the path you have described, delete it once and then start the server. Also, please do not change the contents of the automatically generated middleware files. If you do, they will not be automatically installed and removed.
+
 ## Contributing
 Please read [CONTRIBUTING.md](https://github.com/aiji42/next-with-split/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
