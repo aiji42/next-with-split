@@ -6,10 +6,10 @@ const withSplit = require('next-with-split')({
       hosts: {
         original: 'next-with-split.vercel.app',
         challenger1: 'next-with-split-git-challenger-sample-aiji42.vercel.app'
-      },
-      middleware: 'pages/foo/_middleware.ts'
+      }
     }
-  }
+  },
+  middleware: { manage: true, paths: ['pages/foo/_middleware.ts'] }
 })
 
 module.exports = withSplit({
