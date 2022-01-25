@@ -99,13 +99,14 @@ const prepareMiddleware = (
   command: 'install' | 'remove'
 ) => {
   getMiddlewarePaths(splits).forEach((path) => {
+    console.log(path)
     exec(`npx next-with-split ${command} ${path}`, (err, stdout, stderr) => {
-      if (err instanceof Error) {
+      if (stdout) console.log(stdout)
+      if (err) {
         if (stderr) throw new Error(stderr)
         throw err
       }
       if (stderr) throw new Error(stderr)
-      stdout && console.log(stdout)
     })
   })
 }
