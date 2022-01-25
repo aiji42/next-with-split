@@ -1,7 +1,6 @@
 import { withSplit } from '../with-split'
 import { NextConfig } from 'next'
 import * as ChildProcess from 'child_process'
-import { ExecException } from 'child_process'
 
 jest.mock('child_process')
 
@@ -431,12 +430,12 @@ describe('withSplit', () => {
               branch1: 'https://branch1.example.com',
               branch2: 'https://branch2.example.com'
             },
-            path: '/foo/*',
-            middleware: 'pages/_middleware.js'
+            path: '/foo/*'
           }
         },
         hostname: 'preview.example.com',
-        isOriginal: true
+        isOriginal: true,
+        middleware: { manage: true, paths: ['pages/_middleware.js'] }
       })({})
 
       expect(mock).toBeCalledWith(
@@ -459,10 +458,10 @@ describe('withSplit', () => {
               branch1: 'https://branch1.example.com',
               branch2: 'https://branch2.example.com'
             },
-            path: '/foo/*',
-            middleware: 'pages/_middleware.js'
+            path: '/foo/*'
           }
-        }
+        },
+        middleware: { manage: true, paths: ['pages/_middleware.js'] }
       })({})
 
       expect(mock).toBeCalledWith(
@@ -484,10 +483,10 @@ describe('withSplit', () => {
               branch1: 'https://branch1.example.com',
               branch2: 'https://branch2.example.com'
             },
-            path: '/foo/*',
-            middleware: 'pages/_middleware.js'
+            path: '/foo/*'
           }
-        }
+        },
+        middleware: { manage: true, paths: ['pages/_middleware.js'] }
       })({})
 
       expect(mock).toBeCalledWith(
@@ -511,10 +510,10 @@ describe('withSplit', () => {
               branch1: 'https://branch1.example.com',
               branch2: 'https://branch2.example.com'
             },
-            path: '/foo/*',
-            middleware: 'pages/_middleware.js'
+            path: '/foo/*'
           }
-        }
+        },
+        middleware: { manage: true, paths: ['pages/_middleware.js'] }
       }
       test('exec command returns Error and stderr', () => {
         jest.spyOn(ChildProcess, 'exec').mockImplementation(((...[, cb]) => {
