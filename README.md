@@ -171,7 +171,7 @@ You can automate the installation and removal of middleware.
 
 The following configuration will automatically remove the middleware for next-with-split when the Challenger deployment and A/B tests are stopped, and automatically install the middleware in the original deployment when the A/B tests are running.
 ```js
-// next.config.js
+// When A/B testing is active 
 const withSplit = require('next-with-split')({
   splits: {
     example1: {
@@ -179,10 +179,16 @@ const withSplit = require('next-with-split')({
       hosts: {
         original: 'example.com',
         challenger: 'challenger1.vercel.app'
-      },
-      middleware: 'pages/foo/_middleware.js' // this line
+      }
     }
-  }
+  },
+  middleware: { manage: true, paths: ['pages/foo/_middleware.js'] } // this line
+})
+```
+```js
+// When A/B testing is inactive 
+const withSplit = require('next-with-split')({
+  middleware: { manage: true }
 })
 ```
 If you write the path of the middleware file in this way, it will be installed or removed automatically. (`.js` as well as `.ts` are acceptable)  
