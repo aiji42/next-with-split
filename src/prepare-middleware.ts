@@ -36,8 +36,8 @@ const validateMiddlewarePath = (path: string) => {
     throw new Error(`Invalid middleware path: ${path}`)
 }
 
-// TODO: add README link
 export const scriptText = `// This file was installed automatically by the with-next-split command.
 // Note: Do not update this file manually.
+// See https://github.com/aiji42/next-with-split/tree/main#auto-installremove-middleware-file
 export { middleware } from 'next-with-split'
 `
