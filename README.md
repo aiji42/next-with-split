@@ -160,18 +160,19 @@ The original also had an overhead of about 50ms compared to when no A/B testing 
 Once the user lands on a page, these delays are not a big problem since navigation between pages is resolved quickly by prefetch, but be careful when landing or processing a full page reload. (Google says that TTFB should be less than 200ms.)
 
 To avoid adding unnecessary latency...
-1. Make sure that the middleware does not get into routes that are not related to A/B testing.
+1. Make sure that the middlewares do not get into routes that are not related to A/B testing.
     - You don't need to place middleware at the top level of pages unless you want all pages to be subject to A/B testing. ([Middleware - Execution Order](https://nextjs.org/docs/middleware#execution-order))
-2. The middleware for next-with-split is not needed in challengers, so please remove it. (You do need to configure next.config.js, however.)
-3. If you are not doing A/B testing, remove the middleware.
+2. The middleware for next-with-split is not needed in challengers, so remove the middlewares. (You do need to configure next.config.js, however.)
+3. While stopping A/B tests, remove the middlewares.
 
 ### Auto Install/Remove Middleware File
 
 You can automate the installation and removal of middleware.
 
-The following configuration will automatically remove the middleware for next-with-split when the Challenger deployment and A/B tests are stopped, and automatically install the middleware in the original deployment when the A/B tests are running.
+#### Automatically install middleware while running A/B tests
+The following configuration will automatically install the middleware in the original deployment when the A/B tests are running.  
+On the challenger side, the middleware will be automatically removed.
 ```js
-// When A/B testing is active 
 const withSplit = require('next-with-split')({
   splits: {
     example1: {
@@ -185,14 +186,24 @@ const withSplit = require('next-with-split')({
   middleware: { manage: true, paths: ['pages/foo/_middleware.js'] } // this line
 })
 ```
+
+- `manage`: If set to true, middlewares will be managed automatically
+- `paths`: Set an array with the paths of all the middleware to be managed
+  - Relative path from the application root (the directory containing next.config.js)
+  - `.js` as well as `.ts` are acceptable
+  - Do not modify the contents of the specified middleware file.
+- `appRootDir`: If your application root is different from the directory where node_modules is located, such as if you are building with Monorepo, specify the path relative to the application root.
+
+#### While stopping A/B tests
+
+If you always set `middleware: { manage: true }`, it will detect unintended middleware inclusion.   
+Specify the path relative to the application root by `appRootDir` if your application root is different from the directory where node_modules is located
+
 ```js
-// When A/B testing is inactive 
 const withSplit = require('next-with-split')({
   middleware: { manage: true }
 })
 ```
-If you write the path of the middleware file in this way, it will be installed or removed automatically. (`.js` as well as `.ts` are acceptable)  
-If the middleware already exists in the path you have described, delete it once and then start the server. Also, please do not change the contents of the automatically generated middleware files. If you do, they will not be automatically installed and removed.
 
 ## Contributing
 Please read [CONTRIBUTING.md](https://github.com/aiji42/next-with-split/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
