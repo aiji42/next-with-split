@@ -8,7 +8,8 @@ const withSplit = require('next-with-split')({
         challenger1: 'next-with-split-git-challenger-sample-aiji42.vercel.app'
       }
     }
-  }
+  },
+  middleware: { manage: true, paths: ['pages/foo/_middleware.ts'] }
 })
 
 module.exports = withSplit({

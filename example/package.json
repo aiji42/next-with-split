@@ -8,14 +8,14 @@
     "start": "next start"
   },
   "dependencies": {
-    "@geist-ui/react": "^2.2.0",
-    "next": "12.0.7",
-    "next-with-split": "4.2.3-beta.1",
+    "@geist-ui/react": "^2.2.5",
+    "next": "12.0.8",
+    "next-with-split": "^4.3.0-beta.11",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },
   "devDependencies": {
-    "@types/react": "17.0.37",
-    "typescript": "4.5.4"
+    "@types/react": "17.0.38",
+    "typescript": "4.5.5"
   }
 }
