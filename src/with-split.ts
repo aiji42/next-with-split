@@ -2,14 +2,14 @@ import { SplitOptions } from './types'
 import { makeRuntimeConfig } from './make-runtime-config'
 import { NextConfig } from 'next/dist/server/config'
 import { ImageConfig } from 'next/dist/server/image-config'
-import { exec } from 'child_process'
+import { manageMiddleware } from './manage-middleware'
 
 type WithSplitArgs = {
   splits?: SplitOptions
   currentBranch?: string
   isOriginal?: boolean
   hostname?: string
-  middleware?: { manage?: boolean; paths?: string[] }
+  middleware?: { manage?: boolean; paths?: string[]; appRootDir?: string }
 }
 
 export const withSplit =
@@ -26,18 +26,24 @@ export const withSplit =
         : JSON.parse(process.env.SPLIT_CONFIG_BY_SPECTRUM ?? '{}')
 
     if (['true', '1'].includes(process.env.SPLIT_DISABLE ?? '')) {
-      middleware.manage && manageMiddleware(middleware.paths ?? [], 'remove')
+      middleware.manage &&
+        manageMiddleware(
+          middleware.paths ?? [],
+          middleware.appRootDir,
+          'remove'
+        )
       return nextConfig
     }
 
     const isMain =
       ['true', '1'].includes(process.env.SPLIT_ACTIVE ?? '') ||
       (manuals?.isOriginal ?? process.env.VERCEL_ENV === 'production')
+    const splitting = Object.keys(splits).length > 0 && isMain
     const assetHost = manuals?.hostname ?? process.env.VERCEL_URL
     const currentBranch =
       manuals?.currentBranch ?? process.env.VERCEL_GIT_COMMIT_REF ?? ''
 
-    if (Object.keys(splits).length > 0 && isMain) {
+    if (splitting) {
       console.log('Split tests are active.')
       console.table(
         Object.entries(splits).map(([testKey, options]) => {
@@ -55,7 +61,11 @@ export const withSplit =
     }
 
     middleware.manage &&
-      manageMiddleware(middleware.paths ?? [], isMain ? 'install' : 'remove')
+      manageMiddleware(
+        middleware.paths ?? [],
+        middleware.appRootDir,
+        splitting ? 'install' : 'remove'
+      )
 
     if (isSubjectedSplitTest(splits, currentBranch))
       process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'
@@ -92,19 +102,4 @@ const isSubjectedSplitTest = (
     Object.keys(hosts)
   )
   return branches.includes(currentBranch)
-}
-
-const manageMiddleware = (paths: string[], command: 'install' | 'remove') => {
-  paths.forEach((path) => {
-    exec(`npx next-with-split ${command} ${path}`, (err, stdout, stderr) => {
-      if (stdout) console.log(stdout)
-      if (err) {
-        if (stderr) throw new Error(stderr)
-        throw err
-      }
-      if (stderr) throw new Error(stderr)
-    })
-  })
-
-  // TODO: Explores the pages directory and alerts if there is middleware outside of its control.
 }
