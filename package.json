@@ -5,9 +5,6 @@
   "main": "./build/index.js",
   "module": "./esm/main.js",
   "types": "./esm/main.d.ts",
-  "bin": {
-    "next-with-split": "./build/script.js"
-  },
   "files": [
     "build",
     "esm"
@@ -46,8 +43,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "app-root-path": "^3.0.0",
-    "yargs": "^17.3.1"
+    "app-root-path": "^3.0.0"
   },
   "peerDependencies": {
     "next": ">=12.0.0"
