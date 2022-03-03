@@ -7,6 +7,11 @@ jest.mock('next/server', () => ({
   NextResponse: jest.fn()
 }))
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+URL.prototype.clone = function () {
+  return { pathname: '' }
+}
 const makeRequest = (option: {
   cookies?: Record<string, string | boolean>
   url?: string
@@ -115,7 +120,7 @@ describe('middleware', () => {
 
       middleware(makeRequest({}))
 
-      expect(NextResponse.rewrite).toBeCalledWith('/foo/bar')
+      expect(NextResponse.rewrite).toBeCalledWith({ pathname: '/foo/bar' })
       expect(cookie).toBeCalledWith(
         'x-split-key-test1',
         'original',
