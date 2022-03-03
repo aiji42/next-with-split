@@ -60,7 +60,11 @@ const createResponse = (
 
   if (req.preflight && isExternal && isOutOfTarget)
     return new NextResponse(null)
-  return NextResponse.rewrite(rewriteTo)
+  if (isExternal) return NextResponse.rewrite(rewriteTo)
+
+  const newUrl = req.nextUrl.clone()
+  newUrl.pathname = rewriteTo
+  return NextResponse.rewrite(newUrl)
 }
 
 const getRefererPathname = (req: NextRequest) => {
