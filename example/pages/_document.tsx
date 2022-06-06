@@ -7,6 +7,8 @@ import Document, {
 } from 'next/document'
 import { CssBaseline } from '@geist-ui/react'
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
     const initialProps = await Document.getInitialProps(ctx)
