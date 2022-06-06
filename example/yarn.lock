@@ -137,10 +137,10 @@ nanoid@^3.1.30:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.1.tgz#6347a18cac88af88f58af0b3594b723d5e99bb35"
   integrity sha512-n6Vs/3KGyxPQd6uO0eH4Bv0ojGSUvuLlIHtC3Y0kEO23YRge8H9x1GCzLn28YX0H66pMkxuaeESFq4tKISKwdw==
 
-next-with-split@^4.3.1:
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/next-with-split/-/next-with-split-4.3.1.tgz#19d5c01d9b2df09aedeb89fc1e56d1c70c41e7a9"
-  integrity sha512-VUQWtOKRdaZL3BF2rubYe2XAMcBUOMnAufvv+UXAfW8Plj25I8T3qbVFEg4tsXrM4HaAoIMv+E0VqVJs9CHrcw==
+next-with-split@4.3.2-beta.2:
+  version "4.3.2-beta.2"
+  resolved "https://registry.yarnpkg.com/next-with-split/-/next-with-split-4.3.2-beta.2.tgz#5847d84ca921ce0246e7fcdd1dc008ca2ae88a58"
+  integrity sha512-NCt7SJS1k1sbH0NF58gL9BgXmxv1N6ll6OJch92SeBMa4kzQ9ELrHKgSsYMTzfky6NZZrJc+MBdWesxe33rsxA==
   dependencies:
     app-root-path "^3.0.0"
 
