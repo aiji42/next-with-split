@@ -59,6 +59,7 @@ describe('middleware', () => {
     NextResponse.rewrite = jest.fn().mockReturnValue({
       cookie
     })
+    NextResponse.next = jest.fn().mockReturnValue({ cookie })
   })
   afterAll(() => {
     process.env = OLD_ENV
@@ -120,7 +121,7 @@ describe('middleware', () => {
 
       middleware(makeRequest({}))
 
-      expect(NextResponse.rewrite).toBeCalledWith({ pathname: '/foo/bar' })
+      expect(NextResponse.next).toBeCalled()
       expect(cookie).toBeCalledWith(
         'x-split-key-test1',
         'original',
@@ -139,7 +140,7 @@ describe('middleware', () => {
             })
           )
 
-          expect(NextResponse.rewrite).toBeCalled()
+          expect(NextResponse.next).toBeCalled()
           expect(NextResponse).not.toBeCalled()
           expect(cookie).toBeCalledWith(
             'x-split-key-test1',
@@ -176,7 +177,7 @@ describe('middleware', () => {
             })
           )
 
-          expect(NextResponse.rewrite).toBeCalled()
+          expect(NextResponse.next).toBeCalled()
           expect(NextResponse).not.toBeCalled()
           expect(cookie).toBeCalledWith(
             'x-split-key-test1',
@@ -211,7 +212,7 @@ describe('middleware', () => {
           })
         )
 
-        expect(NextResponse.rewrite).toBeCalled()
+        expect(NextResponse.next).toBeCalled()
         expect(NextResponse).not.toBeCalled()
         expect(cookie).toBeCalledWith(
           'x-split-key-test1',
