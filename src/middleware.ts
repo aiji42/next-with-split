@@ -62,9 +62,7 @@ const createResponse = (
     return new NextResponse(null)
   if (isExternal) return NextResponse.rewrite(rewriteTo)
 
-  const newUrl = req.nextUrl.clone()
-  newUrl.pathname = rewriteTo
-  return NextResponse.rewrite(newUrl)
+  return NextResponse.next()
 }
 
 const getRefererPathname = (req: NextRequest) => {
