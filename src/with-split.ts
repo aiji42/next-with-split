@@ -1,7 +1,6 @@
 import { SplitOptions } from './types'
 import { makeRuntimeConfig } from './make-runtime-config'
 import { NextConfig } from 'next/dist/server/config'
-import { ImageConfig } from 'next/dist/server/image-config'
 import { manageMiddleware } from './manage-middleware'
 
 type WithSplitArgs = {
@@ -82,7 +81,7 @@ export const withSplit =
           (!isMain && assetHost
             ? `https://${assetHost}/_next/image`
             : undefined)
-      } as ImageConfig,
+      },
       env: {
         ...nextConfig.env,
         ...(isMain && {
