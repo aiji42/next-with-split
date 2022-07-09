@@ -37,7 +37,7 @@ npm install --save next-with-split
 1\. Customize `next.config.js` and create `pages/_middleware.js`. (in main branch)
 ```js
 // next.config.js
-const withSplit = require('next-with-split')({})
+const { withSplit } = require('next-with-split')({})
 
 module.export = withSplit({
   // write your next.js configuration values.
@@ -70,7 +70,7 @@ export const middleware = (req) => {
 4\. Modify next.config.js in the main branch.
 ```js
 // next.config.js
-const withSplit = require('next-with-split')({
+const withSplit = require('next-with-split').withSplit({
   splits: {
     example1: { // Identification of A/B tests (any)
       path: '/foo/*', // Paths to perform A/B testing. (regular expression)
@@ -104,7 +104,7 @@ module.export = withSplit({
 **Note: This setting is also required for the Challenger deployments.**
 ```js
 // next.config.js
-const withSplit = require('next-with-split')({
+const withSplit = require('next-with-split').withSplit({
   splits: {...},
   isOriginal: false, // Control it so that it is true on the original deployment (basically the main branch) and false on all other deployments.,
   hostname: 'challenger.example.com', // Set the hostname in the Challenger deployment. If this is not set, you will not be able to access the assets and images.
@@ -136,7 +136,7 @@ Use it for verification in your development environment.
 - By default, access to deployments is allocated in equal proportions. If you want to add bias to the access sorting, set `wight`.
 ```js
 // next.config.js
-const withSplit = require('next-with-split')({
+const withSplit = require('next-with-split').withSplit({
   splits: {
     example1: {
       path: '/foo/*',
@@ -164,46 +164,6 @@ To avoid adding unnecessary latency...
     - You don't need to place middleware at the top level of pages unless you want all pages to be subject to A/B testing. ([Middleware - Execution Order](https://nextjs.org/docs/middleware#execution-order))
 2. The middleware for next-with-split is not needed in challengers, so remove the middlewares. (You do need to configure next.config.js, however.)
 3. While stopping A/B tests, remove the middlewares.
-
-### Auto Install/Remove Middleware File
-
-You can automate the installation and removal of middleware.
-
-#### Automatically install middleware while running A/B tests
-The following configuration will automatically install the middleware in the original deployment when the A/B tests are running.  
-On the challenger side, the middleware will be automatically removed.
-```js
-const withSplit = require('next-with-split')({
-  splits: {
-    example1: {
-      path: '/foo/*',
-      hosts: {
-        original: 'example.com',
-        challenger: 'challenger1.vercel.app'
-      }
-    }
-  },
-  middleware: { manage: true, paths: ['pages/foo/_middleware.js'] } // this line
-})
-```
-
-- `manage`: If set to true, middlewares will be managed automatically
-- `paths`: Set an array with the paths of all the middleware to be managed
-  - Relative path from the application root (the directory containing next.config.js)
-  - `.js` as well as `.ts` are acceptable
-  - Do not modify the contents of the specified middleware file.
-- `appRootDir`: If your application root is different from the directory where node_modules is located, such as if you are building with Monorepo, specify the path relative to the application root.
-
-#### While stopping A/B tests
-
-If you always set `middleware: { manage: true }`, it will detect unintended middleware inclusion.   
-Specify the path relative to the application root by `appRootDir` if your application root is different from the directory where node_modules is located
-
-```js
-const withSplit = require('next-with-split')({
-  middleware: { manage: true }
-})
-```
 
 ## Contributing
 Please read [CONTRIBUTING.md](https://github.com/aiji42/next-with-split/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.

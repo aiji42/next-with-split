@@ -1,32 +1,15 @@
+/**
+ * @vitest-environment edge-runtime
+ */
 import { vi, describe, beforeEach, afterAll, test, expect, Mock } from 'vitest'
 import { middleware } from '../middleware'
-import type { NextRequest } from 'next/server'
-import { NextResponse } from 'next/server'
-import { Headers } from 'next/dist/server/web/spec-compliant/headers'
+const { NextRequest } = require('next/server')
+import { NextResponse, userAgent } from 'next/server'
 
 vi.mock('next/server', () => ({
-  NextResponse: vi.fn()
+  NextResponse: vi.fn(),
+  userAgent: vi.fn()
 }))
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-URL.prototype.clone = function () {
-  return { pathname: '' }
-}
-const makeRequest = (option: {
-  cookies?: Record<string, string | boolean>
-  url?: string
-  isBot?: boolean
-  preflight?: boolean
-  headers?: Headers
-}) =>
-  ({
-    cookies: option.cookies ?? {},
-    nextUrl: new URL(option.url ?? 'https://example.com/foo/bar'),
-    ua: { isBot: option.isBot ?? false },
-    preflight: option.preflight ? '1' : null,
-    headers: option.headers ?? new Headers()
-  } as unknown as NextRequest)
 
 const runtimeConfig = {
   test1: {
@@ -50,67 +33,53 @@ const runtimeConfig = {
   }
 }
 
-const cookie = vi.fn()
+const cookies = {
+  set: vi.fn()
+}
 const OLD_ENV = process.env
 
+beforeEach(() => {
+  vi.resetAllMocks()
+  ;(userAgent as Mock).mockReturnValue({ isBot: false })
+  process.env = {
+    ...OLD_ENV,
+    NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
+  }
+})
+
+afterAll(() => {
+  process.env = OLD_ENV
+})
+
 describe('middleware', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    ;(NextResponse as unknown as Mock).mockReturnValue({ cookie })
-    NextResponse.rewrite = vi.fn().mockReturnValue({
-      cookie
-    })
-    NextResponse.next = vi.fn().mockReturnValue({ cookie })
-  })
-  afterAll(() => {
-    process.env = OLD_ENV
-  })
-
   describe('has runtime config', () => {
-    beforeEach(() => {
-      process.env = {
-        ...OLD_ENV,
-        NEXT_WITH_SPLIT_RUNTIME_CONFIG: JSON.stringify(runtimeConfig)
-      }
-    })
-
     test('preview mode', () => {
-      expect(
-        middleware(makeRequest({ cookies: { __prerender_bypass: true } }))
-      ).toBeUndefined()
+      const req = new NextRequest('https://example.com/foo/bar', {})
+      req.cookies.set('__prerender_bypass', true)
+      expect(middleware(req)).toBeUndefined()
     })
 
     test('path is not matched', () => {
-      expect(
-        middleware(
-          makeRequest({
-            url: 'https://example.com/bar'
-          })
-        )
-      ).toBeUndefined()
+      const req = new NextRequest('https://example.com/bar', {})
+      expect(middleware(req)).toBeUndefined()
     })
 
     test('accessed by a bot', () => {
-      expect(
-        middleware(
-          makeRequest({
-            isBot: true
-          })
-        )
-      ).toBeUndefined()
+      const req = new NextRequest('https://example.com/foo/bar', {})
+      ;(userAgent as Mock).mockReturnValue({ isBot: true })
+      expect(middleware(req)).toBeUndefined()
     })
 
     test('path is matched and has sticky cookie', () => {
-      middleware(
-        makeRequest({
-          cookies: { 'x-split-key-test1': 'challenger' }
-        })
-      )
+      NextResponse.rewrite = vi.fn().mockReturnValueOnce({ cookies })
+      const req = new NextRequest('https://example.com/foo/bar', {})
+      req.cookies.set('x-split-key-test1', 'challenger')
+      middleware(req)
 
       expect(NextResponse.rewrite).toBeCalledWith(
         'https://challenger.example.com/foo/bar'
       )
-      expect(cookie).toBeCalledWith(
+      expect(cookies.set).toBeCalledWith(
         'x-split-key-test1',
         'challenger',
         runtimeConfig.test1.cookie
@@ -119,11 +88,12 @@ describe('middleware', () => {
 
     test('path is matched and not has sticky cookie', () => {
       vi.spyOn(global.Math, 'random').mockReturnValue(0)
-
-      middleware(makeRequest({}))
+      NextResponse.next = vi.fn().mockReturnValueOnce({ cookies })
+      const req = new NextRequest('https://example.com/foo/bar', {})
+      middleware(req)
 
       expect(NextResponse.next).toBeCalled()
-      expect(cookie).toBeCalledWith(
+      expect(cookies.set).toBeCalledWith(
         'x-split-key-test1',
         'original',
         runtimeConfig.test1.cookie
@@ -131,19 +101,23 @@ describe('middleware', () => {
     })
 
     describe('on preflight', () => {
+      beforeEach(() => {
+        ;(userAgent as Mock).mockReturnValueOnce({ isBot: false })
+      })
       describe('from NOT target path', () => {
         test('matched original', () => {
-          middleware(
-            makeRequest({
-              headers: new Headers({ referer: 'https://example.com/top' }),
-              cookies: { 'x-split-key-test1': 'original' },
-              preflight: true
-            })
-          )
+          NextResponse.next = vi.fn().mockReturnValueOnce({ cookies })
+          const req = new NextRequest('https://example.com/foo/bar', {
+            method: 'OPTIONS',
+            headers: {
+              referrer: 'https://example.com/top'
+            }
+          })
+          req.cookies.set('x-split-key-test1', 'original')
+          middleware(req)
 
           expect(NextResponse.next).toBeCalled()
-          expect(NextResponse).not.toBeCalled()
-          expect(cookie).toBeCalledWith(
+          expect(cookies.set).toBeCalledWith(
             'x-split-key-test1',
             'original',
             runtimeConfig.test1.cookie
@@ -151,53 +125,62 @@ describe('middleware', () => {
         })
 
         test('matched challenger', () => {
-          middleware(
-            makeRequest({
-              headers: new Headers({ referer: 'https://example.com/top' }),
-              cookies: { 'x-split-key-test1': 'challenger' },
-              preflight: true
-            })
-          )
+          // @ts-ignore
+          NextResponse = vi.fn().mockReturnValueOnce({ cookies })
+          const req = new NextRequest('https://example.com/foo/bar', {
+            method: 'OPTIONS',
+            headers: {
+              referrer: 'https://example.com/top'
+            }
+          })
+          req.cookies.set('x-split-key-test1', 'challenger')
+          middleware(req)
 
-          expect(NextResponse.rewrite).not.toBeCalled()
           expect(NextResponse).toBeCalledWith(null)
-          expect(cookie).toBeCalledWith(
+          expect(cookies.set).toBeCalledWith(
             'x-split-key-test1',
             'challenger',
             runtimeConfig.test1.cookie
           )
         })
       })
+
       describe('from target path', () => {
         test('matched original', () => {
-          middleware(
-            makeRequest({
-              headers: new Headers({ referer: 'https://example.com/foo/bar' }),
-              cookies: { 'x-split-key-test1': 'original' },
-              preflight: true
-            })
-          )
+          NextResponse.next = vi.fn().mockReturnValueOnce({ cookies })
+          const req = new NextRequest('https://example.com/foo/bar', {
+            method: 'OPTIONS',
+            headers: {
+              referer: 'https://example.com/foo/bar'
+            }
+          })
+          req.cookies.set('x-split-key-test1', 'original')
+
+          middleware(req)
 
           expect(NextResponse.next).toBeCalled()
-          expect(NextResponse).not.toBeCalled()
-          expect(cookie).toBeCalledWith(
+          expect(cookies.set).toBeCalledWith(
             'x-split-key-test1',
             'original',
             runtimeConfig.test1.cookie
           )
         })
-        test('matched challenger', () => {
-          middleware(
-            makeRequest({
-              headers: new Headers({ referer: 'https://example.com/foo/bar' }),
-              cookies: { 'x-split-key-test1': 'challenger' },
-              preflight: true
-            })
-          )
 
-          expect(NextResponse.rewrite).toBeCalled()
-          expect(NextResponse).not.toBeCalled()
-          expect(cookie).toBeCalledWith(
+        test('matched challenger', () => {
+          NextResponse.rewrite = vi.fn().mockReturnValueOnce({ cookies })
+          const req = new NextRequest('https://example.com/foo/bar', {
+            method: 'OPTIONS',
+            headers: {
+              referer: 'https://example.com/foo/bar'
+            }
+          })
+          req.cookies.set('x-split-key-test1', 'challenger')
+          middleware(req)
+
+          expect(NextResponse.rewrite).toBeCalledWith(
+            'https://challenger.example.com/foo/bar'
+          )
+          expect(cookies.set).toBeCalledWith(
             'x-split-key-test1',
             'challenger',
             runtimeConfig.test1.cookie
@@ -206,16 +189,16 @@ describe('middleware', () => {
       })
 
       test('can not get the referer', () => {
-        middleware(
-          makeRequest({
-            cookies: { 'x-split-key-test1': 'original' },
-            preflight: true
-          })
-        )
+        NextResponse.next = vi.fn().mockReturnValueOnce({ cookies })
+        const req = new NextRequest('https://example.com/foo/bar', {
+          method: 'OPTIONS'
+        })
+        req.cookies.set('x-split-key-test1', 'original')
+
+        middleware(req)
 
         expect(NextResponse.next).toBeCalled()
-        expect(NextResponse).not.toBeCalled()
-        expect(cookie).toBeCalledWith(
+        expect(cookies.set).toBeCalledWith(
           'x-split-key-test1',
           'original',
           runtimeConfig.test1.cookie
@@ -229,7 +212,8 @@ describe('middleware', () => {
       ...process.env,
       NEXT_WITH_SPLIT_RUNTIME_CONFIG: ''
     }
+    const req = new NextRequest('https://example.com/foo/bar', {})
 
-    expect(middleware(makeRequest({}))).toBeUndefined()
+    expect(middleware(req)).toBeUndefined()
   })
 })

@@ -2,9 +2,41 @@
   "name": "next-with-split",
   "version": "0.0.0-development",
   "description": "This is a plugin for split testing (AB testing) in Next.js.",
-  "main": "./build/index.js",
-  "module": "./esm/main.js",
+  "main": "./build/index.cjs",
+  "module": "./build/main.mjs",
   "types": "./esm/main.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./build/index.d.ts",
+        "default": "./build/index.mjs"
+      },
+      "require": {
+        "types": "./build/index.d.ts",
+        "default": "./build/index.cjs"
+      }
+    },
+    "./build/*": {
+      "import": {
+        "types": "./build/*.d.ts",
+        "default": "./build/*.mjs"
+      },
+      "require": {
+        "types": "./build/*.d.ts",
+        "default": "./build/*.cjs"
+      }
+    },
+    "./*": {
+      "import": {
+        "types": "./build/*.d.ts",
+        "default": "./build/*.mjs"
+      },
+      "require": {
+        "types": "./build/*.d.ts",
+        "default": "./build/*.cjs"
+      }
+    }
+  },
   "files": [
     "build",
     "esm"
@@ -37,27 +69,28 @@
     "format": "prettier './src/**/*.ts' './src/*.ts' --write",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "build": "tsc && ts-add-module-exports && tsc -p tsconfig.esm.json",
+    "build": "node build.js && npx tsc --declaration --emitDeclarationOnly --declarationDir './build'",
     "semantic-release": "semantic-release",
     "prepack": "yarn build",
     "prepare": "husky install"
   },
   "dependencies": {},
   "peerDependencies": {
-    "next": ">=12.0.0"
+    "next": ">=12.2.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
+    "@edge-runtime/vm": "^1.1.0-beta.11",
     "@types/cookie": "^0.5.1",
     "@types/node": "^18.0.3",
     "c8": "^7.11.3",
+    "esbuild": "^0.14.48",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
-    "next": "^12.1.6",
+    "next": "^12.2.2",
     "prettier": "^2.7.1",
     "semantic-release": "^19.0.3",
-    "ts-add-module-exports": "^1.0.0",
     "ts-node": "^10.8.2",
     "typescript": "^4.7.4",
     "vitest": "^0.17.1"

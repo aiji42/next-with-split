@@ -1,21 +1,16 @@
-import { SplitOptions } from './types'
 import { makeRuntimeConfig } from './make-runtime-config'
-import { NextConfig } from 'next/dist/server/config'
+import type { SplitOptions } from './types'
+import type { NextConfig } from 'next/dist/server/config'
 
 type WithSplitArgs = {
   splits?: SplitOptions
   currentBranch?: string
   isOriginal?: boolean
   hostname?: string
-  middleware?: { manage?: boolean; paths?: string[]; appRootDir?: string }
 }
 
 export const withSplit =
-  ({
-    splits: _splits = {},
-    middleware = { manage: false },
-    ...manuals
-  }: WithSplitArgs) =>
+  ({ splits: _splits = {}, ...manuals }: WithSplitArgs) =>
   (nextConfig: NextConfig): NextConfig => {
     // Load the configuration using Spectrum.
     const splits: SplitOptions =
