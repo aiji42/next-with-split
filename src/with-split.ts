@@ -1,7 +1,6 @@
 import { SplitOptions } from './types'
 import { makeRuntimeConfig } from './make-runtime-config'
 import { NextConfig } from 'next/dist/server/config'
-import { manageMiddleware } from './manage-middleware'
 
 type WithSplitArgs = {
   splits?: SplitOptions
@@ -24,15 +23,8 @@ export const withSplit =
         ? _splits
         : JSON.parse(process.env.SPLIT_CONFIG_BY_SPECTRUM ?? '{}')
 
-    if (['true', '1'].includes(process.env.SPLIT_DISABLE ?? '')) {
-      middleware.manage &&
-        manageMiddleware(
-          middleware.paths ?? [],
-          middleware.appRootDir,
-          'remove'
-        )
+    if (['true', '1'].includes(process.env.SPLIT_DISABLE ?? ''))
       return nextConfig
-    }
 
     const isMain =
       ['true', '1'].includes(process.env.SPLIT_ACTIVE ?? '') ||
@@ -58,13 +50,6 @@ export const withSplit =
         })
       )
     }
-
-    middleware.manage &&
-      manageMiddleware(
-        middleware.paths ?? [],
-        middleware.appRootDir,
-        splitting ? 'install' : 'remove'
-      )
 
     if (isSubjectedSplitTest(splits, currentBranch))
       process.env.NEXT_PUBLIC_IS_TARGET_SPLIT_TESTING = 'true'

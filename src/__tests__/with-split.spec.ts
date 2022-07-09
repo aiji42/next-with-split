@@ -1,7 +1,6 @@
 import { vi, describe, beforeEach, afterAll, it, expect, test } from 'vitest'
 import { withSplit } from '../with-split'
 import { NextConfig } from 'next'
-import * as ManageMiddleware from '../manage-middleware'
 
 describe('withSplit', () => {
   const OLD_ENV = process.env
@@ -413,112 +412,6 @@ describe('withSplit', () => {
             '{"test1":{"path":"/foo/bar","hosts":{"original":{"host":"https://vercel.example.com","weight":1,"isOriginal":true},"challenger":{"host":"https://challenger.vercel.example.com","weight":1,"isOriginal":false}},"cookie":{"path":"/","maxAge":60}}}'
         })
       })
-    })
-  })
-
-  describe('auto middleware install', () => {
-    beforeEach(() => {
-      vi.spyOn(ManageMiddleware, 'manageMiddleware').mockImplementation(
-        () => {}
-      )
-    })
-    it('must call remove middleware command when SPLIT_DISABLE', () => {
-      process.env = { ...process.env, SPLIT_DISABLE: 'true' }
-      withSplit({
-        splits: {
-          test1: {
-            hosts: {
-              branch1: 'https://branch1.example.com',
-              branch2: 'https://branch2.example.com'
-            },
-            path: '/foo/*'
-          }
-        },
-        hostname: 'preview.example.com',
-        isOriginal: true,
-        middleware: {
-          manage: true,
-          paths: ['pages/_middleware.js'],
-          appRootDir: 'apps'
-        }
-      })({})
-
-      expect(ManageMiddleware.manageMiddleware).toBeCalledWith(
-        ['pages/_middleware.js'],
-        'apps',
-        'remove'
-      )
-    })
-
-    it('must call remove middleware command on a challenger (NOT main branch)', () => {
-      process.env = {
-        ...process.env,
-        VERCEL_ENV: 'preview',
-        VERCEL_URL: 'preview.example.com',
-        VERCEL_GIT_COMMIT_REF: 'branch1'
-      }
-      withSplit({
-        splits: {
-          test1: {
-            hosts: {
-              branch1: 'https://branch1.example.com',
-              branch2: 'https://branch2.example.com'
-            },
-            path: '/foo/*'
-          }
-        },
-        middleware: { manage: true, paths: ['pages/_middleware.js'] }
-      })({})
-
-      expect(ManageMiddleware.manageMiddleware).toBeCalledWith(
-        ['pages/_middleware.js'],
-        undefined,
-        'remove'
-      )
-    })
-
-    it('must call install middleware command on the original (main branch)', () => {
-      process.env = {
-        ...process.env,
-        VERCEL_ENV: 'production',
-        VERCEL_URL: 'example.com'
-      }
-      withSplit({
-        splits: {
-          test1: {
-            hosts: {
-              branch1: 'https://branch1.example.com',
-              branch2: 'https://branch2.example.com'
-            },
-            path: '/foo/*'
-          }
-        },
-        middleware: { manage: true, paths: ['pages/_middleware.js'] }
-      })({})
-
-      expect(ManageMiddleware.manageMiddleware).toBeCalledWith(
-        ['pages/_middleware.js'],
-        undefined,
-        'install'
-      )
-    })
-
-    test('must call install when A/B tests stopping', () => {
-      process.env = {
-        ...process.env,
-        VERCEL_ENV: 'production',
-        VERCEL_URL: 'example.com'
-      }
-
-      withSplit({
-        middleware: { manage: true }
-      })({})
-
-      expect(ManageMiddleware.manageMiddleware).toBeCalledWith(
-        [],
-        undefined,
-        'remove'
-      )
     })
   })
 })

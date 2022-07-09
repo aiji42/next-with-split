@@ -41,9 +41,7 @@
     "semantic-release": "semantic-release",
     "prepare": "husky install"
   },
-  "dependencies": {
-    "app-root-path": "^3.0.0"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "next": ">=12.0.0"
   },
