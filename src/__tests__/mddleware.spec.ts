@@ -1,10 +1,11 @@
+import { vi, describe, beforeEach, afterAll, test, expect, Mock } from 'vitest'
 import { middleware } from '../middleware'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { Headers } from 'next/dist/server/web/spec-compliant/headers'
 
-jest.mock('next/server', () => ({
-  NextResponse: jest.fn()
+vi.mock('next/server', () => ({
+  NextResponse: vi.fn()
 }))
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -49,17 +50,17 @@ const runtimeConfig = {
   }
 }
 
-const cookie = jest.fn()
+const cookie = vi.fn()
 const OLD_ENV = process.env
 
 describe('middleware', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    ;(NextResponse as unknown as jest.Mock).mockReturnValue({ cookie })
-    NextResponse.rewrite = jest.fn().mockReturnValue({
+    vi.clearAllMocks()
+    ;(NextResponse as unknown as Mock).mockReturnValue({ cookie })
+    NextResponse.rewrite = vi.fn().mockReturnValue({
       cookie
     })
-    NextResponse.next = jest.fn().mockReturnValue({ cookie })
+    NextResponse.next = vi.fn().mockReturnValue({ cookie })
   })
   afterAll(() => {
     process.env = OLD_ENV
@@ -117,7 +118,7 @@ describe('middleware', () => {
     })
 
     test('path is matched and not has sticky cookie', () => {
-      jest.spyOn(global.Math, 'random').mockReturnValue(0)
+      vi.spyOn(global.Math, 'random').mockReturnValue(0)
 
       middleware(makeRequest({}))
 

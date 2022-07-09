@@ -1,3 +1,4 @@
+import { vi, describe, beforeEach, afterAll, it, expect, test } from 'vitest'
 import { withSplit } from '../with-split'
 import { NextConfig } from 'next'
 import * as ManageMiddleware from '../manage-middleware'
@@ -5,7 +6,7 @@ import * as ManageMiddleware from '../manage-middleware'
 describe('withSplit', () => {
   const OLD_ENV = process.env
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
     process.env = { ...OLD_ENV }
   })
   afterAll(() => {
@@ -417,7 +418,9 @@ describe('withSplit', () => {
 
   describe('auto middleware install', () => {
     beforeEach(() => {
-      jest.spyOn(ManageMiddleware, 'manageMiddleware').mockImplementation()
+      vi.spyOn(ManageMiddleware, 'manageMiddleware').mockImplementation(
+        () => {}
+      )
     })
     it('must call remove middleware command when SPLIT_DISABLE', () => {
       process.env = { ...process.env, SPLIT_DISABLE: 'true' }

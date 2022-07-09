@@ -1,16 +1,17 @@
+import { describe, beforeEach, vi, expect, test } from 'vitest'
 import { manageMiddleware } from '../manage-middleware'
 import * as utils from '../utils-for-middleware'
 
 describe('manage-middleware', () => {
   beforeEach(() => {
-    jest.resetAllMocks()
-    jest.spyOn(utils, 'installMiddleware').mockImplementation()
-    jest.spyOn(utils, 'removeMiddleware').mockImplementation()
-    jest.spyOn(utils, 'exploreUnmanagedMiddlewares').mockImplementation()
+    vi.resetAllMocks()
+    vi.spyOn(utils, 'installMiddleware').mockImplementation(() => {})
+    vi.spyOn(utils, 'removeMiddleware').mockImplementation(() => {})
+    vi.spyOn(utils, 'exploreUnmanagedMiddlewares').mockImplementation(() => {})
   })
   test('install', () => {
-    jest.spyOn(utils, 'installMiddleware').mockImplementation()
-    jest.spyOn(utils, 'exploreUnmanagedMiddlewares').mockImplementation()
+    vi.spyOn(utils, 'installMiddleware').mockImplementation(() => {})
+    vi.spyOn(utils, 'exploreUnmanagedMiddlewares').mockImplementation(() => {})
     manageMiddleware(['page/_middleware.js'], 'apps/foo', 'install')
     expect(utils.installMiddleware).toBeCalledWith(
       'apps/foo/page/_middleware.js'
