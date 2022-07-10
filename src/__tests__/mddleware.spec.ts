@@ -5,10 +5,14 @@ import { vi, describe, beforeEach, afterAll, test, expect, Mock } from 'vitest'
 import { middleware } from '../middleware'
 const { NextRequest } = require('next/server')
 import { NextResponse, userAgent } from 'next/server'
+import { random } from '../random'
 
 vi.mock('next/server', () => ({
   NextResponse: vi.fn(),
   userAgent: vi.fn()
+}))
+vi.mock('../random', () => ({
+  random: vi.fn()
 }))
 
 const runtimeConfig = {
@@ -87,15 +91,15 @@ describe('middleware', () => {
     })
 
     test('path is matched and not has sticky cookie', () => {
-      vi.spyOn(global.Math, 'random').mockReturnValue(0)
-      NextResponse.next = vi.fn().mockReturnValueOnce({ cookies })
+      ;(random as Mock).mockReturnValueOnce(1)
+      NextResponse.rewrite = vi.fn().mockReturnValueOnce({ cookies })
       const req = new NextRequest('https://example.com/foo/bar', {})
       middleware(req)
 
-      expect(NextResponse.next).toBeCalled()
+      expect(NextResponse.rewrite).toBeCalled()
       expect(cookies.set).toBeCalledWith(
         'x-split-key-test1',
-        'original',
+        'challenger',
         runtimeConfig.test1.cookie
       )
     })

@@ -1,1 +1,2 @@
-export { withSplit } from './with-split.js'
+export { withSplit } from './with-split'
+export { middleware } from './middleware'

@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server'
 import type { CookieSerializeOptions } from 'cookie'
 import type { RuntimeConfig } from './types'
 import type { NextMiddlewareResult } from 'next/dist/server/web/types'
+import { random } from './random'
 
 type Config = RuntimeConfig[string]
 
@@ -38,7 +39,7 @@ const getBranch = (req: NextRequest, splitKey: string, config: Config) => {
     (res, [key, { weight }]) => [...res, ...new Array(weight).fill(key)],
     []
   )
-  return branches[Math.floor(Math.random() * branches.length)]
+  return branches[random(branches.length)]
 }
 
 const sticky = (

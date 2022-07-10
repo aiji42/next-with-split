@@ -45,14 +45,14 @@ module.export = withSplit({
 ```
 
 ```js
-// pages/_middleware.js
+// middleware.ts
 export { middleware } from 'next-with-split'
 ```
 If your A/B testing is limited, `_middleware.js` can be placed under the directory of the target page ([Next.js middleware](https://nextjs.org/docs/middleware))
 
 If you already have middleware code, please refer to the following.
 ```js
-// pages/_middleware.js
+// middleware.ts
 import { middleware as withSplit } from 'next-with-split'
 
 export const middleware = (req) => {
