@@ -1,5 +1,5 @@
 /* eslint @typescript-eslint/no-var-requires: 0 */
-const withSplit = require('next-with-split')({
+const withSplit = require('next-with-split').withSplit({
   splits: {
     test1: {
       path: '/foo/*',
@@ -8,8 +8,7 @@ const withSplit = require('next-with-split')({
         challenger1: 'next-with-split-git-challenger-sample-aiji42.vercel.app'
       }
     }
-  },
-  middleware: { manage: true, paths: ['pages/foo/_middleware.ts'] }
+  }
 })
 
 module.exports = withSplit({
