@@ -1,13 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { CookieSerializeOptions } from 'cookie'
-import { RuntimeConfig } from './types'
-import { NextMiddlewareResult } from 'next/dist/server/web/types'
+import { NextResponse, userAgent } from 'next/server'
+import type { NextRequest } from 'next/server'
+import type { CookieSerializeOptions } from 'cookie'
+import type { RuntimeConfig } from './types'
+import type { NextMiddlewareResult } from 'next/dist/server/web/types'
+import { random } from './random'
 
 type Config = RuntimeConfig[string]
 
 export const middleware = (req: NextRequest): NextMiddlewareResult => {
   const [splitKey, config] = getCurrentSplitConfig(req) ?? []
-  if (!splitKey || !config || req.ua?.isBot) return
+  if (!splitKey || !config || userAgent(req).isBot) return
   const branch = getBranch(req, splitKey, config)
 
   return sticky(
@@ -21,7 +23,7 @@ export const middleware = (req: NextRequest): NextMiddlewareResult => {
 const cookieKey = (key: string) => `x-split-key-${key}`
 
 const getCurrentSplitConfig = (req: NextRequest) => {
-  if (req.cookies['__prerender_bypass']) return
+  if (req.cookies.has('__prerender_bypass')) return
   if (!process.env.NEXT_WITH_SPLIT_RUNTIME_CONFIG) return
 
   return Object.entries(
@@ -30,14 +32,14 @@ const getCurrentSplitConfig = (req: NextRequest) => {
 }
 
 const getBranch = (req: NextRequest, splitKey: string, config: Config) => {
-  const cookieBranch = req.cookies[cookieKey(splitKey)]
+  const cookieBranch = req.cookies.get(cookieKey(splitKey))
   if (cookieBranch && config.hosts[cookieBranch]) return cookieBranch
 
   const branches = Object.entries(config.hosts).reduce<string[]>(
     (res, [key, { weight }]) => [...res, ...new Array(weight).fill(key)],
     []
   )
-  return branches[Math.floor(Math.random() * branches.length)]
+  return branches[random(branches.length)]
 }
 
 const sticky = (
@@ -45,7 +47,10 @@ const sticky = (
   splitKey: string,
   branch: string,
   cookieConfig: CookieSerializeOptions
-) => res.cookie(cookieKey(splitKey), branch, cookieConfig)
+): NextResponse => {
+  res.cookies.set(cookieKey(splitKey), branch, cookieConfig)
+  return res
+}
 
 const createResponse = (
   req: NextRequest,
@@ -58,7 +63,7 @@ const createResponse = (
   const isExternal = rewriteTo.startsWith('http')
   const isOutOfTarget = !new RegExp(config.path).test(getRefererPathname(req))
 
-  if (req.preflight && isExternal && isOutOfTarget)
+  if (req.method === 'OPTIONS' && isExternal && isOutOfTarget)
     return new NextResponse(null)
   if (isExternal) return NextResponse.rewrite(rewriteTo)
 

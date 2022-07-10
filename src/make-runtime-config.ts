@@ -1,4 +1,4 @@
-import { RuntimeConfig, SplitOptions } from './types'
+import type { RuntimeConfig, SplitOptions } from './types'
 import { ORIGINAL_DISTRIBUTION_KEYS } from './constants'
 
 export const makeRuntimeConfig = (options: SplitOptions): RuntimeConfig => {

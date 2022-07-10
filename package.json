@@ -2,12 +2,11 @@
   "name": "next-with-split",
   "version": "0.0.0-development",
   "description": "This is a plugin for split testing (AB testing) in Next.js.",
-  "main": "./build/index.js",
-  "module": "./esm/main.js",
-  "types": "./esm/main.d.ts",
+  "main": "./build/index.cjs",
+  "module": "./build/index.mjs",
+  "types": "./build/index.d.ts",
   "files": [
-    "build",
-    "esm"
+    "build"
   ],
   "publishConfig": {
     "access": "public"
@@ -34,49 +33,37 @@
   },
   "homepage": "https://github.com/aiji42/next-with-split#readme",
   "scripts": {
-    "lint": "eslint ./src/**/*.ts ./src/*.ts",
     "format": "prettier './src/**/*.ts' './src/*.ts' --write",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "build": "tsc && ts-add-module-exports && tsc -p tsconfig.esm.json",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "build": "node build.js && npx tsc --declaration --emitDeclarationOnly --declarationDir './build'",
     "semantic-release": "semantic-release",
+    "prepack": "yarn build",
     "prepare": "husky install"
   },
-  "dependencies": {
-    "app-root-path": "^3.0.0"
-  },
+  "dependencies": {},
   "peerDependencies": {
-    "next": ">=12.0.0"
+    "next": ">=12.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.18.2",
-    "@babel/preset-env": "^7.18.2",
-    "@babel/preset-typescript": "^7.17.12",
-    "@commitlint/cli": "^17.0.2",
-    "@commitlint/config-conventional": "^17.0.2",
-    "@types/app-root-path": "^1.2.4",
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
+    "@edge-runtime/vm": "^1.1.0-beta.11",
     "@types/cookie": "^0.5.1",
-    "@types/jest": "^28.1.1",
-    "@types/node": "^17.0.40",
-    "@typescript-eslint/eslint-plugin": "^5.27.0",
-    "@typescript-eslint/parser": "^5.27.0",
-    "babel-jest": "^28.1.0",
-    "eslint": "^8.17.0",
-    "eslint-config-prettier": "^8.5.0",
+    "@types/node": "^18.0.3",
+    "c8": "^7.11.3",
+    "esbuild": "^0.14.48",
     "husky": "^8.0.1",
-    "jest": "^28.1.0",
-    "lint-staged": "^13.0.0",
-    "next": "^12.1.6",
-    "prettier": "^2.6.2",
-    "semantic-release": "^19.0.2",
-    "semantic-release-cli": "^5.4.4",
-    "ts-add-module-exports": "^1.0.0",
-    "ts-node": "^10.8.1",
-    "typescript": "^4.7.3"
+    "lint-staged": "^13.0.3",
+    "next": "^12.2.2",
+    "prettier": "^2.7.1",
+    "semantic-release": "^19.0.3",
+    "ts-node": "^10.8.2",
+    "typescript": "^4.7.4",
+    "vitest": "^0.17.1"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
       "prettier --write"
     ]
   }
