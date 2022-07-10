@@ -23,9 +23,9 @@ You deploy the main branch (original) and the branch derived from it (challenger
 
 ## Require
 
-- Using Next.js >=12
+- Using Next.js >=12.2
 
-This plugin depends on the middleware of Next.js v12. If you are using Next.js v11 or earlier, please use next-with-split [v3](https://www.npmjs.com/package/next-with-split/v/3.3.2).
+The specification of middleware has changed significantly since Next.js v12.2. If you are using middleware before Next.js v12.2, please use next-with-split v4.
 
 ## Installation
 
@@ -34,7 +34,7 @@ npm install --save next-with-split
 ```
 
 ## Usage
-1\. Customize `next.config.js` and create `pages/_middleware.js`. (in main branch)
+1\. Customize `next.config.js` and create `middleware.ts`. (in main branch)
 ```js
 // next.config.js
 const { withSplit } = require('next-with-split')({})
@@ -48,7 +48,6 @@ module.export = withSplit({
 // middleware.ts
 export { middleware } from 'next-with-split'
 ```
-If your A/B testing is limited, `_middleware.js` can be placed under the directory of the target page ([Next.js middleware](https://nextjs.org/docs/middleware))
 
 If you already have middleware code, please refer to the following.
 ```js
@@ -161,7 +160,7 @@ Once the user lands on a page, these delays are not a big problem since navigati
 
 To avoid adding unnecessary latency...
 1. Make sure that the middlewares do not get into routes that are not related to A/B testing.
-    - You don't need to place middleware at the top level of pages unless you want all pages to be subject to A/B testing. ([Middleware - Execution Order](https://nextjs.org/docs/middleware#execution-order))
+    - Use [`confit.matcher`](https://nextjs.org/docs/advanced-features/middleware#matcher) to limit the scope of influence of the middleware to the target path of the A/B test.
 2. The middleware for next-with-split is not needed in challengers, so remove the middlewares. (You do need to configure next.config.js, however.)
 3. While stopping A/B tests, remove the middlewares.
 
