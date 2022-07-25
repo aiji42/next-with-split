@@ -91,123 +91,17 @@ describe('middleware', () => {
     })
 
     test('path is matched and not has sticky cookie', () => {
-      ;(random as Mock).mockReturnValueOnce(1)
-      NextResponse.rewrite = vi.fn().mockReturnValueOnce({ cookies })
+      ;(random as Mock).mockReturnValueOnce(0)
+      NextResponse.next = vi.fn().mockReturnValueOnce({ cookies })
       const req = new NextRequest('https://example.com/foo/bar', {})
       middleware(req)
 
-      expect(NextResponse.rewrite).toBeCalled()
+      expect(NextResponse.next).toBeCalled()
       expect(cookies.set).toBeCalledWith(
         'x-split-key-test1',
-        'challenger',
+        'original',
         runtimeConfig.test1.cookie
       )
-    })
-
-    describe('on preflight', () => {
-      beforeEach(() => {
-        ;(userAgent as Mock).mockReturnValueOnce({ isBot: false })
-      })
-      describe('from NOT target path', () => {
-        test('matched original', () => {
-          NextResponse.next = vi.fn().mockReturnValueOnce({ cookies })
-          const req = new NextRequest('https://example.com/foo/bar', {
-            method: 'OPTIONS',
-            headers: {
-              referrer: 'https://example.com/top'
-            }
-          })
-          req.cookies.set('x-split-key-test1', 'original')
-          middleware(req)
-
-          expect(NextResponse.next).toBeCalled()
-          expect(cookies.set).toBeCalledWith(
-            'x-split-key-test1',
-            'original',
-            runtimeConfig.test1.cookie
-          )
-        })
-
-        test('matched challenger', () => {
-          // @ts-ignore
-          NextResponse = vi.fn().mockReturnValueOnce({ cookies })
-          const req = new NextRequest('https://example.com/foo/bar', {
-            method: 'OPTIONS',
-            headers: {
-              referrer: 'https://example.com/top'
-            }
-          })
-          req.cookies.set('x-split-key-test1', 'challenger')
-          middleware(req)
-
-          expect(NextResponse).toBeCalledWith(null)
-          expect(cookies.set).toBeCalledWith(
-            'x-split-key-test1',
-            'challenger',
-            runtimeConfig.test1.cookie
-          )
-        })
-      })
-
-      describe('from target path', () => {
-        test('matched original', () => {
-          NextResponse.next = vi.fn().mockReturnValueOnce({ cookies })
-          const req = new NextRequest('https://example.com/foo/bar', {
-            method: 'OPTIONS',
-            headers: {
-              referer: 'https://example.com/foo/bar'
-            }
-          })
-          req.cookies.set('x-split-key-test1', 'original')
-
-          middleware(req)
-
-          expect(NextResponse.next).toBeCalled()
-          expect(cookies.set).toBeCalledWith(
-            'x-split-key-test1',
-            'original',
-            runtimeConfig.test1.cookie
-          )
-        })
-
-        test('matched challenger', () => {
-          NextResponse.rewrite = vi.fn().mockReturnValueOnce({ cookies })
-          const req = new NextRequest('https://example.com/foo/bar', {
-            method: 'OPTIONS',
-            headers: {
-              referer: 'https://example.com/foo/bar'
-            }
-          })
-          req.cookies.set('x-split-key-test1', 'challenger')
-          middleware(req)
-
-          expect(NextResponse.rewrite).toBeCalledWith(
-            'https://challenger.example.com/foo/bar'
-          )
-          expect(cookies.set).toBeCalledWith(
-            'x-split-key-test1',
-            'challenger',
-            runtimeConfig.test1.cookie
-          )
-        })
-      })
-
-      test('can not get the referer', () => {
-        NextResponse.next = vi.fn().mockReturnValueOnce({ cookies })
-        const req = new NextRequest('https://example.com/foo/bar', {
-          method: 'OPTIONS'
-        })
-        req.cookies.set('x-split-key-test1', 'original')
-
-        middleware(req)
-
-        expect(NextResponse.next).toBeCalled()
-        expect(cookies.set).toBeCalledWith(
-          'x-split-key-test1',
-          'original',
-          runtimeConfig.test1.cookie
-        )
-      })
     })
   })
 
