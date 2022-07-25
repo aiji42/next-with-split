@@ -1,15 +1,5 @@
 /* eslint @typescript-eslint/no-var-requires: 0 */
-const withSplit = require('next-with-split').withSplit({
-  splits: {
-    test1: {
-      path: '/foo/*',
-      hosts: {
-        original: 'next-with-split.vercel.app',
-        challenger1: 'next-with-split-git-challenger-sample-aiji42.vercel.app'
-      }
-    }
-  }
-})
+const withSplit = require('next-with-split').withSplit({})
 
 module.exports = withSplit({
   async redirects() {

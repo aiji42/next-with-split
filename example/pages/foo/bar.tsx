@@ -16,8 +16,8 @@ const FooBar: FC = () => {
       </Head>
 
       <Page.Content padding={1}>
-        <Text h1 font="32px">
-          This is Original Page BAR
+        <Text h1 font="32px" type="error">
+          This is Challenger Page BAR 🔮
         </Text>
         <Grid.Container gap={1}>
           <Grid>
