@@ -144,10 +144,10 @@ nanoid@^3.1.30:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.1.tgz#6347a18cac88af88f58af0b3594b723d5e99bb35"
   integrity sha512-n6Vs/3KGyxPQd6uO0eH4Bv0ojGSUvuLlIHtC3Y0kEO23YRge8H9x1GCzLn28YX0H66pMkxuaeESFq4tKISKwdw==
 
-next-with-split@5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/next-with-split/-/next-with-split-5.0.0.tgz#35b1a22d90162834019703fbafb2584475e01bd9"
-  integrity sha512-qTuN8m3IGkqv+FAd+elyM0KlJM/X/9DSoPl0FeqLXdqZrpFfI6Ua6vUTHHp+xN/apKnbVpg1e+/9JTcGo+likw==
+next-with-split@5.1.0-beta.1:
+  version "5.1.0-beta.1"
+  resolved "https://registry.yarnpkg.com/next-with-split/-/next-with-split-5.1.0-beta.1.tgz#1f32aa5a2f0e616985f04a18308d9a03858f1754"
+  integrity sha512-7MBt1bBTJbg3ObsHbQhmZHk6aAQqfyzdf5+g7LrhebWxxO5d/a3uKBPGS3sR//uEuB9loKjgrCP0eoW69YMa+w==
 
 next@12.2.2:
   version "12.2.2"
