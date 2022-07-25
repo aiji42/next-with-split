@@ -61,21 +61,8 @@ const createResponse = (
     config.hosts[branch].isOriginal ? '' : config.hosts[branch].host
   }${req.nextUrl.href.replace(req.nextUrl.origin, '')}`
   const isExternal = rewriteTo.startsWith('http')
-  const isOutOfTarget = !new RegExp(config.path).test(getRefererPathname(req))
 
-  if (req.method === 'OPTIONS' && isExternal && isOutOfTarget)
-    return new NextResponse(null)
   if (isExternal) return NextResponse.rewrite(rewriteTo)
 
   return NextResponse.next()
-}
-
-const getRefererPathname = (req: NextRequest) => {
-  let pathname = ''
-  try {
-    pathname = new URL(req.headers.get('referer') ?? '').pathname
-  } catch (_) {
-    return pathname
-  }
-  return pathname
 }
