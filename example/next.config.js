@@ -5,7 +5,7 @@ const withSplit = require('next-with-split').withSplit({
       path: '/foo/*',
       hosts: {
         original: 'next-with-split.vercel.app',
-        challenger1: 'next-with-split-git-challenger-sample-aiji42.vercel.app'
+        challenger1: 'next-with-split-git-challenger-aiji42.vercel.app'
       }
     }
   }

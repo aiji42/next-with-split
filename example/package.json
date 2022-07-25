@@ -10,7 +10,7 @@
   "dependencies": {
     "@geist-ui/react": "^2.2.5",
     "next": "12.2.2",
-    "next-with-split": "5.0.0-beta.1",
+    "next-with-split": "5.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
