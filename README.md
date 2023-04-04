@@ -23,9 +23,9 @@ You deploy the main branch (original) and the branch derived from it (challenger
 
 ## Require
 
-- Using Next.js >=12.2
+- Using Next.js >=13
 
-The specification of middleware has changed significantly since Next.js v12.2. If you are using middleware before Next.js v12.2, please use next-with-split v4.
+If you are using Next.js v12 series, use next-with-split@5.1.0.
 
 ## Installation
 
@@ -37,7 +37,7 @@ npm install --save next-with-split
 1\. Customize `next.config.js` and create `middleware.ts`. (in main branch)
 ```js
 // next.config.js
-const { withSplit } = require('next-with-split')({})
+const withSplit = require('next-with-split').withSplit({})
 
 module.export = withSplit({
   // write your next.js configuration values.
