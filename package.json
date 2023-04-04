@@ -36,35 +36,41 @@
     "format": "prettier './src/**/*.ts' './src/*.ts' --write",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "build": "node build.js && npx tsc --declaration --emitDeclarationOnly --declarationDir './build'",
+    "build": "node build.js && npx tsc ./src/index.ts --declaration --emitDeclarationOnly --skipLibCheck --esModuleInterop --declarationDir './build'",
     "semantic-release": "semantic-release",
     "prepack": "yarn build",
     "prepare": "husky install"
   },
   "dependencies": {},
   "peerDependencies": {
-    "next": ">=12.2.0"
+    "next": ">=13.0.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.0.3",
-    "@commitlint/config-conventional": "^17.0.3",
-    "@edge-runtime/vm": "^1.1.0-beta.11",
+    "@commitlint/cli": "^17.5.1",
+    "@commitlint/config-conventional": "^17.4.4",
+    "@edge-runtime/vm": "^2.1.2",
     "@types/cookie": "^0.5.1",
-    "@types/node": "^18.0.3",
-    "c8": "^7.11.3",
-    "esbuild": "^0.14.48",
-    "husky": "^8.0.1",
-    "lint-staged": "^13.0.3",
-    "next": "^12.2.2",
-    "prettier": "^2.7.1",
-    "semantic-release": "^19.0.3",
-    "ts-node": "^10.8.2",
-    "typescript": "^4.7.4",
-    "vitest": "^0.17.1"
+    "@types/node": "^18.15.11",
+    "@types/react": "^18.0.33",
+    "@types/react-dom": "^18.0.11",
+    "@vitest/coverage-c8": "^0.29.8",
+    "c8": "^7.13.0",
+    "esbuild": "^0.17.15",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.0",
+    "next": "^13.2.4",
+    "prettier": "^2.8.7",
+    "semantic-release": "^21.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.3",
+    "vitest": "^0.29.8"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "prettier --write"
     ]
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
