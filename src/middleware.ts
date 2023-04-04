@@ -33,7 +33,8 @@ const getCurrentSplitConfig = (req: NextRequest) => {
 
 const getBranch = (req: NextRequest, splitKey: string, config: Config) => {
   const cookieBranch = req.cookies.get(cookieKey(splitKey))
-  if (cookieBranch && config.hosts[cookieBranch]) return cookieBranch
+  if (cookieBranch && config.hosts[cookieBranch.value])
+    return cookieBranch.value
 
   const branches = Object.entries(config.hosts).reduce<string[]>(
     (res, [key, { weight }]) => [...res, ...new Array(weight).fill(key)],
