@@ -69,5 +69,8 @@
     "*.{js,jsx,ts,tsx}": [
       "prettier --write"
     ]
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
